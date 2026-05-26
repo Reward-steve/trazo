@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WhatsApp Order Storefront
 
-## Getting Started
+A mobile-first storefront for Nigerian vendors. Customers browse, add to cart, and send structured orders straight to WhatsApp.
 
-First, run the development server:
+## Stack
+- Next.js 15 App Router
+- TypeScript
+- Tailwind CSS
+- Prisma ORM + PostgreSQL (Supabase)
+- Server Actions
 
+---
+
+## Setup
+
+### 1. Install dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Set up environment variables
+Copy `.env.example` to `.env` and fill in your values:
+```bash
+cp .env.example .env
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Your `.env` needs:
+```
+DATABASE_URL="postgresql://postgres.xxxx:PASSWORD@aws-0-eu-west-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://postgres:PASSWORD@db.xxxx.supabase.co:5432/postgres"
+ADMIN_PASSWORD="your-strong-password"
+APP_URL="http://localhost:3000"
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Run database migration
+```bash
+npx prisma migrate dev --name init
+```
 
-## Learn More
+### 4. Seed demo data
+```bash
+npx prisma db seed
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 5. Start development server
+```bash
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open http://localhost:3000
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Folder Structure
+```
+app/
+  page.tsx              # Landing page (server component)
+  store/page.tsx        # Customer storefront (server component)
+  admin/page.tsx        # Admin dashboard (protected)
+  admin/login/page.tsx  # Admin login
+  api/admin/auth/       # Auth cookie API route
+  globals.css
+  layout.tsx
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+components/
+  layout/
+    Navbar.tsx          # Sticky nav with active route highlighting
+  ui/
+    Button.tsx          # Reusable button with variants + loading state
+    Input.tsx           # Reusable input with label + error
+    Badge.tsx           # Status badges
+    EmptyState.tsx      # Empty list states
+  store/
+    ProductCard.tsx     # Product grid card
+    CartDrawer.tsx      # Slide-in cart + checkout form
+    StorefrontClient.tsx # Client wrapper for cart state
+  admin/
+    AdminClient.tsx     # Full admin dashboard UI
+    ProductForm.tsx     # Add/edit product form
+    SettingsForm.tsx    # Shop settings form
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+actions/
+  product.ts            # Product CRUD server actions
+  settings.ts           # Shop settings server actions
+
+lib/
+  db.ts                 # Prisma singleton
+  utils.ts              # formatNaira, generateWhatsAppURL, cn
+
+types/
+  index.ts              # Shared TypeScript types
+
+prisma/
+  schema.prisma
+  seed.ts
+```
+
+---
+
+## Deployment (Vercel)
+
+1. Push to GitHub
+2. Connect repo on vercel.com
+3. Add environment variables in Vercel dashboard (same as .env)
+4. Deploy
+
+After first deploy, run migration against production DB:
+```bash
+npx prisma migrate deploy
+```
+
+---
+
+## Admin Access
+Go to `/admin` → enter your `ADMIN_PASSWORD` → you're in.
+Password is stored as an httpOnly cookie for 7 days.
