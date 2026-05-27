@@ -9,21 +9,21 @@ datasource db {
 }
 
 model User {
-  id        String   @id // Clerk user ID
+  id        String   @id  // Clerk user ID
   email     String   @unique
-  shops     Shop[]
+  shop      Shop?
   createdAt DateTime @default(now())
 }
 
-model ShopSettings {
+model Shop {
   id             String    @id @default(cuid())
-  ownerId        String
+  ownerId        String    @unique
   owner          User      @relation(fields: [ownerId], references: [id])
   shopName       String
-  slug           String    @unique  // e.g. "alara-lagos" → /store/alara-lagos
+  slug           String    @unique
   whatsappNumber String
-  description    String
-  logoUrl        String
+  description    String    @default("")
+  logoUrl        String    @default("")
   products       Product[]
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
@@ -32,7 +32,7 @@ model ShopSettings {
 model Product {
   id        String   @id @default(cuid())
   shopId    String
-  shop      Shop     @relation(fields: [shopId], references: [id])
+  shop      Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
   name      String
   price     Int
   imageUrl  String

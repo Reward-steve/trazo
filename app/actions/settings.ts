@@ -1,45 +1,62 @@
 "use server";
 
 import { db } from "@/app/lib/db";
+import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
-const SETTINGS_ID = "default-shop-settings";
-
-export async function getSettings() {
-  let settings = await db.shopSettings.findUnique({
-    where: { id: SETTINGS_ID },
-  });
-
-  if (!settings) {
-    settings = await db.shopSettings.create({
-      data: {
-        id: SETTINGS_ID,
-        shopName: "Alara Lagos",
-        whatsappNumber: "2348012345678",
-        description:
-          "Curated contemporary African fashion, design, cuisine, and culture.",
-        logoUrl:
-          "https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&q=80&w=200&h=200",
-      },
-    });
-  }
-
-  return settings;
+export async function getShopByUser() {
+  const { userId } = await auth();
+  if (!userId) return null;
+  return db.shop.findUnique({ where: { ownerId: userId } });
 }
 
-export async function updateSettings(data: {
+export async function getShopBySlug(slug: string) {
+  return db.shop.findUnique({
+    where: { slug },
+    include: { products: { orderBy: { createdAt: "desc" } } },
+  });
+}
+
+export async function createShop(data: {
+  shopName: string;
+  slug: string;
+  whatsappNumber: string;
+  description: string;
+  logoUrl: string;
+}) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  // Ensure user exists in our DB
+  await db.user.upsert({
+    where: { id: userId },
+    update: {},
+    create: { id: userId, email: "" },
+  });
+
+  const shop = await db.shop.create({
+    data: { ...data, ownerId: userId },
+  });
+
+  revalidatePath("/dashboard");
+  return shop;
+}
+
+export async function updateShop(data: {
   shopName: string;
   whatsappNumber: string;
   description: string;
   logoUrl: string;
 }) {
-  const settings = await db.shopSettings.upsert({
-    where: { id: SETTINGS_ID },
-    update: data,
-    create: { id: SETTINGS_ID, ...data },
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  const shop = await db.shop.update({
+    where: { ownerId: userId },
+    data,
   });
-  revalidatePath("/store");
-  revalidatePath("/admin");
-  revalidatePath("/");
-  return settings;
+
+  revalidatePath("/dashboard");
+  revalidatePath(`/store/${shop.slug}`);
+  return shop;
 }

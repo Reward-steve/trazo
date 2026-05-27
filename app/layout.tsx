@@ -1,29 +1,25 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
-import Navbar from "./components/layout/Navbar";
-import { getSettings } from "./actions/settings";
 
 const geist = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "NaijaCart — WhatsApp Storefront",
-  description: "Simple mobile storefront for Nigerian vendors",
+  title: "NaijaCart — WhatsApp Storefront for Nigerian Vendors",
+  description: "Turn your Instagram page into a real storefront in 5 minutes.",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const settings = await getSettings();
-
   return (
-    <html lang="en">
-      <body className={`${geist.className} bg-slate-50 min-h-screen`}>
-        <Navbar shopName={settings.shopName} />
-        <main>{children}</main>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={`${geist.className} min-h-screen`}>{children}</body>
+      </html>
+    </ClerkProvider>
   );
 }

@@ -1,17 +1,27 @@
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
-const SETTINGS_ID = "default-shop-settings";
 
 async function main() {
   console.log("Seeding database...");
 
-  await prisma.shopSettings.upsert({
-    where: { id: SETTINGS_ID },
+  // Create a demo user and shop for testing
+  const demoUser = await prisma.user.upsert({
+    where: { id: "demo-user-id" },
     update: {},
     create: {
-      id: SETTINGS_ID,
+      id: "demo-user-id",
+      email: "demo@naijacart.com",
+    },
+  });
+
+  const demoShop = await prisma.shop.upsert({
+    where: { slug: "demo" },
+    update: {},
+    create: {
+      ownerId: demoUser.id,
       shopName: "Alara Lagos",
+      slug: "demo",
       whatsappNumber: "2348012345678",
       description:
         "Curated contemporary African fashion, design, cuisine, and culture. Delivered direct to your doorstep via WhatsApp.",
@@ -20,13 +30,17 @@ async function main() {
     },
   });
 
-  console.log("✓ Shop settings seeded");
+  console.log(`✓ Demo shop seeded: ${demoShop.shopName}`);
 
-  const existing = await prisma.product.count();
+  const existing = await prisma.product.count({
+    where: { shopId: demoShop.id },
+  });
+
   if (existing === 0) {
     await prisma.product.createMany({
       data: [
         {
+          shopId: demoShop.id,
           name: "Handwoven Ankara Maxi Dress",
           price: 24500,
           imageUrl:
@@ -34,6 +48,7 @@ async function main() {
           available: true,
         },
         {
+          shopId: demoShop.id,
           name: "Lagos Streetwear Graphic Tee",
           price: 12000,
           imageUrl:
@@ -41,6 +56,7 @@ async function main() {
           available: true,
         },
         {
+          shopId: demoShop.id,
           name: "Genuine Leather Slides (Tan)",
           price: 18500,
           imageUrl:
@@ -48,6 +64,7 @@ async function main() {
           available: true,
         },
         {
+          shopId: demoShop.id,
           name: "Aso Oke Traditional Cap (Fila)",
           price: 8500,
           imageUrl:
@@ -55,6 +72,7 @@ async function main() {
           available: true,
         },
         {
+          shopId: demoShop.id,
           name: "Beaded Statement Coral Necklace",
           price: 35000,
           imageUrl:
@@ -62,6 +80,7 @@ async function main() {
           available: true,
         },
         {
+          shopId: demoShop.id,
           name: "Scented Soy Candle — Lekki Breeze",
           price: 9500,
           imageUrl:
@@ -70,7 +89,7 @@ async function main() {
         },
       ],
     });
-    console.log("✓ 6 products seeded");
+    console.log("✓ 6 demo products seeded");
   } else {
     console.log("Products already exist, skipping.");
   }
