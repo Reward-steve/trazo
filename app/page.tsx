@@ -13,9 +13,9 @@ import {
   XCircle,
   LucideIcon,
 } from "lucide-react";
-import Button from "../../components/ui/Button";
-import SectionHeader from "../../components/landing/SectionHeader";
-import DarkCard from "../../components/landing/DarkCard";
+import Button from "./components/ui/Button";
+import SectionHeader from "./components/landing/SectionHeader";
+import DarkCard from "./components/landing/DarkCard";
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
 
