@@ -1,4 +1,4 @@
-import { cn } from "@/app/lib/utils";
+import { cn } from "../../lib/utils";
 
 interface SectionHeaderProps {
   badge: string;
@@ -20,7 +20,7 @@ export default function SectionHeader({
       <p
         className={cn(
           "font-bold text-sm uppercase tracking-widest mb-3",
-          accentColor === "amber" ? "text-amber-400" : "text-emerald-400"
+          accentColor === "amber" ? "text-amber-400" : "text-emerald-400",
         )}
       >
         {badge}

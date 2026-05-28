@@ -3,10 +3,10 @@
 import Image from "next/image";
 import { ShoppingCart, CheckCircle } from "lucide-react";
 import { useState } from "react";
-import { Product, CartItem } from "@/app/types";
-import { formatNaira } from "@/app/lib/utils";
-import Badge from "@/app/components/ui/Badge";
-import Button from "@/app/components/ui/Button";
+import { Product, CartItem } from "../../types";
+import { formatNaira } from "../../lib/utils";
+import Badge from "../../components/ui/Badge";
+import Button from "../../components/ui/Button";
 
 interface ProductCardProps {
   product: Product;

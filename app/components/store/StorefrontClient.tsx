@@ -4,11 +4,11 @@ import { useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag, Store } from "lucide-react";
-import { Product, ShopSettings, CartItem } from "@/app/types";
-import ProductCard from "@/app/components/store/ProductCard";
-import CartDrawer from "@/app/components/store/CartDrawer";
-import EmptyState from "@/app/components/ui/EmptyState";
-import { formatNaira } from "@/app/lib/utils";
+import { Product, ShopSettings, CartItem } from "../../types";
+import ProductCard from "../../components/store/ProductCard";
+import CartDrawer from "../../components/store/CartDrawer";
+import EmptyState from "../../components/ui/EmptyState";
+import { formatNaira } from "../../lib/utils";
 
 interface StorefrontClientProps {
   products: Product[];

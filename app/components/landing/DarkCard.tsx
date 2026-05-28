@@ -1,4 +1,4 @@
-import { cn } from "@/app/lib/utils";
+import { cn } from "../../lib/utils";
 
 interface CardProps {
   children: React.ReactNode;
@@ -26,7 +26,7 @@ export default function DarkCard({
         variants[variant],
         hover &&
           "hover:border-emerald-500/30 hover:bg-emerald-950/10 transition-all duration-300 hover:-translate-y-1",
-        className
+        className,
       )}
     >
       {children}

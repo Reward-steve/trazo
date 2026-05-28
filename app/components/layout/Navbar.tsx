@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShoppingBag, Menu, X, LayoutDashboard, LogIn } from "lucide-react";
-import { cn } from "@/app/lib/utils";
+import { cn } from "../../lib/utils";
 
 interface NavbarProps {
   // For storefront pages only

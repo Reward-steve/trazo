@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@/app/lib/db";
+import { db } from "../../lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
@@ -42,7 +42,7 @@ export async function updateProduct(
     price: number;
     imageUrl: string;
     available: boolean;
-  }>
+  }>,
 ) {
   const shop = await getUserShop();
   const product = await db.product.update({ where: { id }, data });
@@ -60,7 +60,7 @@ export async function deleteProduct(id: string) {
 
 export async function toggleProductAvailability(
   id: string,
-  available: boolean
+  available: boolean,
 ) {
   const shop = await getUserShop();
   const product = await db.product.update({

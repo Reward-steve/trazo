@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { getShopBySlug } from "@/app/actions/settings";
-import StorefrontClient from "@/app/components/store/StorefrontClient";
+import { getShopBySlug } from "../../actions/settings";
+import StorefrontClient from "../../components/store/StorefrontClient";
 import { Product } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
