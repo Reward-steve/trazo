@@ -2,15 +2,25 @@
 
 import { useState, useTransition } from "react";
 import Image from "next/image";
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Package } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  ToggleLeft,
+  ToggleRight,
+  Package,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Product } from "@/app/types";
-import { formatNaira } from "@/app/lib/utils";
-import Button from "@/app/components/ui/Button";
-import Badge from "@/app/components/ui/Badge";
-import EmptyState from "@/app/components/ui/EmptyState";
-import ProductForm from "@/app/components/admin/ProductForm";
-import { deleteProduct, toggleProductAvailability } from "@/app/actions/product";
+import { Product } from "../../types";
+import { formatNaira } from "../../lib/utils";
+import Button from "../../components/ui/Button";
+import Badge from "../../components/ui/Badge";
+import EmptyState from "../../components/ui/EmptyState";
+import ProductForm from "../../components/admin/ProductForm";
+import {
+  deleteProduct,
+  toggleProductAvailability,
+} from "../../actions/product";
 
 interface ProductsClientProps {
   products: Product[];
@@ -19,7 +29,10 @@ interface ProductsClientProps {
 
 type Modal = { type: "add" } | { type: "edit"; product: Product } | null;
 
-export default function ProductsClient({ products, shopSlug }: ProductsClientProps) {
+export default function ProductsClient({
+  products,
+  shopSlug,
+}: ProductsClientProps) {
   const router = useRouter();
   const [modal, setModal] = useState<Modal>(null);
   const [isPending, startTransition] = useTransition();
@@ -133,7 +146,10 @@ export default function ProductsClient({ products, shopSlug }: ProductsClientPro
             </h2>
             <ProductForm
               product={modal.type === "edit" ? modal.product : undefined}
-              onSuccess={() => { setModal(null); router.refresh(); }}
+              onSuccess={() => {
+                setModal(null);
+                router.refresh();
+              }}
               onCancel={() => setModal(null)}
             />
           </div>

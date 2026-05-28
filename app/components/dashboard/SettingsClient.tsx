@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle, ExternalLink } from "lucide-react";
-import Button from "@/app/components/ui/Button";
-import Input from "@/app/components/ui/Input";
-import ImageUpload from "@/app/components/ui/ImageUpload";
-import { updateShop } from "@/app/actions/settings";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import ImageUpload from "../../components/ui/ImageUpload";
+import { updateShop } from "../../actions/settings";
 
 interface Shop {
   shopName: string;

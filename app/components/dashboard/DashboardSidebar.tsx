@@ -14,7 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { useClerk } from "@clerk/nextjs";
-import { cn } from "@/app/lib/utils";
+import { cn } from "../../lib/utils";
 import { useState } from "react";
 
 interface Shop {
@@ -31,8 +31,18 @@ interface DashboardSidebarProps {
 
 const navLinks = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard, exact: true },
-  { href: "/dashboard/products", label: "Products", icon: Package, exact: false },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings, exact: false },
+  {
+    href: "/dashboard/products",
+    label: "Products",
+    icon: Package,
+    exact: false,
+  },
+  {
+    href: "/dashboard/settings",
+    label: "Settings",
+    icon: Settings,
+    exact: false,
+  },
 ];
 
 export default function DashboardSidebar({ shop }: DashboardSidebarProps) {
@@ -60,7 +70,12 @@ export default function DashboardSidebar({ shop }: DashboardSidebarProps) {
         <div className="flex items-center gap-3">
           {shop.logoUrl ? (
             <div className="relative h-9 w-9 rounded-xl overflow-hidden shrink-0 bg-gray-100">
-              <Image src={shop.logoUrl} alt={shop.shopName} fill className="object-cover" />
+              <Image
+                src={shop.logoUrl}
+                alt={shop.shopName}
+                fill
+                className="object-cover"
+              />
             </div>
           ) : (
             <div className="h-9 w-9 bg-emerald-50 rounded-xl flex items-center justify-center shrink-0">
@@ -68,8 +83,12 @@ export default function DashboardSidebar({ shop }: DashboardSidebarProps) {
             </div>
           )}
           <div className="min-w-0">
-            <p className="font-bold text-gray-900 text-sm truncate">{shop.shopName}</p>
-            <p className="text-xs text-gray-400 truncate">{shop.products.length} products</p>
+            <p className="font-bold text-gray-900 text-sm truncate">
+              {shop.shopName}
+            </p>
+            <p className="text-xs text-gray-400 truncate">
+              {shop.products.length} products
+            </p>
           </div>
         </div>
 
@@ -95,10 +114,15 @@ export default function DashboardSidebar({ shop }: DashboardSidebarProps) {
               "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
               isActive(href, exact)
                 ? "bg-emerald-50 text-emerald-700"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
             )}
           >
-            <Icon className={cn("h-4 w-4", isActive(href, exact) ? "text-emerald-600" : "text-gray-400")} />
+            <Icon
+              className={cn(
+                "h-4 w-4",
+                isActive(href, exact) ? "text-emerald-600" : "text-gray-400",
+              )}
+            />
             {label}
           </Link>
         ))}
@@ -121,7 +145,7 @@ export default function DashboardSidebar({ shop }: DashboardSidebarProps) {
     <>
       {/* Desktop sidebar */}
       <aside className="hidden md:flex w-60 shrink-0 bg-white border-r border-gray-100 flex-col h-screen sticky top-0">
-        <SidebarContent />
+        {SidebarContent()}
       </aside>
 
       {/* Mobile top bar */}
@@ -130,22 +154,31 @@ export default function DashboardSidebar({ shop }: DashboardSidebarProps) {
           <div className="h-7 w-7 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-black text-xs">
             ₦
           </div>
-          <span className="font-bold text-gray-900 text-sm">{shop.shopName}</span>
+          <span className="font-bold text-gray-900 text-sm">
+            {shop.shopName}
+          </span>
         </Link>
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           className="p-2 rounded-lg text-gray-500 hover:bg-gray-50"
         >
-          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          {mobileOpen ? (
+            <X className="h-5 w-5" />
+          ) : (
+            <Menu className="h-5 w-5" />
+          )}
         </button>
       </div>
 
       {/* Mobile drawer */}
       {mobileOpen && (
         <>
-          <div className="md:hidden fixed inset-0 bg-black/40 z-40 mt-14" onClick={() => setMobileOpen(false)} />
+          <div
+            className="md:hidden fixed inset-0 bg-black/40 z-40 mt-14"
+            onClick={() => setMobileOpen(false)}
+          />
           <aside className="md:hidden fixed top-14 left-0 bottom-0 w-64 bg-white z-50 border-r border-gray-100 overflow-y-auto">
-            <SidebarContent />
+            {SidebarContent()}
           </aside>
         </>
       )}
