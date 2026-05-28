@@ -1,13 +1,16 @@
 "use server";
 
 import { db } from "@/app/lib/db";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
 export async function getShopByUser() {
   const { userId } = await auth();
   if (!userId) return null;
-  return db.shop.findUnique({ where: { ownerId: userId } });
+  return db.shop.findUnique({
+    where: { ownerId: userId },
+    include: { products: true },
+  });
 }
 
 export async function getShopBySlug(slug: string) {
@@ -27,11 +30,16 @@ export async function createShop(data: {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
+  const user = await currentUser();
+
   // Ensure user exists in our DB
   await db.user.upsert({
     where: { id: userId },
     update: {},
-    create: { id: userId, email: "" },
+    create: {
+      id: userId,
+      email: user?.emailAddresses?.[0]?.emailAddress ?? "",
+    },
   });
 
   const shop = await db.shop.create({
@@ -57,6 +65,12 @@ export async function updateShop(data: {
   });
 
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/settings");
   revalidatePath(`/store/${shop.slug}`);
   return shop;
+}
+
+export async function checkSlugAvailable(slug: string): Promise<boolean> {
+  const existing = await db.shop.findUnique({ where: { slug } });
+  return !existing;
 }
