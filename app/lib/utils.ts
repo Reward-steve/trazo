@@ -11,10 +11,13 @@ export function generateWhatsAppURL(
   shopName: string,
   items: { name: string; quantity: number; price: number }[],
   customer: { name: string; phone: string; address: string },
-  total: number
+  total: number,
 ): string {
   const itemLines = items
-    .map((i) => `  • ${i.quantity}x ${i.name} — ${formatNaira(i.price * i.quantity)}`)
+    .map(
+      (i) =>
+        `  • ${i.quantity}x ${i.name} — ${formatNaira(i.price * i.quantity)}`,
+    )
     .join("\n");
 
   const message = `Hello ${shopName}! 👋 I'd like to place an order:

@@ -11,11 +11,15 @@ import {
   ShoppingBag,
   Clock,
   XCircle,
+  LucideIcon,
 } from "lucide-react";
+import Button from "@/app/components/ui/Button";
+import SectionHeader from "@/app/components/landing/SectionHeader";
+import DarkCard from "@/app/components/landing/DarkCard";
 
-// ─── Static data ────────────────────────────────────────────────────────────
+// ─── DATA ────────────────────────────────────────────────────────────────────
 
-const painPoints = [
+const painPoints: { icon: LucideIcon; text: string }[] = [
   { icon: XCircle, text: "Customer DMs you asking for prices" },
   { icon: XCircle, text: "You reply, they ask if it's available" },
   { icon: XCircle, text: "They say they want it, you send account number" },
@@ -51,7 +55,7 @@ const steps = [
   },
 ];
 
-const features = [
+const features: { icon: LucideIcon; title: string; description: string }[] = [
   {
     icon: MessageCircle,
     title: "Orders straight to WhatsApp",
@@ -114,21 +118,60 @@ const testimonials = [
   },
 ];
 
-// ─── Component ───────────────────────────────────────────────────────────────
+const pricingTiers = [
+  {
+    name: "Starter",
+    price: "Free",
+    period: "Forever. No card needed.",
+    features: [
+      "1 storefront",
+      "Up to 20 products",
+      "Unlimited WhatsApp orders",
+      "Mobile-optimised storefront",
+      "Basic shop customisation",
+    ],
+    cta: "Get started free",
+    isPro: false,
+  },
+  {
+    name: "Pro",
+    price: "₦5,000",
+    period: "per month",
+    features: [
+      "Everything in Starter",
+      "Unlimited products",
+      "Custom shop domain",
+      "Order history & tracking",
+      "Priority support",
+      "Remove NaijaCart branding",
+    ],
+    cta: "Start free, upgrade anytime",
+    isPro: true,
+  },
+];
+
+const trustBadges = [
+  "Free to start",
+  "No technical knowledge needed",
+  "Works on any phone",
+];
+
+// ─── PAGE ─────────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col bg-[#0a0a0a] text-white font-sans overflow-x-hidden">
+    <div className="flex flex-col bg-[#0a0a0a] text-white overflow-x-hidden">
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
       <section className="relative min-h-[92vh] flex items-center">
-        {/* Ambient background */}
-        <div className="absolute inset-0 overflow-hidden">
+        {/* Ambient glows */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-emerald-600/20 rounded-full blur-[120px]" />
           <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-amber-500/10 rounded-full blur-[100px]" />
           <div
             className="absolute inset-0 opacity-[0.03]"
             style={{
-              backgroundImage: `radial-gradient(circle, #fff 1px, transparent 1px)`,
+              backgroundImage:
+                "radial-gradient(circle, #fff 1px, transparent 1px)",
               backgroundSize: "32px 32px",
             }}
           />
@@ -136,17 +179,13 @@ export default function HomePage() {
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
           <div className="max-w-3xl">
-            {/* Badge */}
+            {/* Status badge */}
             <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5 text-sm text-emerald-400 mb-8">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
               Built for Nigerian vendors who are tired of DM chaos
             </div>
 
-            {/* Headline */}
-            <h1
-              className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.05] mb-6"
-              style={{ fontFamily: "'Georgia', serif" }}
-            >
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.05] mb-6">
               Your customers{" "}
               <span className="text-emerald-400">order themselves.</span>
               <br />
@@ -159,280 +198,186 @@ export default function HomePage() {
               — a clean order lands straight in your WhatsApp.
             </p>
 
-            {/* CTAs */}
             <div className="flex flex-wrap gap-4 mb-12">
-              <Link
+              <Button
                 href="/signup"
-                className="group inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-7 py-4 rounded-2xl text-base transition-all duration-200 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-400/30 hover:-translate-y-0.5"
+                variant="primary"
+                size="lg"
+                className="group bg-emerald-500 hover:bg-emerald-400 text-black font-bold shadow-lg shadow-emerald-500/25 hover:-translate-y-0.5"
               >
-                Create your free shop
+                Create your shop
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link
-                href="/store/demo"
-                className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium px-7 py-4 rounded-2xl text-base transition-all duration-200"
-              >
+              </Button>
+              <Button href="/store/demo" variant="outline" size="lg">
                 See a live demo
                 <ChevronRight className="h-4 w-4" />
-              </Link>
+              </Button>
             </div>
 
-            {/* Social proof bar */}
+            {/* Trust badges */}
             <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500">
-              <span className="flex items-center gap-1.5">
-                <CheckCircle className="h-4 w-4 text-emerald-500" />
-                Free to start
-              </span>
-              <span className="flex items-center gap-1.5">
-                <CheckCircle className="h-4 w-4 text-emerald-500" />
-                No technical knowledge needed
-              </span>
-              <span className="flex items-center gap-1.5">
-                <CheckCircle className="h-4 w-4 text-emerald-500" />
-                Works on any phone
-              </span>
+              {trustBadges.map((text) => (
+                <span key={text} className="flex items-center gap-1.5">
+                  <CheckCircle className="h-4 w-4 text-emerald-500" />
+                  {text}
+                </span>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── THE PAIN ─────────────────────────────────────────────────────── */}
-      <section className="bg-[#111111] py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl mx-auto text-center mb-12">
-            <p className="text-amber-400 font-bold text-sm uppercase tracking-widest mb-3">
-              Sound familiar?
-            </p>
-            <h2
-              className="text-3xl sm:text-4xl font-black text-white leading-tight"
-              style={{ fontFamily: "'Georgia', serif" }}
+      {/* ── PAIN ─────────────────────────────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <SectionHeader
+          badge="Sound familiar?"
+          title="Every single day, this is what selling looks like."
+          accentColor="amber"
+        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-w-4xl mx-auto mb-10">
+          {painPoints.map(({ icon: Icon, text }, i) => (
+            <DarkCard
+              key={i}
+              variant="danger"
+              className="flex items-start gap-3 p-4"
             >
-              Every single day, this is what selling looks like.
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-w-4xl mx-auto mb-10">
-            {painPoints.map(({ icon: Icon, text }, i) => (
-              <div
-                key={i}
-                className="flex items-start gap-3 bg-red-950/20 border border-red-900/20 rounded-xl p-4"
-              >
-                <Icon className="h-5 w-5 text-red-400 shrink-0 mt-0.5" />
-                <p className="text-sm text-gray-300">{text}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="max-w-2xl mx-auto text-center">
-            <p className="text-gray-400 text-lg leading-relaxed">
-              You&apos;re not bad at business. You&apos;re just managing orders
-              with tools that were never built for selling.{" "}
-              <span className="text-white font-semibold">That ends today.</span>
-            </p>
-          </div>
+              <Icon className="h-5 w-5 text-red-400 shrink-0 mt-0.5" />
+              <p className="text-sm text-gray-300">{text}</p>
+            </DarkCard>
+          ))}
         </div>
+        <p className="text-gray-400 text-lg leading-relaxed text-center max-w-2xl mx-auto">
+          You&apos;re not bad at business. You&apos;re just managing orders with
+          tools that were never built for selling.{" "}
+          <span className="text-white font-semibold">That ends today.</span>
+        </p>
       </section>
 
       {/* ── HOW IT WORKS ─────────────────────────────────────────────────── */}
-      <section className="py-24 bg-[#0a0a0a]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <p className="text-emerald-400 font-bold text-sm uppercase tracking-widest mb-3">
-              How it works
-            </p>
-            <h2
-              className="text-3xl sm:text-4xl font-black text-white"
-              style={{ fontFamily: "'Georgia', serif" }}
-            >
-              From zero to taking orders in 5 minutes.
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {steps.map(({ number, title, description }) => (
-              <div key={number} className="relative">
-                {/* Connector line */}
-                <div className="hidden lg:block absolute top-8 left-[60%] w-full h-px bg-gradient-to-r from-emerald-500/30 to-transparent" />
-                <div className="bg-[#111] border border-white/5 rounded-2xl p-6 hover:border-emerald-500/20 transition-all duration-300 hover:-translate-y-1">
-                  <div className="text-4xl font-black text-emerald-500/20 mb-4 font-mono">
-                    {number}
-                  </div>
-                  <h3 className="font-bold text-white text-lg mb-2">{title}</h3>
-                  <p className="text-sm text-gray-400 leading-relaxed">
-                    {description}
-                  </p>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <SectionHeader
+          badge="How it works"
+          title="From zero to taking orders in 5 minutes."
+        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {steps.map(({ number, title, description }) => (
+            <div key={number} className="relative">
+              <div className="hidden lg:block absolute top-8 left-[60%] w-full h-px bg-gradient-to-r from-emerald-500/30 to-transparent" />
+              <DarkCard hover className="p-6">
+                <div className="text-4xl font-black text-emerald-500/20 mb-4 font-mono">
+                  {number}
                 </div>
-              </div>
-            ))}
-          </div>
+                <h3 className="font-bold text-white text-lg mb-2">{title}</h3>
+                <p className="text-sm text-gray-400 leading-relaxed">
+                  {description}
+                </p>
+              </DarkCard>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* ── FEATURES ─────────────────────────────────────────────────────── */}
-      <section className="py-24 bg-[#0d0d0d]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <p className="text-emerald-400 font-bold text-sm uppercase tracking-widest mb-3">
-              What you get
-            </p>
-            <h2
-              className="text-3xl sm:text-4xl font-black text-white"
-              style={{ fontFamily: "'Georgia', serif" }}
-            >
-              Everything a serious vendor needs.
-              <br />
-              Nothing that wastes your time.
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {features.map(({ icon: Icon, title, description }) => (
-              <div
-                key={title}
-                className="group bg-[#111] border border-white/5 rounded-2xl p-6 hover:border-emerald-500/30 hover:bg-emerald-950/10 transition-all duration-300"
-              >
-                <div className="h-11 w-11 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-5 group-hover:bg-emerald-500/20 transition-colors">
-                  <Icon className="h-5 w-5 text-emerald-400" />
-                </div>
-                <h3 className="font-bold text-white text-base mb-2">{title}</h3>
-                <p className="text-sm text-gray-400 leading-relaxed">
-                  {description}
-                </p>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <SectionHeader
+          badge="What you get"
+          title="Everything a serious vendor needs. Nothing that wastes your time."
+        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {features.map(({ icon: Icon, title, description }) => (
+            <DarkCard key={title} hover className="group p-6">
+              <div className="h-11 w-11 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-5 group-hover:bg-emerald-500/20 transition-colors">
+                <Icon className="h-5 w-5 text-emerald-400" />
               </div>
-            ))}
-          </div>
+              <h3 className="font-bold text-white text-base mb-2">{title}</h3>
+              <p className="text-sm text-gray-400 leading-relaxed">
+                {description}
+              </p>
+            </DarkCard>
+          ))}
         </div>
       </section>
 
       {/* ── TESTIMONIALS ─────────────────────────────────────────────────── */}
-      <section className="py-24 bg-[#0a0a0a]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <p className="text-amber-400 font-bold text-sm uppercase tracking-widest mb-3">
-              Vendor stories
-            </p>
-            <h2
-              className="text-3xl sm:text-4xl font-black text-white"
-              style={{ fontFamily: "'Georgia', serif" }}
-            >
-              Vendors who stopped drowning in DMs.
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {testimonials.map(({ name, business, quote, stars }) => (
-              <div
-                key={name}
-                className="bg-[#111] border border-white/5 rounded-2xl p-6 flex flex-col gap-4"
-              >
-                <div className="flex gap-0.5">
-                  {Array.from({ length: stars }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className="h-4 w-4 fill-amber-400 text-amber-400"
-                    />
-                  ))}
-                </div>
-                <p className="text-gray-300 text-sm leading-relaxed flex-1">
-                  &ldquo;{quote}&rdquo;
-                </p>
-                <div className="border-t border-white/5 pt-4">
-                  <p className="font-bold text-white text-sm">{name}</p>
-                  <p className="text-xs text-gray-500">{business}</p>
-                </div>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <SectionHeader
+          badge="Vendor stories"
+          title="Vendors who stopped drowning in DMs."
+          accentColor="amber"
+        />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {testimonials.map(({ name, business, quote, stars }) => (
+            <DarkCard key={name} className="p-6 flex flex-col gap-4">
+              <div className="flex gap-0.5">
+                {Array.from({ length: stars }).map((_, i) => (
+                  <Star
+                    key={i}
+                    className="h-4 w-4 fill-amber-400 text-amber-400"
+                  />
+                ))}
               </div>
-            ))}
-          </div>
+              <p className="text-gray-300 text-sm leading-relaxed flex-1">
+                &ldquo;{quote}&rdquo;
+              </p>
+              <div className="border-t border-white/5 pt-4">
+                <p className="font-bold text-white text-sm">{name}</p>
+                <p className="text-xs text-gray-500">{business}</p>
+              </div>
+            </DarkCard>
+          ))}
         </div>
       </section>
 
       {/* ── PRICING ──────────────────────────────────────────────────────── */}
-      <section className="py-24 bg-[#0d0d0d]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <p className="text-emerald-400 font-bold text-sm uppercase tracking-widest mb-3">
-              Pricing
-            </p>
-            <h2
-              className="text-3xl sm:text-4xl font-black text-white"
-              style={{ fontFamily: "'Georgia', serif" }}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <SectionHeader badge="Pricing" title="Simple. No surprises." />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+          {pricingTiers.map((tier) => (
+            <DarkCard
+              key={tier.name}
+              variant={tier.isPro ? "accent" : "default"}
+              className="p-8 relative overflow-hidden"
             >
-              Simple. No surprises.
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-            {/* Free */}
-            <div className="bg-[#111] border border-white/5 rounded-2xl p-8">
-              <p className="text-gray-400 text-sm font-medium mb-2">Starter</p>
-              <div className="flex items-end gap-1 mb-1">
-                <span className="text-4xl font-black text-white">Free</span>
-              </div>
-              <p className="text-gray-500 text-sm mb-6">
-                Forever. No card needed.
+              {tier.isPro && (
+                <>
+                  <div className="absolute top-4 right-4 bg-emerald-500 text-black text-xs font-black px-3 py-1 rounded-full">
+                    POPULAR
+                  </div>
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+                </>
+              )}
+              <p
+                className={`text-sm font-medium mb-2 ${tier.isPro ? "text-emerald-400" : "text-gray-400"}`}
+              >
+                {tier.name}
               </p>
+              <p className="text-4xl font-black text-white mb-1">
+                {tier.price}
+              </p>
+              <p className="text-gray-500 text-sm mb-6">{tier.period}</p>
               <ul className="space-y-3 mb-8">
-                {[
-                  "1 storefront",
-                  "Up to 20 products",
-                  "Unlimited WhatsApp orders",
-                  "Mobile-optimised storefront",
-                  "Basic shop customisation",
-                ].map((f) => (
+                {tier.features.map((f) => (
                   <li
                     key={f}
                     className="flex items-center gap-2.5 text-sm text-gray-300"
                   >
-                    <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+                    <CheckCircle
+                      className={`h-4 w-4 shrink-0 ${tier.isPro ? "text-emerald-400" : "text-emerald-500"}`}
+                    />
                     {f}
                   </li>
                 ))}
               </ul>
-              <Link
+              <Button
                 href="/signup"
-                className="block w-full text-center bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold px-6 py-3 rounded-xl transition-all"
+                variant={tier.isPro ? "primary" : "outline"}
+                size="lg"
+                className={`w-full justify-center ${tier.isPro ? "bg-emerald-500 hover:bg-emerald-400 text-black font-bold shadow-lg shadow-emerald-500/20" : ""}`}
               >
-                Get started free
-              </Link>
-            </div>
-
-            {/* Pro */}
-            <div className="bg-emerald-950/40 border border-emerald-500/30 rounded-2xl p-8 relative overflow-hidden">
-              <div className="absolute top-4 right-4 bg-emerald-500 text-black text-xs font-black px-3 py-1 rounded-full">
-                POPULAR
-              </div>
-              <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl" />
-              <p className="text-emerald-400 text-sm font-medium mb-2">Pro</p>
-              <div className="flex items-end gap-1 mb-1">
-                <span className="text-4xl font-black text-white">₦5,000</span>
-              </div>
-              <p className="text-gray-500 text-sm mb-6">per month</p>
-              <ul className="space-y-3 mb-8">
-                {[
-                  "Everything in Starter",
-                  "Unlimited products",
-                  "Custom shop domain",
-                  "Order history & tracking",
-                  "Priority support",
-                  "Remove NaijaCart branding",
-                ].map((f) => (
-                  <li
-                    key={f}
-                    className="flex items-center gap-2.5 text-sm text-gray-300"
-                  >
-                    <CheckCircle className="h-4 w-4 text-emerald-400 shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href="/signup"
-                className="block w-full text-center bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-emerald-500/20"
-              >
-                Start free, upgrade anytime
-              </Link>
-            </div>
-          </div>
+                {tier.cta}
+              </Button>
+            </DarkCard>
+          ))}
         </div>
       </section>
 
@@ -441,10 +386,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-950 via-[#0a0a0a] to-[#0a0a0a]" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-emerald-600/15 rounded-full blur-[80px]" />
         <div className="relative max-w-3xl mx-auto px-4 text-center">
-          <h2
-            className="text-4xl sm:text-5xl font-black text-white mb-5 leading-tight"
-            style={{ fontFamily: "'Georgia', serif" }}
-          >
+          <h2 className="text-4xl sm:text-5xl font-black text-white mb-5 leading-tight">
             Your next order shouldn&apos;t start
             <br />
             with a DM.
@@ -453,15 +395,17 @@ export default function HomePage() {
             Join vendors across Nigeria who replaced their DM chaos with a
             storefront that works while they sleep.
           </p>
-          <Link
+          <Button
             href="/signup"
-            className="group inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-8 py-4 rounded-2xl text-lg transition-all duration-200 shadow-xl shadow-emerald-500/20 hover:-translate-y-0.5"
+            variant="primary"
+            size="lg"
+            className="group bg-emerald-500 hover:bg-emerald-400 text-black font-bold shadow-xl shadow-emerald-500/20 hover:-translate-y-0.5 text-lg px-8"
           >
-            Create your free shop now
+            Create your shop now
             <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-          </Link>
+          </Button>
           <p className="text-gray-600 text-sm mt-4">
-            Free forever. No credit card. Takes 3 minutes.
+            Takes less than 3 minutes.
           </p>
         </div>
       </section>
