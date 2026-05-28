@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
-import { getShopByUser } from "@/app/actions/settings";
-import SettingsClient from "@/app/components/dashboard/SettingsClient";
+import { getShopByUser } from "../../actions/settings";
+import SettingsClient from "../../components/dashboard/SettingsClient";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +23,8 @@ export default async function SettingsPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-black text-gray-900">Shop Settings</h1>
         <p className="text-gray-500 text-sm mt-1">
-          Update your shop details. Changes appear on your storefront immediately.
+          Update your shop details. Changes appear on your storefront
+          immediately.
         </p>
       </div>
       <SettingsClient shop={serialized} />

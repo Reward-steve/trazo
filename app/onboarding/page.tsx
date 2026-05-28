@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Store, ArrowRight, CheckCircle } from "lucide-react";
-import Button from "@/app/components/ui/Button";
-import Input from "@/app/components/ui/Input";
-import ImageUpload from "@/app/components/ui/ImageUpload";
-import { createShop, checkSlugAvailable } from "@/app/actions/settings";
+import Button from "../components/ui/Button";
+import Input from "../components/ui/Input";
+import ImageUpload from "../components/ui/ImageUpload";
+import { createShop, checkSlugAvailable } from "../actions/settings";
 
 // Auto-generate a URL-safe slug from shop name
 function generateSlug(name: string): string {

@@ -8,8 +8,9 @@ import {
   ShoppingBag,
   ToggleRight,
 } from "lucide-react";
-import { getShopByUser } from "@/app/actions/settings";
-import CopyLinkButton from "@/app/components/dashboard/CopyLinkButton";
+import { getShopByUser } from "../actions/settings";
+import CopyLinkButton from "../components/dashboard/CopyLinkButton";
+import { Product } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,9 @@ export default async function DashboardPage() {
   if (!shop) redirect("/onboarding");
 
   const totalProducts = shop.products.length;
-  const availableProducts = shop.products.filter((p) => p.available).length;
+  const availableProducts = shop.products.filter(
+    (p: Product) => p.available,
+  ).length;
   const storefrontUrl = `${process.env.APP_URL || "https://naijacart.com"}/store/${shop.slug}`;
 
   const stats = [

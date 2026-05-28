@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
-import { getShopByUser } from "@/app/actions/settings";
-import DashboardSidebar from "@/app/components/dashboard/DashboardSidebar";
+import { getShopByUser } from "../actions/settings";
+import DashboardSidebar from "../components/dashboard/DashboardSidebar";
 
 export default async function DashboardLayout({
   children,
@@ -18,9 +18,7 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <DashboardSidebar shop={shop} />
-      <main className="flex-1 min-w-0">
-        {children}
-      </main>
+      <main className="flex-1 min-w-0">{children}</main>
     </div>
   );
 }
