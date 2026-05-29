@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { ShopSettings } from "@/app/types";
-import Button from "@/app/components/ui/Button";
-import Input from "@/app/components/ui/Input";
-import { updateSettings } from "@/app/actions/settings";
-import ImageUpload from "@/app/components/ui/ImageUpload";
+import { ShopSettings } from "../../types";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import ImageUpload from "../../components/ui/ImageUpload";
 
 interface SettingsFormProps {
   settings: ShopSettings;
@@ -28,7 +27,6 @@ export default function SettingsForm({
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      await updateSettings(form);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
       onSuccess();

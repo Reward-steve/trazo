@@ -11,17 +11,17 @@ import {
   Settings,
   Package,
 } from "lucide-react";
-import { Product, ShopSettings } from "@/app/types";
-import { formatNaira } from "@/app/lib/utils";
-import Button from "@/app/components/ui/Button";
-import Badge from "@/app/components/ui/Badge";
-import EmptyState from "@/app/components/ui/EmptyState";
-import ProductForm from "@/app/components/admin/ProductForm";
-import SettingsForm from "@/app/components/admin/SettingsForm";
+import { Product, ShopSettings } from "../../types";
+import { formatNaira } from "../../lib/utils";
+import Button from "../../components/ui/Button";
+import Badge from "../../components/ui/Badge";
+import EmptyState from "../../components/ui/EmptyState";
+import ProductForm from "../../components/admin/ProductForm";
+import SettingsForm from "../../components/admin/SettingsForm";
 import {
   deleteProduct,
   toggleProductAvailability,
-} from "@/app/actions/product";
+} from "../../actions/product";
 import { useRouter } from "next/navigation";
 
 interface AdminClientProps {

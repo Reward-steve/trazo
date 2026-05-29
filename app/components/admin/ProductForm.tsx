@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Product } from "@/app/types";
-import Button from "@/app/components/ui/Button";
-import Input from "@/app/components/ui/Input";
-import { createProduct, updateProduct } from "@/app/actions/product";
-import ImageUpload from "@/app/components/ui/ImageUpload";
+import { Product } from "../../types";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import { createProduct, updateProduct } from "../../actions/product";
+import ImageUpload from "../../components/ui/ImageUpload";
 
 interface ProductFormProps {
   product?: Product;
