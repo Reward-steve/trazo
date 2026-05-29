@@ -5,10 +5,15 @@ import "./globals.css";
 
 const geist = Geist({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "NaijaCart — WhatsApp Storefront for Nigerian Vendors",
-  description: "Turn your Instagram page into a real storefront in 5 minutes.",
+export const metadata = {
+  title: "WhatsApp Store Front",
+  description: "Create WhatsApp storefronts easily",
 };
+
+// export const metadata: Metadata = {
+//   title: "NaijaCart — WhatsApp Storefront for Nigerian Vendors",
+//   description: "Turn your Instagram page into a real storefront in 5 minutes.",
+// };
 
 export default function RootLayout({
   children,
