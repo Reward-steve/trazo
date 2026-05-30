@@ -22,7 +22,7 @@ async function main() {
       ownerId: demoUser.id,
       shopName: "Alara Lagos",
       slug: "demo",
-      whatsappNumber: "2348012345678",
+      whatsappNumber: "08098069257",
       description:
         "Curated contemporary African fashion, design, cuisine, and culture. Delivered direct to your doorstep via WhatsApp.",
       logoUrl:
