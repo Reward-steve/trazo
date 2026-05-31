@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Plus, Pencil, Trash2, Package, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Product } from "../../types";
-import { formatNaira } from "../../lib/utils";
+import { formatNaira, cn } from "../../lib/utils";
 import Button from "../../components/ui/Button";
 import Badge from "../../components/ui/Badge";
 import EmptyState from "../../components/ui/EmptyState";
@@ -14,7 +14,6 @@ import {
   deleteProduct,
   toggleProductAvailability,
 } from "../../actions/product";
-import { cn } from "../../lib/utils";
 
 interface ProductsClientProps {
   products: Product[];
@@ -123,7 +122,6 @@ export default function ProductsClient({
 
                 {/* Actions */}
                 <div className="flex items-center gap-0.5 shrink-0">
-                  {/* Toggle visibility — most important action, labeled clearly */}
                   <button
                     onClick={() => handleToggle(product.id, product.available)}
                     disabled={isPending}
@@ -151,8 +149,6 @@ export default function ProductsClient({
                       </>
                     )}
                   </button>
-
-                  {/* Edit */}
                   <button
                     onClick={() => setModal({ type: "edit", product })}
                     title="Edit product"
@@ -160,8 +156,6 @@ export default function ProductsClient({
                   >
                     <Pencil className="h-4 w-4" />
                   </button>
-
-                  {/* Delete */}
                   <button
                     onClick={() => handleDelete(product.id, product.name)}
                     disabled={isPending}
@@ -181,7 +175,6 @@ export default function ProductsClient({
       {modal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-md p-6 max-h-[90vh] overflow-y-auto">
-            {/* Modal header */}
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-black text-gray-900 dark:text-white text-lg">
                 {modal.type === "add" ? "Add New Product" : "Edit Product"}
