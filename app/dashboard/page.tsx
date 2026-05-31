@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { getShopByUser } from "../actions/settings";
 import CopyLinkButton from "../components/dashboard/CopyLinkButton";
+import { ThemeToggle } from "../components/ui/ThemeProvider";
 
 export const dynamic = "force-dynamic";
 
@@ -85,12 +86,13 @@ export default async function DashboardPage() {
           </h1>
           <p className="text-text-muted text-xs mt-0.5">Dashboard</p>
         </div>
-        <Link
+        {/* <Link
           href="/dashboard/settings"
           className="h-9 w-9 flex items-center justify-center rounded-full bg-surface-alt border border-border text-text-muted hover:text-text transition-colors"
         >
           <Settings className="h-4 w-4" />
-        </Link>
+        </Link> */}
+        <ThemeToggle />
       </div>
 
       {/* Storefront link card — WhatsApp header green */}
