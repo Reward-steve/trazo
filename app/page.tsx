@@ -5,7 +5,7 @@ import SectionHeader from "./components/landing/SectionHeader";
 import DarkCard from "./components/landing/DarkCard";
 import {
   trustBadges,
-  testimonials,
+  // testimonials,
   steps,
   features,
   pricingTiers,
@@ -162,7 +162,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── TESTIMONIALS ─────────────────────────────────────────────────── */}
+      {/* ── TESTIMONIALS ───────────────────────────────────────────────────
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <SectionHeader
           badge="Vendor stories"
@@ -187,6 +187,36 @@ export default function HomePage() {
                 <p className="font-bold text-white text-sm">{name}</p>
                 <p className="text-xs text-gray-500">{business}</p>
               </div>
+            </DarkCard>
+          ))}
+        </div>
+      </section> */}
+
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <SectionHeader
+          badge="Early access"
+          title="Built for real vendors, not theory."
+          accentColor="amber"
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[
+            {
+              title: "WhatsApp sellers",
+              desc: "Turn DMs into structured orders without chaos.",
+            },
+            {
+              title: "Instagram vendors",
+              desc: "Replace link-in-bio clutter with a real storefront.",
+            },
+            {
+              title: "Small businesses",
+              desc: "Get orders without hiring a developer.",
+            },
+          ].map((item) => (
+            <DarkCard key={item.title} className="p-6">
+              <h3 className="font-bold text-white text-sm">{item.title}</h3>
+              <p className="text-gray-400 text-sm mt-2">{item.desc}</p>
             </DarkCard>
           ))}
         </div>

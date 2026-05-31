@@ -9,13 +9,13 @@ import {
   LucideIcon,
 } from "lucide-react";
 
-const painPoints: { icon: LucideIcon; text: string }[] = [
-  { icon: XCircle, text: "Customer DMs you asking for prices" },
-  { icon: XCircle, text: "You reply, they ask if it's available" },
-  { icon: XCircle, text: "They say they want it, you send account number" },
-  { icon: XCircle, text: "They send a blurry receipt screenshot" },
-  { icon: XCircle, text: "Order gets buried under 60 other DMs" },
-  { icon: XCircle, text: "You miss the order. Customer never comes back." },
+const painPoints = [
+  { icon: XCircle, text: "Customers keep asking for prices in DMs" },
+  { icon: XCircle, text: "You answer the same questions every day" },
+  { icon: XCircle, text: "Orders arrive with missing details" },
+  { icon: XCircle, text: "Receipts and addresses get lost in chats" },
+  { icon: XCircle, text: "You spend more time replying than selling" },
+  { icon: XCircle, text: "Potential customers disappear before ordering" },
 ];
 
 const steps = [
@@ -33,9 +33,9 @@ const steps = [
   },
   {
     number: "03",
-    title: "Share your link",
+    title: "Share your storefront",
     description:
-      "Put your storefront link in your Instagram bio, WhatsApp status, or anywhere you sell.",
+      "Put your storefront in your Instagram bio, WhatsApp status, TikTok profile, or anywhere customers find you.",
   },
   {
     number: "04",
@@ -54,9 +54,9 @@ const features: { icon: LucideIcon; title: string; description: string }[] = [
   },
   {
     icon: Store,
-    title: "Your own storefront link",
+    title: "Your own storefront",
     description:
-      "A clean, fast mobile page your customers can browse. Put it in your bio and let it work for you 24/7.",
+      "A clean mobile storefront customers can browse anytime. Share it anywhere and let it answer questions for you.",
   },
   {
     icon: Zap,
@@ -84,29 +84,29 @@ const features: { icon: LucideIcon; title: string; description: string }[] = [
   },
 ];
 
-const testimonials = [
-  {
-    name: "Chisom A.",
-    business: "Thrift & Fashion, Yaba",
-    quote:
-      "Before this I was spending 3 hours daily just answering price DMs. Now my customers order themselves and I just confirm on WhatsApp. My head is free.",
-    stars: 5,
-  },
-  {
-    name: "Tunde B.",
-    business: "Sneakers & Streetwear, Ikeja",
-    quote:
-      "I put the link in my Instagram bio on a Friday. By Sunday I had 11 orders waiting for me, all with full details. No confusion, no back and forth.",
-    stars: 5,
-  },
-  {
-    name: "Amaka O.",
-    business: "Skincare & Beauty, Abuja",
-    quote:
-      "My customers always complained ordering from me was stressful. Now they send me voice notes saying how easy it is. That alone is worth everything.",
-    stars: 5,
-  },
-];
+// const testimonials = [
+//   {
+//     name: "Chisom A.",
+//     business: "Thrift & Fashion, Yaba",
+//     quote:
+//       "Before this I was spending 3 hours daily just answering price DMs. Now my customers order themselves and I just confirm on WhatsApp. My head is free.",
+//     stars: 5,
+//   },
+//   {
+//     name: "Tunde B.",
+//     business: "Sneakers & Streetwear, Ikeja",
+//     quote:
+//       "I put the link in my Instagram bio on a Friday. By Sunday I had 11 orders waiting for me, all with full details. No confusion, no back and forth.",
+//     stars: 5,
+//   },
+//   {
+//     name: "Amaka O.",
+//     business: "Skincare & Beauty, Abuja",
+//     quote:
+//       "My customers always complained ordering from me was stressful. Now they send me voice notes saying how easy it is. That alone is worth everything.",
+//     stars: 5,
+//   },
+// ];
 
 const pricingTiers = [
   {
@@ -117,10 +117,10 @@ const pricingTiers = [
       "1 storefront",
       "Up to 20 products",
       "Unlimited WhatsApp orders",
-      "Mobile-optimised storefront",
-      "Basic shop customisation",
+      "Mobile storefront",
+      "Basic shop branding",
     ],
-    cta: "Get started free",
+    cta: "Start free",
     isPro: false,
   },
   {
@@ -128,22 +128,30 @@ const pricingTiers = [
     price: "₦5,000",
     period: "per month",
     features: [
-      "Everything in Starter",
       "Unlimited products",
-      "Custom shop domain",
-      "Order history & tracking",
-      "Priority support",
+      "Custom domain",
+      "Order history",
+      "Customer database",
       "Remove Trazo branding",
+      "Priority support",
+      "Sales analytics",
     ],
-    cta: "Start free, upgrade anytime",
+    cta: "Upgrade to Pro",
     isPro: true,
   },
 ];
 
 const trustBadges = [
   "Free to start",
-  "No technical knowledge needed",
-  "Works on any phone",
+  "Setup in under 5 minutes",
+  "Works with WhatsApp",
 ];
 
-export { trustBadges, painPoints, pricingTiers, steps, testimonials, features };
+export {
+  trustBadges,
+  painPoints,
+  pricingTiers,
+  steps,
+  /*testimonials,*/
+  features,
+};
