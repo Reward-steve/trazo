@@ -103,25 +103,25 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-surface-alt flex flex-col items-center justify-center px-4 py-12">
       {/* Logo */}
       <div className="flex items-center gap-2 mb-8">
-        <div className="h-9 w-9 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-sm">
+        <div className="h-9 w-9 bg-primary-dark rounded-xl flex items-center justify-center text-text font-text text-lg shadow-sm">
           ₦
         </div>
-        <span className="text-white font-bold text-xl">Trazo</span>
+        <span className="text-text font-bold text-xl">Trazo</span>
       </div>
 
       {/* Card */}
-      <div className="w-full max-w-md bg-[#111] border border-white/5 rounded-2xl p-8 shadow-2xl">
+      <div className="w-full max-w-md bg-surface border border-text/5 rounded-2xl p-8 shadow-2xl">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-10 w-10 bg-emerald-500/10 rounded-xl flex items-center justify-center">
+          <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center">
             <Store className="h-5 w-5 text-emerald-400" />
           </div>
           <div>
-            <h1 className="text-lg font-black text-white">Create your shop</h1>
-            <p className="text-xs text-gray-500">
+            <h1 className="text-lg font-text text-text">Create your shop</h1>
+            <p className="text-xs text-text-muted">
               Step {step + 1} of {steps.length} — {steps[step]}
             </p>
           </div>
@@ -133,7 +133,7 @@ export default function OnboardingPage() {
             <div
               key={i}
               className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                i <= step ? "bg-emerald-500" : "bg-white/10"
+                i <= step ? "bg-primary" : "bg-text/10"
               }`}
             />
           ))}
@@ -148,15 +148,14 @@ export default function OnboardingPage() {
               value={form.shopName}
               onChange={(e) => update("shopName", e.target.value)}
               error={errors.shopName}
-              // className="bg-[#1a1a1a] border-white/10 text-white placeholder:text-gray-600 focus:ring-emerald-500"
             />
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-300">
+              <label className="text-sm font-medium text-shadow-text-muted">
                 Your Store URL
               </label>
               <div className="relative flex items-center">
-                <span className="absolute left-3 text-gray-500 text-sm select-none">
+                <span className="absolute left-3 text-text-muted text-sm select-none">
                   trazo-omega/store/
                 </span>
                 <input
@@ -170,15 +169,15 @@ export default function OnboardingPage() {
                   }}
                   onBlur={handleSlugBlur}
                   placeholder="your-shop"
-                  className="w-full pl-[168px] pr-10 py-2.5 rounded-xl border border-white/10 bg-[#1a1a1a] text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-gray-600"
+                  className="w-full pl-[168px] pr-10 py-2.5 rounded-xl border border-border bg-surface-alt text-text text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-text-muted"
                 />
                 {/* Availability indicator */}
                 <div className="absolute right-3">
                   {checkingSlug && (
-                    <div className="h-4 w-4 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" />
+                    <div className="h-4 w-4 border-2 border-header border-t-primary rounded-full animate-spin" />
                   )}
                   {!checkingSlug && slugAvailable === true && (
-                    <CheckCircle className="h-4 w-4 text-emerald-500" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                   )}
                   {!checkingSlug && slugAvailable === false && (
                     <span className="text-red-400 text-xs font-medium">
@@ -190,7 +189,7 @@ export default function OnboardingPage() {
               {errors.slug && (
                 <p className="text-xs text-red-400">{errors.slug}</p>
               )}
-              <p className="text-xs text-gray-600">
+              <p className="text-xs text-text-muted">
                 This is the link you share with customers. Choose carefully — it
                 can&apos;t be changed later.
               </p>
@@ -207,23 +206,23 @@ export default function OnboardingPage() {
               value={form.whatsappNumber}
               onChange={(e) => update("whatsappNumber", e.target.value)}
               error={errors.whatsappNumber}
-              className="bg-[#1a1a1a] border-white/10 text-white placeholder:text-gray-600"
+              className="bg-surface-alt border-border text-text placeholder:text-text-muted"
             />
-            <p className="text-xs text-gray-500 -mt-2">
+            <p className="text-xs text-text-muted -mt-2">
               Include your country code. Nigerian numbers start with 234.
             </p>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-300">
+              <label className="text-sm font-medium text-shadow-text-muted">
                 Shop Description{" "}
-                <span className="text-gray-600 font-normal">(optional)</span>
+                <span className="text-text-muted font-normal">(optional)</span>
               </label>
               <textarea
                 value={form.description}
                 onChange={(e) => update("description", e.target.value)}
                 placeholder="Tell customers what you sell..."
                 rows={3}
-                className="w-full px-3 py-2.5 rounded-xl border border-white/10 bg-[#1a1a1a] text-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-gray-600 transition"
+                className="w-full px-3 py-2.5 rounded-xl border border-border bg-surface-alt text-text text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-text-muted transition"
               />
             </div>
           </div>
@@ -232,7 +231,7 @@ export default function OnboardingPage() {
         {/* Step 2 — Branding */}
         {step === 2 && (
           <div className="space-y-5">
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-text-muted">
               Add a logo so customers recognise your shop. You can always update
               this later.
             </p>
@@ -241,14 +240,14 @@ export default function OnboardingPage() {
               onChange={(url) => update("logoUrl", url)}
             />
             {/* Preview of storefront URL */}
-            <div className="bg-emerald-950/30 border border-emerald-500/20 rounded-xl p-4">
+            <div className="bg-header/30 border border-primary/20 rounded-xl p-4">
               <p className="text-xs text-emerald-400 font-medium mb-1">
                 Your storefront link
               </p>
-              <p className="text-sm text-white font-mono break-all">
+              <p className="text-sm text-text font-mono break-all">
                 trazo-omega/store/{form.slug}
               </p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-text-muted mt-1">
                 Share this link in your Instagram bio or WhatsApp status
               </p>
             </div>
@@ -261,7 +260,7 @@ export default function OnboardingPage() {
             <Button
               variant="ghost"
               onClick={() => setStep((s) => s - 1)}
-              className="flex-1 text-gray-400 hover:text-white hover:bg-white/5"
+              className="flex-1 text-text-muted hover:text-text hover:bg-text/5"
             >
               Back
             </Button>
@@ -269,7 +268,7 @@ export default function OnboardingPage() {
           {step < steps.length - 1 ? (
             <Button
               onClick={handleNext}
-              className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-black font-bold"
+              className="flex-1 bg-primary hover:bg-emerald-400 text-text font-bold"
             >
               Continue
               <ArrowRight className="h-4 w-4" />
@@ -278,7 +277,7 @@ export default function OnboardingPage() {
             <Button
               onClick={handleSubmit}
               loading={loading}
-              className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-black font-bold"
+              className="flex-1 bg-primary hover:bg-emerald-400 text-text font-bold"
             >
               Launch my shop
               <ArrowRight className="h-4 w-4" />
@@ -287,7 +286,7 @@ export default function OnboardingPage() {
         </div>
       </div>
 
-      <p className="text-gray-600 text-xs mt-6 text-center">
+      <p className="text-text-muted text-xs mt-6 text-center">
         You can edit all of this later from your dashboard.
       </p>
     </div>
