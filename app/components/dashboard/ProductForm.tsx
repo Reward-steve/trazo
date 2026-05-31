@@ -24,6 +24,8 @@ export default function ProductForm({
     price: product?.price?.toString() ?? "",
     imageUrl: product?.imageUrl ?? "",
     available: product?.available ?? true,
+    trackStock: product?.stock !== null && product?.stock !== undefined,
+    stock: product?.stock?.toString() ?? "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -32,7 +34,11 @@ export default function ProductForm({
     if (!form.name.trim()) e.name = "Product name is required";
     if (!form.price || isNaN(Number(form.price)) || Number(form.price) <= 0)
       e.price = "Enter a valid price";
-    if (!form.imageUrl.trim()) e.imageUrl = "Image is required";
+    if (!form.imageUrl.trim()) e.imageUrl = "Product image is required";
+    if (form.trackStock) {
+      if (!form.stock || isNaN(Number(form.stock)) || Number(form.stock) < 0)
+        e.stock = "Enter a valid stock quantity";
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -46,6 +52,7 @@ export default function ProductForm({
         price: Math.round(Number(form.price)),
         imageUrl: form.imageUrl.trim(),
         available: form.available,
+        stock: form.trackStock ? Math.round(Number(form.stock)) : null,
       };
       if (product) {
         await updateProduct(product.id, data);
@@ -83,6 +90,41 @@ export default function ProductForm({
         onChange={(url) => setForm({ ...form, imageUrl: url })}
         error={errors.imageUrl}
       />
+
+      {/* Stock tracking toggle */}
+      <div className="bg-surface-alt rounded-xl p-4 space-y-3">
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={form.trackStock}
+            onChange={(e) =>
+              setForm({ ...form, trackStock: e.target.checked, stock: "" })
+            }
+            className="mt-0.5 w-4 h-4 rounded accent-primary"
+          />
+          <div>
+            <p className="text-sm font-medium text-text">
+              Track stock quantity
+            </p>
+            <p className="text-xs text-text-muted mt-0.5">
+              Customers won&apos;t be able to order more than you have
+              available. Leave off for unlimited or made-to-order items.
+            </p>
+          </div>
+        </label>
+
+        {form.trackStock && (
+          <Input
+            label="Stock Quantity"
+            placeholder="e.g. 3"
+            type="number"
+            min="0"
+            value={form.stock}
+            onChange={(e) => setForm({ ...form, stock: e.target.value })}
+            error={errors.stock}
+          />
+        )}
+      </div>
 
       {/* Availability toggle */}
       <label className="flex items-center justify-between p-3 bg-surface border border-border rounded-2xl cursor-pointer group">
