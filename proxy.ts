@@ -12,12 +12,17 @@ export default clerkMiddleware(async (auth, request) => {
   const { userId } = await auth();
   const url = request.nextUrl;
 
-  // Redirect authenticated users away from login/signup to dashboard
+  // Signed in user hits login or signup — send to dashboard
   if (userId && (url.pathname === "/login" || url.pathname === "/signup")) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // Protect non-public routes
+  // Signed in user hits landing page — send to dashboard
+  if (userId && url.pathname === "/") {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  // Unsigned user hits protected route — send to login
   if (!isPublicRoute(request) && !userId) {
     return NextResponse.redirect(new URL("/login", request.url));
   }

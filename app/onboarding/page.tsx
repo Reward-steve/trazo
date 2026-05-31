@@ -148,7 +148,7 @@ export default function OnboardingPage() {
               value={form.shopName}
               onChange={(e) => update("shopName", e.target.value)}
               error={errors.shopName}
-              className="bg-[#1a1a1a] border-white/10 text-white placeholder:text-gray-600 focus:ring-emerald-500"
+              // className="bg-[#1a1a1a] border-white/10 text-white placeholder:text-gray-600 focus:ring-emerald-500"
             />
 
             <div className="flex flex-col gap-1.5">

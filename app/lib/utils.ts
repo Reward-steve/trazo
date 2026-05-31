@@ -16,22 +16,25 @@ export function generateWhatsAppURL(
   const itemLines = items
     .map(
       (i) =>
-        `  • ${i.quantity}x ${i.name} — ${formatNaira(i.price * i.quantity)}`,
+        `  - ${i.quantity}x ${i.name}: ${formatNaira(i.price * i.quantity)}`,
     )
     .join("\n");
 
-  const message = `Hello ${shopName}! 👋 I'd like to place an order:
-
-${itemLines}
-
-*Total: ${formatNaira(total)}*
-
-📦 Delivery Details:
-  Name: ${customer.name}
-  Phone: ${customer.phone}
-  Address: ${customer.address}
-
-Please confirm my order. Thank you!`;
+  const message = [
+    `*New Order - ${shopName}*`,
+    ``,
+    `*Items Ordered:*`,
+    itemLines,
+    ``,
+    `*Order Total: ${formatNaira(total)}*`,
+    ``,
+    `*Customer Details:*`,
+    `  Name: ${customer.name}`,
+    `  Phone: ${customer.phone}`,
+    `  Address: ${customer.address}`,
+    ``,
+    `Please confirm this order and provide payment details.`,
+  ].join("\n");
 
   return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 }
