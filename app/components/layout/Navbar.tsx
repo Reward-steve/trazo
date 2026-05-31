@@ -21,8 +21,12 @@ export default function Navbar({
 }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
+
   const isLandingPage = pathname === "/";
   const isDark = isLandingPage || isStorefront;
+
+  // FIX: Short-circuit. If it's not the landing page, render absolutely nothing.
+  if (!isLandingPage) return null;
 
   return (
     <nav
@@ -55,7 +59,6 @@ export default function Navbar({
 
           {/* Desktop right side */}
           <div className="hidden md:flex items-center gap-2">
-            {/* Landing page */}
             {isLandingPage && (
               <>
                 <Link
