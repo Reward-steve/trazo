@@ -2,12 +2,11 @@
 
 import { useState, useTransition } from "react";
 import Image from "next/image";
-import { Plus, Pencil, Trash2, Package, Eye, EyeOff } from "lucide-react";
+import { Plus, Pencil, Trash2, Package, Eye, EyeOff, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Product } from "../../types";
 import { formatNaira, cn } from "../../lib/utils";
 import Button from "../../components/ui/Button";
-import Badge from "../../components/ui/Badge";
 import EmptyState from "../../components/ui/EmptyState";
 import ProductForm from "./ProductForm";
 import {
@@ -53,14 +52,14 @@ export default function ProductsClient({
   return (
     <>
       {/* Toolbar */}
-      <div className="flex items-center justify-between mb-4">
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] text-text-muted">
           {products.length === 0
             ? "No products yet"
             : `${products.length} product${products.length !== 1 ? "s" : ""}`}
         </p>
         <Button onClick={() => setModal({ type: "add" })} size="sm">
-          <Plus className="h-4 w-4" /> Add Product
+          <Plus className="h-3.5 w-3.5" /> Add product
         </Button>
       </div>
 
@@ -77,51 +76,53 @@ export default function ProductsClient({
           }
         />
       ) : (
-        <div className="space-y-2.5">
+        <div className="space-y-2">
           {products.map((product) => {
             const isThisPending = pendingId === product.id;
             return (
               <div
                 key={product.id}
                 className={cn(
-                  "flex items-center gap-3 sm:gap-4 bg-white dark:bg-gray-900 p-3 sm:p-4 rounded-2xl border transition-all",
-                  product.available
-                    ? "border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md"
-                    : "border-gray-100 dark:border-gray-800 opacity-60",
-                  isThisPending && "opacity-50 pointer-events-none",
+                  "flex items-center gap-3 bg-surface border border-border rounded-2xl p-3 transition-all",
+                  !product.available && "opacity-50",
+                  isThisPending && "opacity-40 pointer-events-none",
                 )}
               >
                 {/* Image */}
-                <div className="relative h-14 w-14 sm:h-16 sm:w-16 rounded-xl overflow-hidden shrink-0 bg-gray-50 dark:bg-gray-800">
+                <div className="relative h-14 w-14 rounded-xl overflow-hidden shrink-0 bg-surface-alt">
                   <Image
                     src={product.imageUrl}
                     alt={product.name}
                     fill
                     className="object-cover"
-                    sizes="64px"
+                    sizes="56px"
                   />
                 </div>
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-900 dark:text-white truncate text-sm">
+                  <p className="font-semibold text-text text-sm truncate leading-tight">
                     {product.name}
                   </p>
-                  <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400 mt-0.5">
+                  <p className="text-sm font-bold text-primary-dark mt-0.5">
                     {formatNaira(product.price)}
                   </p>
-                  <Badge
-                    variant={product.available ? "success" : "error"}
-                    className="mt-1.5"
-                  >
-                    {product.available
-                      ? "Visible to customers"
-                      : "Hidden from customers"}
-                  </Badge>
+                  <div className="flex items-center gap-1 mt-1">
+                    <div
+                      className={cn(
+                        "h-1.5 w-1.5 rounded-full",
+                        product.available ? "bg-primary" : "bg-border",
+                      )}
+                    />
+                    <span className="text-[11px] text-text-muted">
+                      {product.available ? "Visible to customers" : "Hidden"}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-0.5 shrink-0">
+                <div className="flex items-center gap-1 shrink-0">
+                  {/* Toggle */}
                   <button
                     onClick={() => handleToggle(product.id, product.available)}
                     disabled={isPending}
@@ -131,36 +132,34 @@ export default function ProductsClient({
                         : "Show to customers"
                     }
                     className={cn(
-                      "flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium transition-all",
+                      "p-2 rounded-xl transition-colors",
                       product.available
-                        ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40"
-                        : "text-gray-400 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700",
+                        ? "text-primary bg-bubble-out hover:opacity-80"
+                        : "text-text-muted bg-surface-alt hover:bg-border",
                     )}
                   >
                     {product.available ? (
-                      <>
-                        <Eye className="h-3.5 w-3.5" />
-                        <span className="hidden sm:inline">Live</span>
-                      </>
+                      <Eye className="h-4 w-4" />
                     ) : (
-                      <>
-                        <EyeOff className="h-3.5 w-3.5" />
-                        <span className="hidden sm:inline">Hidden</span>
-                      </>
+                      <EyeOff className="h-4 w-4" />
                     )}
                   </button>
+
+                  {/* Edit */}
                   <button
                     onClick={() => setModal({ type: "edit", product })}
                     title="Edit product"
-                    className="p-2 rounded-xl text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
+                    className="p-2 rounded-xl text-text-muted hover:text-text hover:bg-surface-alt transition-colors"
                   >
                     <Pencil className="h-4 w-4" />
                   </button>
+
+                  {/* Delete */}
                   <button
                     onClick={() => handleDelete(product.id, product.name)}
                     disabled={isPending}
                     title="Delete product"
-                    className="p-2 rounded-xl text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                    className="p-2 rounded-xl text-text-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -173,17 +172,17 @@ export default function ProductsClient({
 
       {/* Modal */}
       {modal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-md p-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="font-black text-gray-900 dark:text-white text-lg">
-                {modal.type === "add" ? "Add New Product" : "Edit Product"}
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="bg-surface rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md p-5 max-h-[90vh] overflow-y-auto border border-border">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-bold text-text text-base">
+                {modal.type === "add" ? "Add product" : "Edit product"}
               </h2>
               <button
                 onClick={() => setModal(null)}
-                className="p-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+                className="h-8 w-8 flex items-center justify-center rounded-xl text-text-muted hover:text-text hover:bg-surface-alt transition-colors"
               >
-                ✕
+                <X className="h-4 w-4" />
               </button>
             </div>
             <ProductForm

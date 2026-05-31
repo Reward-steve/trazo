@@ -29,30 +29,26 @@ export default function StorefrontClient({
   const handleAddToCart = useCallback((item: CartItem) => {
     setCart((prev) => {
       const existing = prev.find((i) => i.id === item.id);
-      if (existing) {
+      if (existing)
         return prev.map((i) =>
           i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i,
         );
-      }
       return [...prev, item];
     });
   }, []);
 
   const handleUpdateQuantity = useCallback((id: string, quantity: number) => {
-    if (quantity <= 0) {
-      setCart((prev) => prev.filter((i) => i.id !== id));
-    } else {
+    if (quantity <= 0) setCart((prev) => prev.filter((i) => i.id !== id));
+    else
       setCart((prev) =>
         prev.map((i) => (i.id === id ? { ...i, quantity } : i)),
       );
-    }
   }, []);
 
   const handleRemove = useCallback((id: string) => {
     setCart((prev) => prev.filter((i) => i.id !== id));
   }, []);
 
-  // Filter by search
   const filtered = products.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase()),
   );
@@ -61,83 +57,82 @@ export default function StorefrontClient({
   const hasSearch = search.trim().length > 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* ── NAVBAR ──────────────────────────────────────────────────── */}
-      <nav className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+    <div className="min-h-screen bg-surface-alt flex flex-col">
+      {/* ── NAVBAR ── */}
+      <nav className="sticky top-0 z-40 bg-header border-b border-white/10">
+        <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           {/* Shop identity */}
-          <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-2.5 min-w-0">
             {settings.logoUrl ? (
-              <div className="relative h-9 w-9 rounded-xl overflow-hidden shrink-0 bg-gray-100">
+              <div className="relative h-8 w-8 rounded-xl overflow-hidden shrink-0 bg-white/10">
                 <Image
                   src={settings.logoUrl}
                   alt={settings.shopName}
                   fill
                   className="object-cover"
-                  sizes="36px"
+                  sizes="32px"
                 />
               </div>
             ) : (
-              <div className="h-9 w-9 rounded-xl bg-emerald-600 flex items-center justify-center shrink-0">
-                <Store className="h-5 w-5 text-white" />
+              <div className="h-8 w-8 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
+                <Store className="h-4 w-4 text-white" />
               </div>
             )}
             <div className="min-w-0">
-              <p className="font-bold text-gray-900 truncate leading-tight text-sm sm:text-base">
+              <p className="font-bold text-white text-sm truncate leading-tight">
                 {settings.shopName}
               </p>
               {settings.description && (
-                <p className="text-xs text-gray-400 truncate hidden sm:block max-w-xs">
+                <p className="text-[11px] text-white/60 truncate hidden sm:block max-w-xs">
                   {settings.description}
                 </p>
               )}
             </div>
           </div>
 
-          {/* Cart — always visible */}
+          {/* Cart button */}
           <button
             onClick={() => setDrawerOpen(true)}
-            className="relative shrink-0 flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-3 sm:px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-sm hover:shadow-md active:scale-95"
+            className="relative shrink-0 flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-full font-semibold text-sm transition-colors active:scale-95"
           >
             <ShoppingBag className="h-4 w-4" />
-            <span className="hidden sm:inline">Cart</span>
             {cartCount > 0 ? (
               <>
                 <span className="bg-white/20 rounded-full px-1.5 py-0.5 text-xs font-bold">
                   {cartCount}
                 </span>
-                <span className="hidden sm:inline text-emerald-200">·</span>
+                <span className="hidden sm:inline text-white/60">·</span>
                 <span className="hidden sm:inline font-bold">
                   {formatNaira(cartTotal)}
                 </span>
               </>
             ) : (
-              <span className="text-emerald-200 text-xs hidden sm:inline">
+              <span className="text-white/60 text-xs hidden sm:inline">
                 Empty
               </span>
             )}
           </button>
         </div>
 
-        {/* Search bar — below nav on mobile, inline on larger screens */}
+        {/* Search */}
         {products.length > 4 && (
-          <div className="border-t border-gray-50 px-4 sm:px-6 lg:px-8 py-2.5">
+          <div className="px-4 pb-3">
             <div className="relative max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40" />
               <input
                 type="text"
-                placeholder="Search products..."
+                placeholder="Search products…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition placeholder:text-gray-400"
+                className="w-full pl-9 pr-4 py-2 rounded-full border border-white/10 text-sm bg-white/10 text-white placeholder:text-white/40 focus:outline-none focus:bg-white/15 transition-colors"
               />
             </div>
           </div>
         )}
       </nav>
 
-      {/* ── PRODUCTS ────────────────────────────────────────────────── */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 pb-28 sm:pb-8">
+      {/* ── PRODUCTS ── */}
+      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-5 pb-28 sm:pb-8">
         {products.length === 0 ? (
           <EmptyState
             icon={<ShoppingBag className="h-10 w-10" />}
@@ -151,15 +146,15 @@ export default function StorefrontClient({
             description="Try a different search term."
           />
         ) : (
-          <div className="space-y-10">
+          <div className="space-y-8">
             {availableProducts.length > 0 && (
               <section>
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">
+                <p className="text-[11px] font-semibold text-text-muted uppercase tracking-widest mb-3">
                   {hasSearch
                     ? `${availableProducts.length} result${availableProducts.length !== 1 ? "s" : ""}`
                     : `${availableProducts.length} item${availableProducts.length !== 1 ? "s" : ""} available`}
                 </p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                   {availableProducts.map((product) => (
                     <ProductCard
                       key={product.id}
@@ -173,10 +168,10 @@ export default function StorefrontClient({
 
             {outOfStock.length > 0 && (
               <section>
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">
-                  Out of Stock
+                <p className="text-[11px] font-semibold text-text-muted uppercase tracking-widest mb-3">
+                  Out of stock
                 </p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 opacity-50">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 opacity-50">
                   {outOfStock.map((product) => (
                     <ProductCard
                       key={product.id}
@@ -191,48 +186,48 @@ export default function StorefrontClient({
         )}
       </main>
 
-      {/* ── STICKY MOBILE CART ──────────────────────────────────────── */}
+      {/* ── STICKY MOBILE CART ── */}
       {cartCount > 0 && (
         <div className="fixed bottom-4 inset-x-4 z-40 sm:hidden">
           <button
             onClick={() => setDrawerOpen(true)}
-            className="w-full flex items-center justify-between bg-gray-900 text-white px-5 py-4 rounded-2xl font-bold shadow-2xl hover:bg-gray-800 transition-all active:scale-[0.98]"
+            className="w-full flex items-center justify-between bg-header text-white px-5 py-4 rounded-2xl font-bold transition-all active:scale-[0.98]"
           >
             <div className="flex items-center gap-2">
-              <ShoppingBag className="h-5 w-5" />
-              <span>
+              <ShoppingBag className="h-4 w-4" />
+              <span className="text-sm">
                 {cartCount} item{cartCount > 1 ? "s" : ""}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-emerald-400 font-black">
+              <span className="font-black text-sm">
                 {formatNaira(cartTotal)}
               </span>
-              <span className="text-gray-400 text-sm">· Checkout</span>
+              <span className="text-white/60 text-xs">· Checkout</span>
             </div>
           </button>
         </div>
       )}
 
-      {/* ── FOOTER ──────────────────────────────────────────────────── */}
-      <footer className="border-t border-gray-100 bg-white mt-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-gray-400">
-          <p className="text-center sm:text-left text-xs">
-            {settings.shopName} &middot; Orders via WhatsApp
+      {/* ── FOOTER ── */}
+      <footer className="border-t border-border bg-surface mt-auto">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p className="text-[11px] text-text-muted">
+            {settings.shopName} · Orders via WhatsApp
           </p>
           <Link
             href="/"
-            className="flex items-center gap-1.5 hover:text-emerald-600 transition-colors font-medium text-xs"
+            className="flex items-center gap-1.5 text-[11px] text-text-muted hover:text-primary transition-colors font-medium"
           >
-            <div className="h-5 w-5 bg-emerald-600 rounded flex items-center justify-center text-white text-[10px] font-black">
+            <div className="h-5 w-5 bg-header rounded flex items-center justify-center text-white text-[10px] font-black">
               ₦
             </div>
-            Powered by NaijaCart
+            Powered by Trazo
           </Link>
         </div>
       </footer>
 
-      {/* ── CART DRAWER ─────────────────────────────────────────────── */}
+      {/* ── CART DRAWER ── */}
       <CartDrawer
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}

@@ -72,12 +72,12 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
     form.logoUrl !== shop.logoUrl;
 
   return (
-    <div className="space-y-5">
-      {/* Shop Identity */}
-      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-4">
-        <h2 className="font-bold text-gray-900 dark:text-white text-sm uppercase tracking-wide">
-          Shop Identity
-        </h2>
+    <div className="space-y-3">
+      {/* Shop identity */}
+      <div className="bg-surface border border-border rounded-2xl p-4 space-y-4">
+        <p className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">
+          Shop identity
+        </p>
 
         <ImageUpload
           value={form.logoUrl}
@@ -85,7 +85,7 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
         />
 
         <Input
-          label="Shop Name"
+          label="Shop name"
           value={form.shopName}
           onChange={(e) => update("shopName", e.target.value)}
           error={errors.shopName}
@@ -93,18 +93,20 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
 
         {/* Store URL — read only */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-            Store URL
-            <span className="text-xs text-gray-400 font-normal bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-medium text-text">Store URL</label>
+            <span className="text-[10px] text-text-muted bg-surface-alt border border-border px-2 py-0.5 rounded-full">
               Cannot be changed
             </span>
-          </label>
-          <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 text-sm text-gray-500 dark:text-gray-400">
-            <span className="truncate">naijacart.com/store/{shop.slug}</span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-border bg-surface-alt text-xs text-text-muted">
+            <span className="truncate flex-1">
+              naijacart.com/store/{shop.slug}
+            </span>
             <a
               href={`/store/${shop.slug}`}
               target="_blank"
-              className="ml-auto shrink-0 text-emerald-600 hover:text-emerald-700 transition-colors"
+              className="shrink-0 text-primary hover:text-primary-dark transition-colors"
               title="Open storefront"
             >
               <ExternalLink className="h-3.5 w-3.5" />
@@ -113,44 +115,41 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
         </div>
       </div>
 
-      {/* Contact & Orders */}
-      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-3">
-        <h2 className="font-bold text-gray-900 dark:text-white text-sm uppercase tracking-wide">
-          Contact & Orders
-        </h2>
+      {/* Contact & orders */}
+      <div className="bg-surface border border-border rounded-2xl p-4 space-y-3">
+        <p className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">
+          Contact & orders
+        </p>
         <Input
-          label="WhatsApp Number"
+          label="WhatsApp number"
           placeholder="e.g. 2348012345678"
           value={form.whatsappNumber}
           onChange={(e) => update("whatsappNumber", e.target.value)}
           error={errors.whatsappNumber}
           type="tel"
         />
-        <p className="text-xs text-gray-400 dark:text-gray-500">
+        <p className="text-[11px] text-text-muted leading-relaxed">
           Include your country code. Nigerian numbers start with{" "}
-          <span className="font-semibold text-gray-600 dark:text-gray-400">
-            234
-          </span>
-          . Every order from customers goes to this number.
+          <span className="font-semibold text-text">234</span>. Every order from
+          customers goes to this number.
         </p>
       </div>
 
-      {/* About Your Shop */}
-      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-3">
+      {/* About */}
+      <div className="bg-surface border border-border rounded-2xl p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="font-bold text-gray-900 dark:text-white text-sm uppercase tracking-wide">
-            About Your Shop
-          </h2>
-          <span className="text-xs text-gray-400">
+          <p className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">
+            About your shop
+          </p>
+          <span className="text-[11px] text-text-muted tabular-nums">
             {form.description.length}/200
           </span>
         </div>
+
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            Shop Description{" "}
-            <span className="text-xs text-gray-400 font-normal">
-              (optional)
-            </span>
+          <label className="text-xs font-medium text-text">
+            Description{" "}
+            <span className="text-text-muted font-normal">(optional)</span>
           </label>
           <textarea
             value={form.description}
@@ -160,55 +159,57 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
             rows={3}
             placeholder="Tell customers what you sell e.g. Premium thrift fashion for Lagos women..."
             className={cn(
-              "w-full px-3 py-2.5 rounded-xl border text-sm resize-none transition",
-              "bg-white dark:bg-gray-800 text-gray-900 dark:text-white",
-              "placeholder:text-gray-400 dark:placeholder:text-gray-600",
-              "border-gray-200 dark:border-gray-700",
-              "hover:border-gray-300 dark:hover:border-gray-600",
-              "focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent",
+              "w-full px-3 py-2.5 rounded-xl border text-sm resize-none transition-colors",
+              "bg-surface text-text placeholder:text-text-muted",
+              "border-border hover:border-primary/40",
+              "focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/60",
             )}
           />
-          <p className="text-xs text-gray-400 dark:text-gray-500">
-            This appears under your shop name on your storefront.
+          <p className="text-[11px] text-text-muted">
+            Appears under your shop name on your storefront.
           </p>
         </div>
       </div>
 
       {/* Error */}
       {error && (
-        <div className="flex items-center gap-2 text-red-600 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-xl px-4 py-3">
-          <AlertCircle className="h-4 w-4 shrink-0" />
-          <p className="text-sm">{error}</p>
+        <div className="flex items-center gap-2.5 bg-surface border border-red-200 dark:border-red-900/40 rounded-2xl px-4 py-3">
+          <AlertCircle className="h-4 w-4 text-red-500 shrink-0" />
+          <p className="text-xs text-red-500">{error}</p>
         </div>
       )}
 
       {/* Save */}
-      <Button
-        onClick={handleSave}
-        loading={loading}
-        size="lg"
-        disabled={!hasChanges && !loading}
-        className={cn(
-          "w-full transition-all",
-          saved
-            ? "bg-emerald-500 hover:bg-emerald-500 cursor-default"
-            : hasChanges
-              ? "bg-emerald-600 hover:bg-emerald-700"
-              : "bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed",
-        )}
-      >
-        {saved ? (
-          <>
-            <CheckCircle className="h-4 w-4" /> Changes saved
-          </>
-        ) : (
-          "Save Changes"
-        )}
-      </Button>
+      <div className="space-y-2 pt-1">
+        <Button
+          onClick={handleSave}
+          loading={loading}
+          size="lg"
+          disabled={!hasChanges && !loading}
+          className={cn(
+            "w-full transition-colors",
+            saved
+              ? "bg-primary cursor-default"
+              : hasChanges
+                ? "bg-header hover:bg-primary-dark"
+                : "bg-surface-alt text-text-muted border border-border cursor-not-allowed",
+          )}
+        >
+          {saved ? (
+            <>
+              <CheckCircle className="h-4 w-4" /> Saved
+            </>
+          ) : (
+            "Save changes"
+          )}
+        </Button>
 
-      {!hasChanges && !saved && (
-        <p className="text-xs text-center text-gray-400">No unsaved changes</p>
-      )}
+        {!hasChanges && !saved && (
+          <p className="text-[11px] text-center text-text-muted">
+            No unsaved changes
+          </p>
+        )}
+      </div>
     </div>
   );
 }

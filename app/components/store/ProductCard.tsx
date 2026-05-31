@@ -5,7 +5,6 @@ import { ShoppingCart, CheckCircle } from "lucide-react";
 import { useState } from "react";
 import { Product, CartItem } from "../../types";
 import { formatNaira } from "../../lib/utils";
-import Badge from "../../components/ui/Badge";
 import Button from "../../components/ui/Button";
 
 interface ProductCardProps {
@@ -32,9 +31,9 @@ export default function ProductCard({
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 flex flex-col">
+    <div className="bg-surface border border-border rounded-2xl overflow-hidden flex flex-col">
       {/* Image */}
-      <div className="relative aspect-square bg-gray-50 overflow-hidden">
+      <div className="relative aspect-square bg-surface-alt overflow-hidden">
         <Image
           src={product.imageUrl}
           alt={product.name}
@@ -43,19 +42,21 @@ export default function ProductCard({
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
         />
         {!product.available && (
-          <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center">
-            <Badge variant="error">Out of Stock</Badge>
+          <div className="absolute inset-0 bg-surface/80 flex items-center justify-center">
+            <span className="text-[11px] font-semibold text-text-muted bg-surface border border-border px-2.5 py-1 rounded-full">
+              Out of stock
+            </span>
           </div>
         )}
       </div>
 
       {/* Info */}
-      <div className="p-3 sm:p-4 flex flex-col flex-1 gap-3">
-        <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-snug flex-1">
+      <div className="p-3 flex flex-col flex-1 gap-2.5">
+        <h3 className="text-sm font-semibold text-text line-clamp-2 leading-snug flex-1">
           {product.name}
         </h3>
         <div className="flex items-center justify-between gap-2">
-          <span className="text-sm sm:text-base font-bold text-emerald-700 shrink-0">
+          <span className="text-sm font-bold text-primary-dark shrink-0">
             {formatNaira(product.price)}
           </span>
           <Button

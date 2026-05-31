@@ -32,7 +32,7 @@ export default function ProductForm({
     if (!form.name.trim()) e.name = "Product name is required";
     if (!form.price || isNaN(Number(form.price)) || Number(form.price) <= 0)
       e.price = "Enter a valid price";
-    if (!form.imageUrl.trim()) e.imageUrl = "Image URL is required";
+    if (!form.imageUrl.trim()) e.imageUrl = "Image is required";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -61,9 +61,9 @@ export default function ProductForm({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <Input
-        label="Product Name"
+        label="Product name"
         placeholder="e.g. Handwoven Ankara Maxi Dress"
         value={form.name}
         onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -83,20 +83,33 @@ export default function ProductForm({
         onChange={(url) => setForm({ ...form, imageUrl: url })}
         error={errors.imageUrl}
       />
-      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={form.available}
-            onChange={(e) => setForm({ ...form, available: e.target.checked })}
-            className="w-4 h-4 rounded accent-emerald-600"
+
+      {/* Availability toggle */}
+      <label className="flex items-center justify-between p-3 bg-surface border border-border rounded-2xl cursor-pointer group">
+        <div>
+          <p className="text-sm font-medium text-text">In stock</p>
+          <p className="text-[11px] text-text-muted mt-0.5">
+            {form.available ? "Visible to customers" : "Hidden from storefront"}
+          </p>
+        </div>
+        <div
+          onClick={() => setForm({ ...form, available: !form.available })}
+          className={`relative w-10 h-6 rounded-full transition-colors ${
+            form.available ? "bg-primary" : "bg-border"
+          }`}
+        >
+          <div
+            className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${
+              form.available ? "left-5" : "left-1"
+            }`}
           />
-          <span className="text-sm font-medium text-gray-700">In Stock</span>
-        </label>
-      </div>
-      <div className="flex gap-2 pt-2">
+        </div>
+      </label>
+
+      {/* Actions */}
+      <div className="flex gap-2 pt-1">
         <Button onClick={handleSubmit} loading={loading} className="flex-1">
-          {product ? "Save Changes" : "Add Product"}
+          {product ? "Save changes" : "Add product"}
         </Button>
         <Button variant="secondary" onClick={onCancel} className="flex-1">
           Cancel

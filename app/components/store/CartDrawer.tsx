@@ -7,6 +7,7 @@ import { CartItem, CustomerDetails, ShopSettings } from "../../types";
 import { formatNaira, generateWhatsAppURL } from "../../lib/utils";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
+import { cn } from "../../lib/utils";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -61,7 +62,6 @@ export default function CartDrawer({
     onClose();
   };
 
-  // Reset step when drawer closes
   const handleClose = () => {
     setStep("cart");
     onClose();
@@ -72,69 +72,71 @@ export default function CartDrawer({
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-        onClick={handleClose}
-      />
+      <div className="fixed inset-0 bg-black/40 z-50" onClick={handleClose} />
 
-      {/* Drawer — slides in from right */}
-      <div className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white z-50 flex flex-col shadow-2xl">
+      {/* Drawer */}
+      <div className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-surface z-50 flex flex-col border-l border-border">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-header">
           <div className="flex items-center gap-2">
-            <ShoppingBag className="h-5 w-5 text-emerald-600" />
-            <h2 className="text-lg font-bold text-gray-900">
+            <ShoppingBag className="h-4 w-4 text-white" />
+            <h2 className="text-sm font-bold text-white">
               {step === "cart"
-                ? `Your Cart${items.length > 0 ? ` (${items.length})` : ""}`
-                : "Delivery Details"}
+                ? `Cart${items.length > 0 ? ` (${items.length})` : ""}`
+                : "Delivery details"}
             </h2>
           </div>
           <button
             onClick={handleClose}
-            className="p-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition"
+            className="h-8 w-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Progress indicator — only when items exist */}
+        {/* Progress bar */}
         {items.length > 0 && (
-          <div className="flex px-5 pt-3 gap-1.5">
-            <div className="h-1 flex-1 rounded-full bg-emerald-500" />
+          <div className="flex gap-1 px-4 pt-3">
+            <div className="h-1 flex-1 rounded-full bg-primary" />
             <div
-              className={`h-1 flex-1 rounded-full transition-all ${step === "checkout" ? "bg-emerald-500" : "bg-gray-100"}`}
+              className={cn(
+                "h-1 flex-1 rounded-full transition-colors",
+                step === "checkout" ? "bg-primary" : "bg-border",
+              )}
             />
           </div>
         )}
 
-        {/* ── EMPTY STATE ─────────────────────────────────────────── */}
+        {/* ── EMPTY STATE ── */}
         {items.length === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center px-6">
-            <div className="p-5 bg-gray-50 rounded-2xl">
-              <ShoppingBag className="h-10 w-10 text-gray-300" />
+            <div className="h-16 w-16 bg-bubble-out rounded-2xl flex items-center justify-center">
+              <ShoppingBag className="h-7 w-7 text-primary-dark" />
             </div>
             <div>
-              <p className="font-bold text-gray-900 mb-1">Your cart is empty</p>
-              <p className="text-sm text-gray-400">
+              <p className="font-bold text-text text-sm mb-1">
+                Your cart is empty
+              </p>
+              <p className="text-xs text-text-muted">
                 Add items from the store to place an order
               </p>
             </div>
             <Button variant="secondary" onClick={handleClose} size="sm">
-              Continue Shopping
+              Continue shopping
             </Button>
           </div>
         )}
 
-        {/* ── CART STEP ───────────────────────────────────────────── */}
+        {/* ── CART STEP ── */}
         {items.length > 0 && step === "cart" && (
           <>
-            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
+            <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
               {items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex gap-3 p-3 bg-gray-50 rounded-xl"
+                  className="flex gap-3 p-3 bg-surface-alt rounded-2xl border border-border"
                 >
-                  <div className="relative h-16 w-16 rounded-lg overflow-hidden shrink-0 bg-white">
+                  <div className="relative h-16 w-16 rounded-xl overflow-hidden shrink-0 bg-surface">
                     <Image
                       src={item.imageUrl}
                       alt={item.name}
@@ -144,10 +146,10 @@ export default function CartDrawer({
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 line-clamp-2">
+                    <p className="text-sm font-medium text-text line-clamp-2 leading-snug">
                       {item.name}
                     </p>
-                    <p className="text-sm font-bold text-emerald-700 mt-0.5">
+                    <p className="text-sm font-bold text-primary-dark mt-0.5">
                       {formatNaira(item.price * item.quantity)}
                     </p>
                     <div className="flex items-center gap-2 mt-2">
@@ -155,24 +157,24 @@ export default function CartDrawer({
                         onClick={() =>
                           onUpdateQuantity(item.id, item.quantity - 1)
                         }
-                        className="h-7 w-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 active:scale-95 transition"
+                        className="h-7 w-7 rounded-lg bg-surface border border-border flex items-center justify-center hover:border-primary transition-colors active:scale-95"
                       >
-                        <Minus className="h-3 w-3" />
+                        <Minus className="h-3 w-3 text-text-muted" />
                       </button>
-                      <span className="text-sm font-bold w-5 text-center">
+                      <span className="text-sm font-bold w-5 text-center text-text">
                         {item.quantity}
                       </span>
                       <button
                         onClick={() =>
                           onUpdateQuantity(item.id, item.quantity + 1)
                         }
-                        className="h-7 w-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 active:scale-95 transition"
+                        className="h-7 w-7 rounded-lg bg-surface border border-border flex items-center justify-center hover:border-primary transition-colors active:scale-95"
                       >
-                        <Plus className="h-3 w-3" />
+                        <Plus className="h-3 w-3 text-text-muted" />
                       </button>
                       <button
                         onClick={() => onRemove(item.id)}
-                        className="ml-auto text-xs text-red-400 hover:text-red-600 transition font-medium"
+                        className="ml-auto text-[11px] text-text-muted hover:text-red-500 transition-colors font-medium"
                       >
                         Remove
                       </button>
@@ -182,34 +184,37 @@ export default function CartDrawer({
               ))}
             </div>
 
-            <div className="px-5 py-4 border-t border-gray-100 space-y-3">
-              <div className="flex justify-between text-base font-bold text-gray-900">
-                <span>Total</span>
-                <span className="text-emerald-700">{formatNaira(total)}</span>
+            <div className="px-4 py-4 border-t border-border space-y-3">
+              <div className="flex justify-between items-baseline">
+                <span className="text-sm font-medium text-text-muted">
+                  Total
+                </span>
+                <span className="text-lg font-black text-text">
+                  {formatNaira(total)}
+                </span>
               </div>
               <Button
-                className="w-full bg-emerald-600 hover:bg-emerald-700"
+                className="w-full bg-header hover:bg-primary-dark"
                 size="lg"
                 onClick={() => setStep("checkout")}
               >
-                Proceed to Checkout →
+                Proceed to checkout →
               </Button>
             </div>
           </>
         )}
 
-        {/* ── CHECKOUT STEP ───────────────────────────────────────── */}
+        {/* ── CHECKOUT STEP ── */}
         {items.length > 0 && step === "checkout" && (
           <>
-            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-              <p className="text-sm text-gray-500 leading-relaxed">
-                Fill in your details below. Your order will be sent directly to
-                the vendor&apos;s WhatsApp — they will confirm and arrange
-                delivery.
+            <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+              <p className="text-xs text-text-muted leading-relaxed">
+                Fill in your details. Your order will be sent to the
+                vendor&apos;s WhatsApp — they will confirm and arrange delivery.
               </p>
 
               <Input
-                label="Full Name"
+                label="Full name"
                 placeholder="e.g. Chidi Okonkwo"
                 value={customer.name}
                 onChange={(e) =>
@@ -218,7 +223,7 @@ export default function CartDrawer({
                 error={errors.name}
               />
               <Input
-                label="Phone Number"
+                label="Phone number"
                 placeholder="e.g. 08012345678"
                 type="tel"
                 value={customer.phone}
@@ -227,9 +232,11 @@ export default function CartDrawer({
                 }
                 error={errors.phone}
               />
+
+              {/* Address */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-gray-700">
-                  Delivery Address
+                <label className="text-xs font-medium text-text">
+                  Delivery address
                 </label>
                 <textarea
                   placeholder="e.g. 14 Admiralty Way, Lekki Phase 1, Lagos"
@@ -238,52 +245,57 @@ export default function CartDrawer({
                     setCustomer({ ...customer, address: e.target.value })
                   }
                   rows={3}
-                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent hover:border-gray-300 transition"
+                  className={cn(
+                    "w-full px-3 py-2.5 rounded-xl border text-sm resize-none transition-colors",
+                    "bg-surface text-text placeholder:text-text-muted",
+                    "border-border hover:border-primary/40",
+                    "focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/60",
+                  )}
                 />
                 {errors.address && (
-                  <p className="text-xs text-red-500">{errors.address}</p>
+                  <p className="text-[11px] text-red-500">{errors.address}</p>
                 )}
               </div>
 
               {/* Order summary */}
-              <div className="bg-gray-50 rounded-xl p-4 space-y-2">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">
-                  Order Summary
+              <div className="bg-surface-alt border border-border rounded-2xl p-3 space-y-2">
+                <p className="text-[11px] font-semibold text-text-muted uppercase tracking-widest mb-2">
+                  Order summary
                 </p>
                 {items.map((item) => (
-                  <div key={item.id} className="flex justify-between text-sm">
-                    <span className="text-gray-600 truncate flex-1 mr-2">
+                  <div key={item.id} className="flex justify-between text-xs">
+                    <span className="text-text-muted truncate flex-1 mr-2">
                       {item.quantity}× {item.name}
                     </span>
-                    <span className="font-medium shrink-0">
+                    <span className="font-medium text-text shrink-0">
                       {formatNaira(item.price * item.quantity)}
                     </span>
                   </div>
                 ))}
-                <div className="border-t border-gray-200 pt-2 mt-2 flex justify-between font-bold">
-                  <span className="text-gray-900">Total</span>
-                  <span className="text-emerald-700">{formatNaira(total)}</span>
+                <div className="border-t border-border pt-2 mt-1 flex justify-between items-baseline">
+                  <span className="text-xs text-text-muted">Total</span>
+                  <span className="font-black text-text">
+                    {formatNaira(total)}
+                  </span>
                 </div>
               </div>
             </div>
 
-            <div className="px-5 py-4 border-t border-gray-100 space-y-2">
+            <div className="px-4 py-4 border-t border-border space-y-2">
               <Button
-                className="w-full bg-emerald-600 hover:bg-emerald-700"
+                className="w-full bg-header hover:bg-primary-dark"
                 size="lg"
                 onClick={handleOrder}
               >
                 <Send className="h-4 w-4" />
-                Send Order on WhatsApp
+                Send order on WhatsApp
               </Button>
-              <Button
-                variant="ghost"
-                className="w-full text-gray-500"
-                size="md"
+              <button
                 onClick={() => setStep("cart")}
+                className="w-full text-xs text-text-muted hover:text-text py-2 transition-colors"
               >
-                ← Back to Cart
-              </Button>
+                ← Back to cart
+              </button>
             </div>
           </>
         )}
