@@ -262,7 +262,7 @@ export default function HomePage() {
             href="/signup"
             variant="primary"
             size="lg"
-            className="group bg-emerald-500 hover:bg-emerald-400 text-black font-bold shadow-xl shadow-emerald-500/20 hover:-translate-y-0.5 text-lg px-8"
+            className="w-full sm:w-auto"
           >
             Start selling free
             <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
