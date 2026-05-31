@@ -7,6 +7,8 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import ImageUpload from "../components/ui/ImageUpload";
 import { createShop, checkSlugAvailable } from "../actions/settings";
+import Image from "next/image";
+import logo from "../../public/trazo_omega.png";
 
 // Auto-generate a URL-safe slug from shop name
 function generateSlug(name: string): string {
@@ -105,11 +107,8 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen bg-surface-alt flex flex-col items-center justify-center px-4 py-12">
       {/* Logo */}
-      <div className="flex items-center gap-2 mb-8">
-        <div className="h-9 w-9 bg-primary-dark rounded-xl flex items-center justify-center text-text font-text text-lg shadow-sm">
-          ₦
-        </div>
-        <span className="text-text font-bold text-xl">Trazo</span>
+      <div className="relative h-9 w-9 rounded-xl overflow-hidden shrink-0 bg-surface-alt">
+        <Image src={logo} alt={"trazo_logo"} fill className="object-cover" />
       </div>
 
       {/* Card */}
