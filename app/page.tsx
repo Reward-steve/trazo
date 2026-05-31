@@ -11,6 +11,8 @@ import {
   pricingTiers,
   painPoints,
 } from "./constant";
+import Image from "next/image";
+import logo from "../public/trazo_omega.png";
 
 // ─── PAGE ─────────────────────────────────────────────────────────────────────
 
@@ -61,16 +63,17 @@ export default function HomePage() {
                 size="lg"
                 className="w-full sm:w-auto"
               >
-                Create your shop
+                Start selling free
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
+
               <Button
                 href="/store/demo"
                 variant="outline"
                 size="lg"
                 className="w-full sm:w-auto"
               >
-                See a live demo
+                View demo store
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -248,13 +251,12 @@ export default function HomePage() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-emerald-600/15 rounded-full blur-[80px]" />
         <div className="relative max-w-3xl mx-auto px-4 text-center">
           <h2 className="text-4xl sm:text-5xl font-black text-white mb-5 leading-tight">
-            Your next order shouldn&apos;t start
-            <br />
-            with a DM.
+            Stop selling through DMs.
           </h2>
           <p className="text-gray-400 text-lg mb-10 max-w-lg mx-auto">
-            Join vendors across Nigeria who replaced their DM chaos with a
-            storefront that works while they sleep.
+            Give customers a real storefront to browse products and place
+            orders. Every order arrives neatly in your WhatsApp, ready to
+            fulfill.
           </p>
           <Button
             href="/signup"
@@ -262,27 +264,25 @@ export default function HomePage() {
             size="lg"
             className="group bg-emerald-500 hover:bg-emerald-400 text-black font-bold shadow-xl shadow-emerald-500/20 hover:-translate-y-0.5 text-lg px-8"
           >
-            Create your shop now
+            Start selling free
             <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Button>
           <p className="text-gray-600 text-sm mt-4">
-            Takes less than 3 minutes.
+            No credit card required. Setup takes less than 3 minutes.
           </p>
         </div>
       </section>
 
-      {/* ── FOOTER ───────────────────────────────────────────────────────── */}
       <footer className="border-t border-white/5 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-600">
-          <div className="flex items-center gap-2 font-bold text-white">
-            <div className="h-7 w-7 bg-emerald-600 rounded-lg flex items-center justify-center text-white text-sm font-black">
-              ₦
-            </div>
-            Trazo
+          <div className="flex items-center gap-2">
+            <Image src={logo} alt="TRAZO" />
           </div>
+
           <p>
-            Built for the Nigerian hustle. &copy; {new Date().getFullYear()}
+            Sell simply. Grow daily. &copy; {new Date().getFullYear()} TRAZO.
           </p>
+
           <div className="flex gap-5">
             <Link
               href="/store/demo"
@@ -291,7 +291,7 @@ export default function HomePage() {
               Demo Store
             </Link>
             <Link href="/signup" className="hover:text-white transition-colors">
-              Sign Up
+              Start Selling
             </Link>
             <Link href="/login" className="hover:text-white transition-colors">
               Log In
