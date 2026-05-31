@@ -42,7 +42,7 @@ export default async function SettingsPage() {
         </Link>
       </div>
 
-      {/* WhatsApp number warning — most important setting */}
+      {/* WhatsApp number warning */}
       <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-xl px-4 py-3 mb-5 flex items-start gap-3">
         <div className="h-1.5 w-1.5 rounded-full bg-amber-400 shrink-0 mt-1.5" />
         <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">

@@ -1,246 +1,214 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { ShoppingBag, Store, Search } from "lucide-react";
-import { Product, ShopSettings, CartItem } from "../../types";
-import ProductCard from "../../components/store/ProductCard";
-import CartDrawer from "../../components/store/CartDrawer";
-import EmptyState from "../../components/ui/EmptyState";
-import { formatNaira } from "../../lib/utils";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { CheckCircle, ExternalLink, AlertCircle } from "lucide-react";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import ImageUpload from "../../components/ui/ImageUpload";
+import { updateShop } from "../../actions/settings";
+import { cn } from "../../lib/utils";
 
-interface StorefrontClientProps {
-  products: Product[];
-  settings: ShopSettings;
+interface Shop {
+  shopName: string;
+  slug: string;
+  whatsappNumber: string;
+  description: string;
+  logoUrl: string;
 }
 
-export default function StorefrontClient({
-  products,
-  settings,
-}: StorefrontClientProps) {
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [search, setSearch] = useState("");
+export default function SettingsClient({ shop }: { shop: Shop }) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
+  const [form, setForm] = useState({
+    shopName: shop.shopName,
+    whatsappNumber: shop.whatsappNumber,
+    description: shop.description,
+    logoUrl: shop.logoUrl,
+  });
+  const [errors, setErrors] = useState<Partial<typeof form>>({});
 
-  const cartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
-  const cartTotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const update = (field: keyof typeof form, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
+    setError("");
+  };
 
-  const handleAddToCart = useCallback((item: CartItem) => {
-    setCart((prev) => {
-      const existing = prev.find((i) => i.id === item.id);
-      if (existing) {
-        return prev.map((i) =>
-          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i,
-        );
-      }
-      return [...prev, item];
-    });
-  }, []);
+  const validate = () => {
+    const e: Partial<typeof form> = {};
+    if (!form.shopName.trim()) e.shopName = "Shop name is required";
+    if (!form.whatsappNumber.trim())
+      e.whatsappNumber = "WhatsApp number is required";
+    if (!/^[0-9]{10,15}$/.test(form.whatsappNumber.replace(/\s/g, "")))
+      e.whatsappNumber =
+        "Enter a valid number with country code e.g. 2348012345678";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
 
-  const handleUpdateQuantity = useCallback((id: string, quantity: number) => {
-    if (quantity <= 0) {
-      setCart((prev) => prev.filter((i) => i.id !== id));
-    } else {
-      setCart((prev) =>
-        prev.map((i) => (i.id === id ? { ...i, quantity } : i)),
-      );
+  const handleSave = async () => {
+    if (!validate()) return;
+    setLoading(true);
+    setError("");
+    try {
+      await updateShop(form);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+      router.refresh();
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
-  }, []);
+  };
 
-  const handleRemove = useCallback((id: string) => {
-    setCart((prev) => prev.filter((i) => i.id !== id));
-  }, []);
-
-  // Filter by search
-  const filtered = products.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()),
-  );
-  const availableProducts = filtered.filter((p) => p.available);
-  const outOfStock = filtered.filter((p) => !p.available);
-  const hasSearch = search.trim().length > 0;
+  const hasChanges =
+    form.shopName !== shop.shopName ||
+    form.whatsappNumber !== shop.whatsappNumber ||
+    form.description !== shop.description ||
+    form.logoUrl !== shop.logoUrl;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* ── NAVBAR ──────────────────────────────────────────────────── */}
-      <nav className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-          {/* Shop identity */}
-          <div className="flex items-center gap-3 min-w-0">
-            {settings.logoUrl ? (
-              <div className="relative h-9 w-9 rounded-xl overflow-hidden shrink-0 bg-gray-100">
-                <Image
-                  src={settings.logoUrl}
-                  alt={settings.shopName}
-                  fill
-                  className="object-cover"
-                  sizes="36px"
-                />
-              </div>
-            ) : (
-              <div className="h-9 w-9 rounded-xl bg-emerald-600 flex items-center justify-center shrink-0">
-                <Store className="h-5 w-5 text-white" />
-              </div>
-            )}
-            <div className="min-w-0">
-              <p className="font-bold text-gray-900 truncate leading-tight text-sm sm:text-base">
-                {settings.shopName}
-              </p>
-              {settings.description && (
-                <p className="text-xs text-gray-400 truncate hidden sm:block max-w-xs">
-                  {settings.description}
-                </p>
-              )}
-            </div>
-          </div>
+    <div className="space-y-5">
+      {/* Shop Identity */}
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-4">
+        <h2 className="font-bold text-gray-900 dark:text-white text-sm uppercase tracking-wide">
+          Shop Identity
+        </h2>
 
-          {/* Cart — always visible */}
-          <button
-            onClick={() => setDrawerOpen(true)}
-            className="relative shrink-0 flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-3 sm:px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-sm hover:shadow-md active:scale-95"
-          >
-            <ShoppingBag className="h-4 w-4" />
-            <span className="hidden sm:inline">Cart</span>
-            {cartCount > 0 ? (
-              <>
-                <span className="bg-white/20 rounded-full px-1.5 py-0.5 text-xs font-bold">
-                  {cartCount}
-                </span>
-                <span className="hidden sm:inline text-emerald-200">·</span>
-                <span className="hidden sm:inline font-bold">
-                  {formatNaira(cartTotal)}
-                </span>
-              </>
-            ) : (
-              <span className="text-emerald-200 text-xs hidden sm:inline">
-                Empty
-              </span>
-            )}
-          </button>
+        <ImageUpload
+          value={form.logoUrl}
+          onChange={(url) => update("logoUrl", url)}
+        />
+
+        <Input
+          label="Shop Name"
+          value={form.shopName}
+          onChange={(e) => update("shopName", e.target.value)}
+          error={errors.shopName}
+        />
+
+        {/* Store URL — read only */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+            Store URL
+            <span className="text-xs text-gray-400 font-normal bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">
+              Cannot be changed
+            </span>
+          </label>
+          <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 text-sm text-gray-500 dark:text-gray-400">
+            <span className="truncate">naijacart.com/store/{shop.slug}</span>
+            <a
+              href={`/store/${shop.slug}`}
+              target="_blank"
+              className="ml-auto shrink-0 text-emerald-600 hover:text-emerald-700 transition-colors"
+              title="Open storefront"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          </div>
         </div>
+      </div>
 
-        {/* Search bar — below nav on mobile, inline on larger screens */}
-        {products.length > 4 && (
-          <div className="border-t border-gray-50 px-4 sm:px-6 lg:px-8 py-2.5">
-            <div className="relative max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition placeholder:text-gray-400"
-              />
-            </div>
-          </div>
-        )}
-      </nav>
+      {/* Contact & Orders */}
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-3">
+        <h2 className="font-bold text-gray-900 dark:text-white text-sm uppercase tracking-wide">
+          Contact & Orders
+        </h2>
+        <Input
+          label="WhatsApp Number"
+          placeholder="e.g. 2348012345678"
+          value={form.whatsappNumber}
+          onChange={(e) => update("whatsappNumber", e.target.value)}
+          error={errors.whatsappNumber}
+          type="tel"
+        />
+        <p className="text-xs text-gray-400 dark:text-gray-500">
+          Include your country code. Nigerian numbers start with{" "}
+          <span className="font-semibold text-gray-600 dark:text-gray-400">
+            234
+          </span>
+          . Every order from customers goes to this number.
+        </p>
+      </div>
 
-      {/* ── PRODUCTS ────────────────────────────────────────────────── */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 pb-28 sm:pb-8">
-        {products.length === 0 ? (
-          <EmptyState
-            icon={<ShoppingBag className="h-10 w-10" />}
-            title="No products yet"
-            description="This vendor hasn't added any products yet. Check back soon."
-          />
-        ) : hasSearch && filtered.length === 0 ? (
-          <EmptyState
-            icon={<Search className="h-10 w-10" />}
-            title={`No results for "${search}"`}
-            description="Try a different search term."
-          />
-        ) : (
-          <div className="space-y-10">
-            {availableProducts.length > 0 && (
-              <section>
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">
-                  {hasSearch
-                    ? `${availableProducts.length} result${availableProducts.length !== 1 ? "s" : ""}`
-                    : `${availableProducts.length} item${availableProducts.length !== 1 ? "s" : ""} available`}
-                </p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-                  {availableProducts.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      onAddToCart={handleAddToCart}
-                    />
-                  ))}
-                </div>
-              </section>
+      {/* About Your Shop */}
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="font-bold text-gray-900 dark:text-white text-sm uppercase tracking-wide">
+            About Your Shop
+          </h2>
+          <span className="text-xs text-gray-400">
+            {form.description.length}/200
+          </span>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            Shop Description{" "}
+            <span className="text-xs text-gray-400 font-normal">
+              (optional)
+            </span>
+          </label>
+          <textarea
+            value={form.description}
+            onChange={(e) =>
+              update("description", e.target.value.slice(0, 200))
+            }
+            rows={3}
+            placeholder="Tell customers what you sell e.g. Premium thrift fashion for Lagos women..."
+            className={cn(
+              "w-full px-3 py-2.5 rounded-xl border text-sm resize-none transition",
+              "bg-white dark:bg-gray-800 text-gray-900 dark:text-white",
+              "placeholder:text-gray-400 dark:placeholder:text-gray-600",
+              "border-gray-200 dark:border-gray-700",
+              "hover:border-gray-300 dark:hover:border-gray-600",
+              "focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent",
             )}
+          />
+          <p className="text-xs text-gray-400 dark:text-gray-500">
+            This appears under your shop name on your storefront.
+          </p>
+        </div>
+      </div>
 
-            {outOfStock.length > 0 && (
-              <section>
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">
-                  Out of Stock
-                </p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 opacity-50">
-                  {outOfStock.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      onAddToCart={handleAddToCart}
-                    />
-                  ))}
-                </div>
-              </section>
-            )}
-          </div>
-        )}
-      </main>
-
-      {/* ── STICKY MOBILE CART ──────────────────────────────────────── */}
-      {cartCount > 0 && (
-        <div className="fixed bottom-4 inset-x-4 z-40 sm:hidden">
-          <button
-            onClick={() => setDrawerOpen(true)}
-            className="w-full flex items-center justify-between bg-gray-900 text-white px-5 py-4 rounded-2xl font-bold shadow-2xl hover:bg-gray-800 transition-all active:scale-[0.98]"
-          >
-            <div className="flex items-center gap-2">
-              <ShoppingBag className="h-5 w-5" />
-              <span>
-                {cartCount} item{cartCount > 1 ? "s" : ""}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-emerald-400 font-black">
-                {formatNaira(cartTotal)}
-              </span>
-              <span className="text-gray-400 text-sm">· Checkout</span>
-            </div>
-          </button>
+      {/* Error */}
+      {error && (
+        <div className="flex items-center gap-2 text-red-600 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-xl px-4 py-3">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <p className="text-sm">{error}</p>
         </div>
       )}
 
-      {/* ── FOOTER ──────────────────────────────────────────────────── */}
-      <footer className="border-t border-gray-100 bg-white mt-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-gray-400">
-          <p className="text-center sm:text-left text-xs">
-            {settings.shopName} &middot; Orders via WhatsApp
-          </p>
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 hover:text-emerald-600 transition-colors font-medium text-xs"
-          >
-            <div className="h-5 w-5 bg-emerald-600 rounded flex items-center justify-center text-white text-[10px] font-black">
-              ₦
-            </div>
-            Powered by NaijaCart
-          </Link>
-        </div>
-      </footer>
+      {/* Save */}
+      <Button
+        onClick={handleSave}
+        loading={loading}
+        size="lg"
+        disabled={!hasChanges && !loading}
+        className={cn(
+          "w-full transition-all",
+          saved
+            ? "bg-emerald-500 hover:bg-emerald-500 cursor-default"
+            : hasChanges
+              ? "bg-emerald-600 hover:bg-emerald-700"
+              : "bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed",
+        )}
+      >
+        {saved ? (
+          <>
+            <CheckCircle className="h-4 w-4" /> Changes saved
+          </>
+        ) : (
+          "Save Changes"
+        )}
+      </Button>
 
-      {/* ── CART DRAWER ─────────────────────────────────────────────── */}
-      <CartDrawer
-        isOpen={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        items={cart}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemove={handleRemove}
-        settings={settings}
-      />
+      {!hasChanges && !saved && (
+        <p className="text-xs text-center text-gray-400">No unsaved changes</p>
+      )}
     </div>
   );
 }

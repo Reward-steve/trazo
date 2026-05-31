@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag, Store } from "lucide-react";
+import { ShoppingBag, Store, Search } from "lucide-react";
 import { Product, ShopSettings, CartItem } from "../../types";
 import ProductCard from "../../components/store/ProductCard";
 import CartDrawer from "../../components/store/CartDrawer";
@@ -21,6 +21,7 @@ export default function StorefrontClient({
 }: StorefrontClientProps) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [search, setSearch] = useState("");
 
   const cartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
   const cartTotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
@@ -51,12 +52,17 @@ export default function StorefrontClient({
     setCart((prev) => prev.filter((i) => i.id !== id));
   }, []);
 
-  const availableProducts = products.filter((p) => p.available);
-  const outOfStock = products.filter((p) => !p.available);
+  // Filter by search
+  const filtered = products.filter((p) =>
+    p.name.toLowerCase().includes(search.toLowerCase()),
+  );
+  const availableProducts = filtered.filter((p) => p.available);
+  const outOfStock = filtered.filter((p) => !p.available);
+  const hasSearch = search.trim().length > 0;
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* ── STOREFRONT NAVBAR ─────────────────────────────────────────── */}
+      {/* ── NAVBAR ──────────────────────────────────────────────────── */}
       <nav className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* Shop identity */}
@@ -68,6 +74,7 @@ export default function StorefrontClient({
                   alt={settings.shopName}
                   fill
                   className="object-cover"
+                  sizes="36px"
                 />
               </div>
             ) : (
@@ -76,19 +83,21 @@ export default function StorefrontClient({
               </div>
             )}
             <div className="min-w-0">
-              <p className="font-bold text-gray-900 truncate leading-tight">
+              <p className="font-bold text-gray-900 truncate leading-tight text-sm sm:text-base">
                 {settings.shopName}
               </p>
-              <p className="text-xs text-gray-400 truncate hidden sm:block max-w-xs">
-                {settings.description}
-              </p>
+              {settings.description && (
+                <p className="text-xs text-gray-400 truncate hidden sm:block max-w-xs">
+                  {settings.description}
+                </p>
+              )}
             </div>
           </div>
 
-          {/* Cart button — always visible */}
+          {/* Cart — always visible */}
           <button
             onClick={() => setDrawerOpen(true)}
-            className="relative shrink-0 flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-sm hover:shadow-md"
+            className="relative shrink-0 flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-3 sm:px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-sm hover:shadow-md active:scale-95"
           >
             <ShoppingBag className="h-4 w-4" />
             <span className="hidden sm:inline">Cart</span>
@@ -104,32 +113,52 @@ export default function StorefrontClient({
               </>
             ) : (
               <span className="text-emerald-200 text-xs hidden sm:inline">
-                0 items
+                Empty
               </span>
             )}
           </button>
         </div>
+
+        {/* Search bar — below nav on mobile, inline on larger screens */}
+        {products.length > 4 && (
+          <div className="border-t border-gray-50 px-4 sm:px-6 lg:px-8 py-2.5">
+            <div className="relative max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition placeholder:text-gray-400"
+              />
+            </div>
+          </div>
+        )}
       </nav>
 
-      {/* ── PRODUCTS ──────────────────────────────────────────────────── */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+      {/* ── PRODUCTS ────────────────────────────────────────────────── */}
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 pb-28 sm:pb-8">
         {products.length === 0 ? (
           <EmptyState
             icon={<ShoppingBag className="h-10 w-10" />}
             title="No products yet"
             description="This vendor hasn't added any products yet. Check back soon."
           />
+        ) : hasSearch && filtered.length === 0 ? (
+          <EmptyState
+            icon={<Search className="h-10 w-10" />}
+            title={`No results for "${search}"`}
+            description="Try a different search term."
+          />
         ) : (
           <div className="space-y-10">
-            {/* Available products */}
             {availableProducts.length > 0 && (
               <section>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider">
-                    {availableProducts.length} item
-                    {availableProducts.length > 1 ? "s" : ""} available
-                  </h2>
-                </div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">
+                  {hasSearch
+                    ? `${availableProducts.length} result${availableProducts.length !== 1 ? "s" : ""}`
+                    : `${availableProducts.length} item${availableProducts.length !== 1 ? "s" : ""} available`}
+                </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                   {availableProducts.map((product) => (
                     <ProductCard
@@ -142,13 +171,12 @@ export default function StorefrontClient({
               </section>
             )}
 
-            {/* Out of stock */}
             {outOfStock.length > 0 && (
               <section>
-                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">
                   Out of Stock
-                </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 opacity-60">
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 opacity-50">
                   {outOfStock.map((product) => (
                     <ProductCard
                       key={product.id}
@@ -163,12 +191,12 @@ export default function StorefrontClient({
         )}
       </main>
 
-      {/* ── STICKY MOBILE CART ────────────────────────────────────────── */}
+      {/* ── STICKY MOBILE CART ──────────────────────────────────────── */}
       {cartCount > 0 && (
-        <div className="fixed bottom-6 inset-x-4 z-40 sm:hidden">
+        <div className="fixed bottom-4 inset-x-4 z-40 sm:hidden">
           <button
             onClick={() => setDrawerOpen(true)}
-            className="w-full flex items-center justify-between bg-gray-900 text-white px-5 py-4 rounded-2xl font-bold shadow-2xl hover:bg-gray-800 transition-all"
+            className="w-full flex items-center justify-between bg-gray-900 text-white px-5 py-4 rounded-2xl font-bold shadow-2xl hover:bg-gray-800 transition-all active:scale-[0.98]"
           >
             <div className="flex items-center gap-2">
               <ShoppingBag className="h-5 w-5" />
@@ -180,31 +208,31 @@ export default function StorefrontClient({
               <span className="text-emerald-400 font-black">
                 {formatNaira(cartTotal)}
               </span>
-              <span className="text-gray-400 text-sm">· View cart</span>
+              <span className="text-gray-400 text-sm">· Checkout</span>
             </div>
           </button>
         </div>
       )}
 
-      {/* ── FOOTER ────────────────────────────────────────────────────── */}
-      <footer className="border-t border-gray-100 bg-white mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-gray-400">
-          <p className="line-clamp-1 text-center sm:text-left">
-            {settings.shopName} · Orders via WhatsApp
+      {/* ── FOOTER ──────────────────────────────────────────────────── */}
+      <footer className="border-t border-gray-100 bg-white mt-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-gray-400">
+          <p className="text-center sm:text-left text-xs">
+            {settings.shopName} &middot; Orders via WhatsApp
           </p>
           <Link
             href="/"
-            className="flex items-center gap-1.5 hover:text-emerald-600 transition-colors font-medium"
+            className="flex items-center gap-1.5 hover:text-emerald-600 transition-colors font-medium text-xs"
           >
             <div className="h-5 w-5 bg-emerald-600 rounded flex items-center justify-center text-white text-[10px] font-black">
               ₦
             </div>
-            Powered by Trazo
+            Powered by NaijaCart
           </Link>
         </div>
       </footer>
 
-      {/* ── CART DRAWER ───────────────────────────────────────────────── */}
+      {/* ── CART DRAWER ─────────────────────────────────────────────── */}
       <CartDrawer
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
