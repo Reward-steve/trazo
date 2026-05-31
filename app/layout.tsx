@@ -7,7 +7,7 @@ import Navbar from "./components/layout/Navbar";
 const geist = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "NaijaCart — WhatsApp Storefront for Nigerian Vendors",
+  title: "Trazo — Your Store, Your Way, We Power it",
   description: "Turn your Instagram page into a real storefront in 5 minutes.",
 };
 

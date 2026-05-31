@@ -94,7 +94,7 @@ export default function DashboardSidebar({ shop }: DashboardSidebarProps) {
             ₦
           </div>
           <span className="font-bold text-gray-900 dark:text-white text-sm group-hover:text-emerald-600 transition-colors">
-            NaijaCart
+            Trazo
           </span>
         </Link>
       </div>

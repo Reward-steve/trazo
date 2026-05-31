@@ -109,7 +109,7 @@ export default function OnboardingPage() {
         <div className="h-9 w-9 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-sm">
           ₦
         </div>
-        <span className="text-white font-bold text-xl">NaijaCart</span>
+        <span className="text-white font-bold text-xl">Trazo</span>
       </div>
 
       {/* Card */}
@@ -157,7 +157,7 @@ export default function OnboardingPage() {
               </label>
               <div className="relative flex items-center">
                 <span className="absolute left-3 text-gray-500 text-sm select-none">
-                  naijacart.com/store/
+                  trazo-omega/store/
                 </span>
                 <input
                   value={form.slug}
@@ -246,7 +246,7 @@ export default function OnboardingPage() {
                 Your storefront link
               </p>
               <p className="text-sm text-white font-mono break-all">
-                naijacart.com/store/{form.slug}
+                trazo-omega/store/{form.slug}
               </p>
               <p className="text-xs text-gray-500 mt-1">
                 Share this link in your Instagram bio or WhatsApp status

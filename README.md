@@ -1,116 +1,92 @@
-# WhatsApp Order Storefront
+# TRAZO
 
-A mobile-first storefront for Nigerian vendors. Customers browse, add to cart, and send structured orders straight to WhatsApp.
+Turn social pages into real stores.
 
-## Stack
-- Next.js 15 App Router
-- TypeScript
-- Tailwind CSS
-- Prisma ORM + PostgreSQL (Supabase)
-- Server Actions
+TRAZO helps small businesses sell directly from Instagram and WhatsApp by turning their online presence into a simple, fast storefront people can actually buy from.
+
+No complexity. No setup friction. Just selling.
 
 ---
 
-## Setup
+## What TRAZO does
 
-### 1. Install dependencies
-```bash
-npm install
-```
-
-### 2. Set up environment variables
-Copy `.env.example` to `.env` and fill in your values:
-```bash
-cp .env.example .env
-```
-
-Your `.env` needs:
-```
-DATABASE_URL="postgresql://postgres.xxxx:PASSWORD@aws-0-eu-west-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
-DIRECT_URL="postgresql://postgres:PASSWORD@db.xxxx.supabase.co:5432/postgres"
-ADMIN_PASSWORD="your-strong-password"
-APP_URL="http://localhost:3000"
-```
-
-### 3. Run database migration
-```bash
-npx prisma migrate dev --name init
-```
-
-### 4. Seed demo data
-```bash
-npx prisma db seed
-```
-
-### 5. Start development server
-```bash
-npm run dev
-```
-
-Open http://localhost:3000
+- Turns any seller into a storefront in minutes
+- Lets customers browse products easily
+- Collects orders automatically
+- Sends clean order details straight to WhatsApp
+- Works where businesses already are: Instagram & WhatsApp
 
 ---
 
-## Folder Structure
-```
-app/
-  page.tsx              # Landing page (server component)
-  store/page.tsx        # Customer storefront (server component)
-  admin/page.tsx        # Admin dashboard (protected)
-  admin/login/page.tsx  # Admin login
-  api/admin/auth/       # Auth cookie API route
-  globals.css
-  layout.tsx
+## Why TRAZO exists
 
-components/
-  layout/
-    Navbar.tsx          # Sticky nav with active route highlighting
-  ui/
-    Button.tsx          # Reusable button with variants + loading state
-    Input.tsx           # Reusable input with label + error
-    Badge.tsx           # Status badges
-    EmptyState.tsx      # Empty list states
-  store/
-    ProductCard.tsx     # Product grid card
-    CartDrawer.tsx      # Slide-in cart + checkout form
-    StorefrontClient.tsx # Client wrapper for cart state
-  admin/
-    AdminClient.tsx     # Full admin dashboard UI
-    ProductForm.tsx     # Add/edit product form
-    SettingsForm.tsx    # Shop settings form
+Most small businesses don’t need websites.
 
-actions/
-  product.ts            # Product CRUD server actions
-  settings.ts           # Shop settings server actions
+They need something that:
 
-lib/
-  db.ts                 # Prisma singleton
-  utils.ts              # formatNaira, generateWhatsAppURL, cn
+- Works instantly
+- Feels natural to their customers
+- Doesn’t require technical setup
+- Starts selling immediately
 
-types/
-  index.ts              # Shared TypeScript types
-
-prisma/
-  schema.prisma
-  seed.ts
-```
+TRAZO removes everything unnecessary and keeps only what matters: **products and orders.**
 
 ---
 
-## Deployment (Vercel)
+## Core idea
 
-1. Push to GitHub
-2. Connect repo on vercel.com
-3. Add environment variables in Vercel dashboard (same as .env)
-4. Deploy
+Every business gets a simple identity:
 
-After first deploy, run migration against production DB:
-```bash
-npx prisma migrate deploy
-```
+- A store name
+- A product list
+- A shareable store entry point
+
+That’s enough to run a real business online.
 
 ---
 
-## Admin Access
-Go to `/admin` → enter your `ADMIN_PASSWORD` → you're in.
-Password is stored as an httpOnly cookie for 7 days.
+## How it works
+
+For sellers:
+
+- Add products
+- Share your store identity
+- Receive orders instantly on WhatsApp
+
+For customers:
+
+- Open store
+- Browse products
+- Place order in seconds
+
+---
+
+## Built for
+
+- Instagram vendors
+- WhatsApp sellers
+- Small retail shops
+- Side hustles becoming real businesses
+- Anyone selling without a website
+
+---
+
+## Philosophy
+
+Commerce should feel like sending a message, not building a website.
+
+TRAZO removes friction so selling becomes immediate.
+
+---
+
+## Vision
+
+To become the simplest way for anyone to start selling online—without ever thinking about websites, setups, or technical tools.
+
+---
+
+## Status
+
+Early-stage platform focused on social commerce and merchant simplicity.
+
+---

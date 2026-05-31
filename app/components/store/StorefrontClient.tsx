@@ -199,7 +199,7 @@ export default function StorefrontClient({
             <div className="h-5 w-5 bg-emerald-600 rounded flex items-center justify-center text-white text-[10px] font-black">
               ₦
             </div>
-            Powered by NaijaCart
+            Powered by Trazo
           </Link>
         </div>
       </footer>

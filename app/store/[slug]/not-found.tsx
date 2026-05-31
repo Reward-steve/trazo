@@ -12,7 +12,7 @@ export default function StoreNotFound() {
         href="/"
         className="bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-6 py-3 rounded-xl transition-all"
       >
-        Back to NaijaCart
+        Back to Trazo
       </Link>
     </div>
   );

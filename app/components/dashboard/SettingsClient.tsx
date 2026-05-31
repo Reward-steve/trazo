@@ -98,7 +98,7 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
             </span>
           </label>
           <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 text-sm text-gray-500 dark:text-gray-400">
-            <span className="truncate">naijacart.com/store/{shop.slug}</span>
+            <span className="truncate">Trazo.com/store/{shop.slug}</span>
             <a
               href={`/store/${shop.slug}`}
               target="_blank"

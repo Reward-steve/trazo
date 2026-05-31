@@ -143,7 +143,7 @@ const pricingTiers = [
       "Custom shop domain",
       "Order history & tracking",
       "Priority support",
-      "Remove NaijaCart branding",
+      "Remove Trazo branding",
     ],
     cta: "Start free, upgrade anytime",
     isPro: true,
@@ -417,7 +417,7 @@ export default function HomePage() {
             <div className="h-7 w-7 bg-emerald-600 rounded-lg flex items-center justify-center text-white text-sm font-black">
               ₦
             </div>
-            NaijaCart
+            Trazo
           </div>
           <p>
             Built for the Nigerian hustle. &copy; {new Date().getFullYear()}

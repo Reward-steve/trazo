@@ -53,7 +53,7 @@ export default function Navbar({
                 isDark ? "text-white" : "text-gray-900",
               )}
             >
-              {isStorefront && shopName ? shopName : "NaijaCart"}
+              {isStorefront && shopName ? shopName : "Trazo"}
             </span>
           </Link>
 
@@ -90,7 +90,7 @@ export default function Navbar({
                   href="/"
                   className="px-3 py-2 rounded-lg text-xs font-medium text-gray-500 hover:text-white hover:bg-white/5 transition-all"
                 >
-                  Powered by NaijaCart
+                  Powered by Trazo
                 </Link>
                 {onOpenCart && (
                   <button

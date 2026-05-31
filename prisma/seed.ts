@@ -11,7 +11,7 @@ async function main() {
     update: {},
     create: {
       id: "demo-user-id",
-      email: "demo@naijacart.com",
+      email: "demo@tra.com",
     },
   });
 

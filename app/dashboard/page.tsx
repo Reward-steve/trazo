@@ -27,7 +27,7 @@ export default async function DashboardPage() {
   const availableProducts = shop.products.filter((p) => p.available).length;
   const outOfStock = totalProducts - availableProducts;
 
-  const appUrl = process.env.APP_URL || "https://naijacart.com";
+  const appUrl = process.env.APP_URL || "https://trazo-omega.vercel.app";
   const storefrontUrl = `${appUrl}/store/${shop.slug}`;
 
   const stats = [
