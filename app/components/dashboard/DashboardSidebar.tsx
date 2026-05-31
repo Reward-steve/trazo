@@ -14,10 +14,12 @@ import {
   X,
   Copy,
   CheckCircle,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useClerk } from "@clerk/nextjs";
 import { cn } from "../../lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Shop {
   id: string;
@@ -52,6 +54,23 @@ export default function DashboardSidebar({ shop }: DashboardSidebarProps) {
   const { signOut } = useClerk();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() =>
+    typeof document !== "undefined"
+      ? document.documentElement.classList.contains("dark")
+      : false,
+  );
+
+  const toggleTheme = () => {
+    if (document.documentElement.classList.contains("dark")) {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+      setIsDarkMode(false);
+    } else {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+      setIsDarkMode(true);
+    }
+  };
 
   const storefrontUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/store/${shop.slug}`;
 
@@ -193,14 +212,26 @@ export default function DashboardSidebar({ shop }: DashboardSidebarProps) {
         </p>
       </div>
 
-      {/* Sign out */}
-      <div className="px-3 pb-4 border-t border-gray-100 dark:border-gray-800 pt-3">
+      {/* Bottom Actions (Sign out & Theme Toggle) */}
+      <div className="px-3 pb-4 border-t border-gray-100 dark:border-gray-800 pt-3 flex items-center gap-2">
         <button
           onClick={() => signOut({ redirectUrl: "/" })}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all w-full"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all flex-1"
         >
           <LogOut className="h-4 w-4 shrink-0" />
-          Sign out
+          <span>Sign out</span>
+        </button>
+
+        <button
+          onClick={toggleTheme}
+          aria-label="Toggle theme"
+          className="p-2.5 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-100 dark:border-gray-800 transition-all shrink-0"
+        >
+          {isDarkMode ? (
+            <Sun className="h-4 w-4 text-amber-500" />
+          ) : (
+            <Moon className="h-4 w-4 text-gray-600" />
+          )}
         </button>
       </div>
     </div>
