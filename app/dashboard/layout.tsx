@@ -14,21 +14,38 @@ export default async function DashboardLayout({
   const shop = await getShopByUser();
   if (!shop) redirect("/onboarding");
 
-  // Serialize dates before passing to client component
+  // Safety Guard: Fallback to an empty array if products somehow don't exist
+  const products = shop.products || [];
+
+  // Serialize dates safely before passing to client component
   const serializedShop = {
     ...shop,
-    products: shop.products.map((p) => ({
+    products: products.map((p) => ({
       id: p.id,
       available: p.available,
     })),
-    createdAt: shop.createdAt.toISOString(),
-    updatedAt: shop.updatedAt.toISOString(),
+    createdAt: shop.createdAt
+      ? shop.createdAt.toISOString()
+      : new Date().toISOString(),
+    updatedAt: shop.updatedAt
+      ? shop.updatedAt.toISOString()
+      : new Date().toISOString(),
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex">
+    // FIX 1: Changed 'flex' to a mobile-first column layout that switches to row layout on desktop
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col md:flex-row">
+      {/* 
+        FIX 2: Wrap the sidebar or check its code. 
+        If DashboardSidebar completely disappears on mobile using 'hidden md:block', 
+        any layout crashes inside it are mitigated here.
+      */}
       <DashboardSidebar shop={serializedShop} />
-      <main className="flex-1 min-w-0 overflow-x-hidden">{children}</main>
+
+      {/* FIX 3: Ensure main occupies full width on mobile, and scrolls beautifully */}
+      <main className="flex-1 w-full min-w-0 overflow-x-hidden pb-16 md:pb-0">
+        {children}
+      </main>
     </div>
   );
 }
