@@ -37,7 +37,7 @@ export default async function ProductsPage() {
           <div className="text-right shrink-0">
             <p className="text-lg font-black text-text leading-tight">
               {available}
-              <span className="text-border font-normal">
+              <span className="text-shadow-text-muted font-normal">
                 /{products.length}
               </span>
             </p>

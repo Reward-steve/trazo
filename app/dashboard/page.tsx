@@ -94,7 +94,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Storefront link card — WhatsApp header green */}
-      <div className="bg-header rounded-2xl p-4 text-white">
+      <div className="bg-primary-dark rounded-2xl p-4 text-white">
         <p className="text-white/60 text-[11px] font-medium uppercase tracking-widest mb-1">
           Your storefront
         </p>
