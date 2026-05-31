@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { Product } from "../../types";
-import Button from "../../components/ui/Button";
-import Input from "../../components/ui/Input";
+import Button from "../ui/Button";
+import Input from "../ui/Input";
 import { createProduct, updateProduct } from "../../actions/product";
-import ImageUpload from "../../components/ui/ImageUpload";
+import ImageUpload from "../ui/ImageUpload";
 
 interface ProductFormProps {
   product?: Product;

@@ -20,7 +20,6 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className={`${geist.className} min-h-screen`}>
-          {/* The Navbar will mount here globally, but will return null if the path is not "/" */}
           <Navbar />
           {children}
         </body>

@@ -16,7 +16,7 @@ import { formatNaira } from "../../lib/utils";
 import Button from "../../components/ui/Button";
 import Badge from "../../components/ui/Badge";
 import EmptyState from "../../components/ui/EmptyState";
-import ProductForm from "../../components/admin/ProductForm";
+import ProductForm from "../dashboard/ProductForm";
 import SettingsForm from "../../components/admin/SettingsForm";
 import {
   deleteProduct,
