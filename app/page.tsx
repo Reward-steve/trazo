@@ -54,17 +54,22 @@ export default function HomePage() {
               — a clean order lands straight in your WhatsApp.
             </p>
 
-            <div className="flex flex-wrap gap-4 mb-12">
+            <div className="flex flex-wrap gap-4 mb-12 w-full sm:w-auto">
               <Button
                 href="/signup"
                 variant="primary"
                 size="lg"
-                className="group bg-emerald-500 hover:bg-emerald-400 text-black font-bold shadow-lg shadow-emerald-500/25 hover:-translate-y-0.5"
+                className="w-full sm:w-auto"
               >
                 Create your shop
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <Button href="/store/demo" variant="outline" size="lg">
+              <Button
+                href="/store/demo"
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto"
+              >
                 See a live demo
                 <ChevronRight className="h-4 w-4" />
               </Button>
