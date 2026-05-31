@@ -11,8 +11,8 @@ import {
   MessageCircle,
   Lightbulb,
 } from "lucide-react";
-import { getShopByUser } from "../../app/actions/settings";
-import CopyLinkButton from "../../app/components/dashboard/CopyLinkButton";
+import { getShopByUser } from "../actions/settings";
+import CopyLinkButton from "../components/dashboard/CopyLinkButton";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +35,6 @@ export default async function DashboardPage() {
       label: "Total Products",
       value: totalProducts,
       icon: Package,
-      color: "text-blue-600",
       bg: "bg-blue-50 dark:bg-blue-900/20",
       iconColor: "text-blue-500",
     },
@@ -43,17 +42,15 @@ export default async function DashboardPage() {
       label: "Live & Available",
       value: availableProducts,
       icon: ToggleRight,
-      color: "text-emerald-600",
-      bg: "bg-emerald-50 dark:bg-emerald-900/20",
-      iconColor: "text-emerald-500",
+      bg: "bg-[var(--color-primary-light)]",
+      iconColor: "text-[var(--color-primary)]",
     },
     {
       label: "Out of Stock",
       value: outOfStock,
       icon: AlertCircle,
-      color: "text-amber-600",
-      bg: "bg-amber-50 dark:bg-amber-900/20",
-      iconColor: "text-amber-500",
+      bg: "bg-[var(--color-warning-light)]",
+      iconColor: "text-[var(--color-warning)]",
     },
   ];
 
@@ -84,23 +81,20 @@ export default async function DashboardPage() {
     <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-4xl mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white">
+        <h1 className="text-xl sm:text-2xl font-black text-[var(--color-text)]">
           {shop.shopName}
         </h1>
-        <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1">
+        <p className="text-[var(--color-text-secondary)] text-xs sm:text-sm mt-1">
           Your shop dashboard — manage products, share your link, receive
           orders.
         </p>
       </div>
 
-      {/* Storefront link — hero card */}
-      <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-2xl p-4 sm:p-6 mb-5 text-white shadow-lg shadow-emerald-600/20">
-        {/* FIX 1: Responsive flex behavior for link & preview button */}
+      {/* Storefront hero card */}
+      <div className="bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-hover)] rounded-2xl p-4 sm:p-6 mb-5 text-white shadow-lg shadow-[var(--color-primary)]/20">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
           <div className="min-w-0">
-            {" "}
-            {/* Prevents flex item clipping */}
-            <p className="text-emerald-100 text-xs font-semibold uppercase tracking-wider mb-1">
+            <p className="text-white/70 text-xs font-semibold uppercase tracking-wider mb-1">
               Your storefront link
             </p>
             <p className="text-base sm:text-lg font-black break-all leading-tight">
@@ -116,12 +110,13 @@ export default async function DashboardPage() {
             Preview
           </Link>
         </div>
+
         <div className="flex flex-wrap gap-2 mb-4">
           <CopyLinkButton url={storefrontUrl} />
         </div>
-        {/* Where to share */}
-        <div className="border-t border-emerald-500/30 pt-4">
-          <p className="text-emerald-200 text-xs font-medium mb-2">
+
+        <div className="border-t border-white/20 pt-4">
+          <p className="text-white/60 text-xs font-medium mb-2">
             Where to share this link:
           </p>
           <div className="flex flex-wrap gap-2">
@@ -132,7 +127,7 @@ export default async function DashboardPage() {
             ].map(({ icon: Icon, label }) => (
               <span
                 key={label}
-                className="flex items-center gap-1.5 bg-white/10 rounded-lg px-2.5 py-1 text-xs text-emerald-100"
+                className="flex items-center gap-1.5 bg-white/10 rounded-lg px-2.5 py-1 text-xs text-white/80"
               >
                 <Icon className="h-3 w-3" />
                 {label}
@@ -143,12 +138,11 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats */}
-      {/* FIX 2: Changed grid-cols-3 to grid-cols-1 sm:grid-cols-3 */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
         {stats.map(({ label, value, icon: Icon, bg, iconColor }) => (
           <div
             key={label}
-            className="bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 shadow-sm flex sm:flex-col items-center sm:items-start gap-4 sm:gap-0"
+            className="card p-4 flex sm:flex-col items-center sm:items-start gap-4 sm:gap-0"
           >
             <div
               className={`h-8 w-8 ${bg} rounded-xl flex items-center justify-center sm:mb-2 shrink-0`}
@@ -156,10 +150,10 @@ export default async function DashboardPage() {
               <Icon className={`h-4 w-4 ${iconColor}`} />
             </div>
             <div>
-              <p className="text-xl font-black text-gray-900 dark:text-white leading-tight">
+              <p className="text-xl font-black text-[var(--color-text)] leading-tight">
                 {value}
               </p>
-              <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5 leading-tight">
+              <p className="text-xs text-[var(--color-text-muted)] mt-0.5 leading-tight">
                 {label}
               </p>
             </div>
@@ -170,12 +164,12 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {/* Setup checklist */}
         {!setupComplete && (
-          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5">
+          <div className="card p-5">
             <div className="flex items-center gap-2 mb-4">
-              <div className="h-7 w-7 bg-amber-50 dark:bg-amber-900/20 rounded-lg flex items-center justify-center">
-                <Lightbulb className="h-4 w-4 text-amber-500" />
+              <div className="h-7 w-7 bg-[var(--color-warning-light)] rounded-lg flex items-center justify-center">
+                <Lightbulb className="h-4 w-4 text-[var(--color-warning)]" />
               </div>
-              <p className="font-bold text-gray-900 dark:text-white text-sm">
+              <p className="font-bold text-[var(--color-text)] text-sm">
                 Complete your setup
               </p>
             </div>
@@ -189,8 +183,8 @@ export default async function DashboardPage() {
                   <div
                     className={`h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
                       done
-                        ? "border-emerald-500 bg-emerald-500"
-                        : "border-gray-200 dark:border-gray-700 group-hover:border-emerald-400"
+                        ? "border-[var(--color-primary)] bg-[var(--color-primary)]"
+                        : "border-[var(--color-border)] group-hover:border-[var(--color-primary)]"
                     }`}
                   >
                     {done && (
@@ -211,12 +205,18 @@ export default async function DashboardPage() {
                   </div>
                   <div>
                     <p
-                      className={`text-sm font-medium ${done ? "text-gray-400 line-through" : "text-gray-900 dark:text-white group-hover:text-emerald-600"}`}
+                      className={`text-sm font-medium transition-colors ${
+                        done
+                          ? "text-[var(--color-text-muted)] line-through"
+                          : "text-[var(--color-text)] group-hover:text-[var(--color-primary)]"
+                      }`}
                     >
                       {label}
                     </p>
                     {!done && (
-                      <p className="text-xs text-gray-400 mt-0.5">{hint}</p>
+                      <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
+                        {hint}
+                      </p>
                     )}
                   </div>
                 </Link>
@@ -227,65 +227,67 @@ export default async function DashboardPage() {
 
         {/* Quick actions */}
         <div className="space-y-3">
-          <Link
-            href="/dashboard/products"
-            className="group bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-800 transition-all flex items-center justify-between"
-          >
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center">
-                <Package className="h-5 w-5 text-blue-500" />
+          {[
+            {
+              href: "/dashboard/products",
+              icon: Package,
+              iconBg: "bg-blue-50 dark:bg-blue-900/20",
+              iconColor: "text-blue-500",
+              title: "Manage Products",
+              desc: "Add, edit, or remove products",
+            },
+            {
+              href: "/dashboard/settings",
+              icon: ExternalLink,
+              iconBg: "bg-purple-50 dark:bg-purple-900/20",
+              iconColor: "text-purple-500",
+              title: "Shop Settings",
+              desc: "Logo, name, WhatsApp number",
+            },
+          ].map(({ href, icon: Icon, iconBg, iconColor, title, desc }) => (
+            <Link
+              key={href}
+              href={href}
+              className="group card p-5 flex items-center justify-between hover:border-[var(--color-primary-light)] hover:shadow-[var(--shadow-raised)] transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className={`h-9 w-9 ${iconBg} rounded-xl flex items-center justify-center`}
+                >
+                  <Icon className={`h-5 w-5 ${iconColor}`} />
+                </div>
+                <div>
+                  <p className="font-bold text-[var(--color-text)] text-sm">
+                    {title}
+                  </p>
+                  <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
+                    {desc}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="font-bold text-gray-900 dark:text-white text-sm">
-                  Manage Products
-                </p>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  Add, edit, or remove products
-                </p>
-              </div>
-            </div>
-            <ArrowRight className="h-5 w-5 text-gray-300 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" />
-          </Link>
-
-          <Link
-            href="/dashboard/settings"
-            className="group bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-800 transition-all flex items-center justify-between"
-          >
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 bg-purple-50 dark:bg-purple-900/20 rounded-xl flex items-center justify-center">
-                <ExternalLink className="h-5 w-5 text-purple-500" />
-              </div>
-              <div>
-                <p className="font-bold text-gray-900 dark:text-white text-sm">
-                  Shop Settings
-                </p>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  Logo, name, WhatsApp number
-                </p>
-              </div>
-            </div>
-            <ArrowRight className="h-5 w-5 text-gray-300 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" />
-          </Link>
+              <ArrowRight className="h-5 w-5 text-[var(--color-border)] group-hover:text-[var(--color-primary)] group-hover:translate-x-1 transition-all" />
+            </Link>
+          ))}
         </div>
       </div>
 
       {/* No products nudge */}
       {totalProducts === 0 && (
-        <div className="mt-5 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-2xl p-5 flex items-start gap-4">
-          <div className="h-9 w-9 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center shrink-0">
-            <Package className="h-5 w-5 text-amber-600" />
+        <div className="mt-5 bg-[var(--color-warning-light)] border border-[var(--color-warning)]/20 rounded-2xl p-5 flex items-start gap-4">
+          <div className="h-9 w-9 bg-[var(--color-warning)]/10 rounded-xl flex items-center justify-center shrink-0">
+            <Package className="h-5 w-5 text-[var(--color-warning)]" />
           </div>
           <div className="flex-1">
-            <p className="font-bold text-amber-900 dark:text-amber-300 text-sm">
+            <p className="font-bold text-[var(--color-text)] text-sm">
               Your shop has no products yet
             </p>
-            <p className="text-amber-700 dark:text-amber-400 text-xs mt-0.5 mb-3">
+            <p className="text-[var(--color-text-secondary)] text-xs mt-0.5 mb-3">
               Customers who visit your storefront link will see an empty page.
               Add products now so they can start ordering.
             </p>
             <Link
               href="/dashboard/products"
-              className="inline-flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all"
+              className="inline-flex items-center gap-1.5 bg-[var(--color-warning)] hover:bg-[var(--color-warning-hover,#b45309)] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all"
             >
               Add your first product
               <ArrowRight className="h-3.5 w-3.5" />

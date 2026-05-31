@@ -33,7 +33,7 @@ export default async function DashboardLayout({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-background flex flex-col md:flex-row">
       <DashboardSidebar shop={serializedShop} />
       <main className="flex-1 w-full min-w-0 overflow-x-hidden pb-16 md:pb-0">
         {children}
