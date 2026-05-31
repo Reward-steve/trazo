@@ -14,10 +14,8 @@ export default async function DashboardLayout({
   const shop = await getShopByUser();
   if (!shop) redirect("/onboarding");
 
-  // Safety Guard: Fallback to an empty array if products somehow don't exist
   const products = shop.products || [];
 
-  // Serialize dates safely before passing to client component
   const serializedShop = {
     ...shop,
     products: products.map((p) => ({
@@ -33,9 +31,9 @@ export default async function DashboardLayout({
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col md:flex-row">
+    <div className="min-h-screen bg-surface-alt flex flex-col md:flex-row">
       <DashboardSidebar shop={serializedShop} />
-      <main className="flex-1 w-full min-w-0 overflow-x-hidden pb-16 md:pb-0">
+      <main className="flex-1 w-full min-w-0 overflow-x-hidden pb-20 md:pb-0">
         {children}
       </main>
     </div>

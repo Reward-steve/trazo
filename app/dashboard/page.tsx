@@ -10,6 +10,7 @@ import {
   Instagram,
   MessageCircle,
   Lightbulb,
+  Settings,
 } from "lucide-react";
 import { getShopByUser } from "../actions/settings";
 import CopyLinkButton from "../components/dashboard/CopyLinkButton";
@@ -32,25 +33,21 @@ export default async function DashboardPage() {
 
   const stats = [
     {
-      label: "Total Products",
+      label: "Total products",
       value: totalProducts,
       icon: Package,
-      bg: "bg-blue-50 dark:bg-blue-900/20",
-      iconColor: "text-blue-500",
     },
     {
-      label: "Live & Available",
+      label: "Live & available",
       value: availableProducts,
       icon: ToggleRight,
-      bg: "bg-[var(--color-primary-light)]",
-      iconColor: "text-[var(--color-primary)]",
+      highlight: true,
     },
     {
-      label: "Out of Stock",
+      label: "Out of stock",
       value: outOfStock,
       icon: AlertCircle,
-      bg: "bg-[var(--color-warning-light)]",
-      iconColor: "text-[var(--color-warning)]",
+      warn: outOfStock > 0,
     },
   ];
 
@@ -76,49 +73,49 @@ export default async function DashboardPage() {
   ];
 
   const setupComplete = setupSteps.every((s) => s.done);
+  const doneCount = setupSteps.filter((s) => s.done).length;
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-4xl mx-auto">
+    <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-xl sm:text-2xl font-black text-[var(--color-text)]">
-          {shop.shopName}
-        </h1>
-        <p className="text-[var(--color-text-secondary)] text-xs sm:text-sm mt-1">
-          Your shop dashboard — manage products, share your link, receive
-          orders.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-bold text-text leading-tight">
+            {shop.shopName}
+          </h1>
+          <p className="text-text-muted text-xs mt-0.5">Dashboard</p>
+        </div>
+        <Link
+          href="/dashboard/settings"
+          className="h-9 w-9 flex items-center justify-center rounded-full bg-surface-alt border border-border text-text-muted hover:text-text transition-colors"
+        >
+          <Settings className="h-4 w-4" />
+        </Link>
       </div>
 
-      {/* Storefront hero card */}
-      <div className="bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-hover)] rounded-2xl p-4 sm:p-6 mb-5 text-white shadow-lg shadow-[var(--color-primary)]/20">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
-          <div className="min-w-0">
-            <p className="text-white/70 text-xs font-semibold uppercase tracking-wider mb-1">
-              Your storefront link
-            </p>
-            <p className="text-base sm:text-lg font-black break-all leading-tight">
-              {appUrl.replace("https://", "")}/store/{shop.slug}
-            </p>
-          </div>
+      {/* Storefront link card — WhatsApp header green */}
+      <div className="bg-header rounded-2xl p-4 text-white">
+        <p className="text-white/60 text-[11px] font-medium uppercase tracking-widest mb-1">
+          Your storefront
+        </p>
+        <p className="text-sm font-bold break-all leading-snug mb-3">
+          {appUrl.replace("https://", "")}/store/{shop.slug}
+        </p>
+
+        <div className="flex flex-wrap gap-2 mb-4">
+          <CopyLinkButton url={storefrontUrl} />
           <Link
             href={`/store/${shop.slug}`}
             target="_blank"
-            className="sm:shrink-0 flex items-center justify-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-medium px-3 py-2 rounded-xl transition-all w-full sm:w-auto"
+            className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-medium px-3 py-1.5 rounded-full transition-colors"
           >
-            <ExternalLink className="h-3.5 w-3.5" />
+            <ExternalLink className="h-3 w-3" />
             Preview
           </Link>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-4">
-          <CopyLinkButton url={storefrontUrl} />
-        </div>
-
-        <div className="border-t border-white/20 pt-4">
-          <p className="text-white/60 text-xs font-medium mb-2">
-            Where to share this link:
-          </p>
+        <div className="border-t border-white/10 pt-3">
+          <p className="text-white/50 text-[11px] mb-2">Share on</p>
           <div className="flex flex-wrap gap-2">
             {[
               { icon: Instagram, label: "Instagram bio" },
@@ -127,7 +124,7 @@ export default async function DashboardPage() {
             ].map(({ icon: Icon, label }) => (
               <span
                 key={label}
-                className="flex items-center gap-1.5 bg-white/10 rounded-lg px-2.5 py-1 text-xs text-white/80"
+                className="flex items-center gap-1 bg-white/10 rounded-full px-2.5 py-1 text-[11px] text-white/70"
               >
                 <Icon className="h-3 w-3" />
                 {label}
@@ -138,22 +135,29 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
-        {stats.map(({ label, value, icon: Icon, bg, iconColor }) => (
+      <div className="grid grid-cols-3 gap-3">
+        {stats.map(({ label, value, icon: Icon, highlight, warn }) => (
           <div
             key={label}
-            className="card p-4 flex sm:flex-col items-center sm:items-start gap-4 sm:gap-0"
+            className="bg-surface border border-border rounded-2xl p-3 flex flex-col gap-2"
           >
             <div
-              className={`h-8 w-8 ${bg} rounded-xl flex items-center justify-center sm:mb-2 shrink-0`}
+              className={`h-7 w-7 rounded-xl flex items-center justify-center
+                ${highlight ? "bg-bubble-out" : warn && value > 0 ? "bg-surface-alt" : "bg-surface-alt"}`}
             >
-              <Icon className={`h-4 w-4 ${iconColor}`} />
+              <Icon
+                className={`h-3.5 w-3.5
+                  ${highlight ? "text-primary-dark" : warn && value > 0 ? "text-text-muted" : "text-text-muted"}`}
+              />
             </div>
             <div>
-              <p className="text-xl font-black text-[var(--color-text)] leading-tight">
+              <p
+                className={`text-2xl font-black leading-none
+                ${highlight ? "text-primary-dark" : "text-text"}`}
+              >
                 {value}
               </p>
-              <p className="text-xs text-[var(--color-text-muted)] mt-0.5 leading-tight">
+              <p className="text-[11px] text-text-muted mt-0.5 leading-tight">
                 {label}
               </p>
             </div>
@@ -161,136 +165,135 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        {/* Setup checklist */}
-        {!setupComplete && (
-          <div className="card p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="h-7 w-7 bg-[var(--color-warning-light)] rounded-lg flex items-center justify-center">
-                <Lightbulb className="h-4 w-4 text-[var(--color-warning)]" />
-              </div>
-              <p className="font-bold text-[var(--color-text)] text-sm">
-                Complete your setup
-              </p>
+      {/* Setup checklist */}
+      {!setupComplete && (
+        <div className="bg-surface border border-border rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Lightbulb className="h-4 w-4 text-primary" />
+              <p className="text-sm font-bold text-text">Complete your setup</p>
             </div>
-            <div className="space-y-3">
-              {setupSteps.map(({ done, label, hint, href }) => (
-                <Link
-                  key={label}
-                  href={done ? "#" : href}
-                  className={`flex items-start gap-3 group ${done ? "cursor-default" : "cursor-pointer"}`}
-                >
-                  <div
-                    className={`h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
-                      done
-                        ? "border-[var(--color-primary)] bg-[var(--color-primary)]"
-                        : "border-[var(--color-border)] group-hover:border-[var(--color-primary)]"
-                    }`}
-                  >
-                    {done && (
-                      <svg
-                        className="h-3 w-3 text-white"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={3}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    )}
-                  </div>
-                  <div>
-                    <p
-                      className={`text-sm font-medium transition-colors ${
-                        done
-                          ? "text-[var(--color-text-muted)] line-through"
-                          : "text-[var(--color-text)] group-hover:text-[var(--color-primary)]"
-                      }`}
-                    >
-                      {label}
-                    </p>
-                    {!done && (
-                      <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-                        {hint}
-                      </p>
-                    )}
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <span className="text-[11px] text-text-muted font-medium">
+              {doneCount}/{setupSteps.length}
+            </span>
           </div>
-        )}
 
-        {/* Quick actions */}
-        <div className="space-y-3">
-          {[
-            {
-              href: "/dashboard/products",
-              icon: Package,
-              iconBg: "bg-blue-50 dark:bg-blue-900/20",
-              iconColor: "text-blue-500",
-              title: "Manage Products",
-              desc: "Add, edit, or remove products",
-            },
-            {
-              href: "/dashboard/settings",
-              icon: ExternalLink,
-              iconBg: "bg-purple-50 dark:bg-purple-900/20",
-              iconColor: "text-purple-500",
-              title: "Shop Settings",
-              desc: "Logo, name, WhatsApp number",
-            },
-          ].map(({ href, icon: Icon, iconBg, iconColor, title, desc }) => (
-            <Link
-              key={href}
-              href={href}
-              className="group card p-5 flex items-center justify-between hover:border-[var(--color-primary-light)] hover:shadow-[var(--shadow-raised)] transition-all"
-            >
-              <div className="flex items-center gap-3">
+          {/* Progress bar */}
+          <div className="h-1 bg-surface-alt rounded-full mb-4 overflow-hidden">
+            <div
+              className="h-full bg-primary rounded-full transition-all duration-500"
+              style={{ width: `${(doneCount / setupSteps.length) * 100}%` }}
+            />
+          </div>
+
+          <div className="space-y-3">
+            {setupSteps.map(({ done, label, hint, href }) => (
+              <Link
+                key={label}
+                href={done ? "#" : href}
+                className={`flex items-start gap-3 group ${done ? "pointer-events-none" : ""}`}
+              >
+                {/* Checkbox circle */}
                 <div
-                  className={`h-9 w-9 ${iconBg} rounded-xl flex items-center justify-center`}
+                  className={`h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors
+                    ${
+                      done
+                        ? "border-primary bg-primary"
+                        : "border-border group-hover:border-primary"
+                    }`}
                 >
-                  <Icon className={`h-5 w-5 ${iconColor}`} />
+                  {done && (
+                    <svg
+                      className="h-2.5 w-2.5 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={3}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  )}
                 </div>
                 <div>
-                  <p className="font-bold text-[var(--color-text)] text-sm">
-                    {title}
+                  <p
+                    className={`text-sm transition-colors
+                    ${
+                      done
+                        ? "text-text-muted line-through"
+                        : "text-text font-medium group-hover:text-primary"
+                    }`}
+                  >
+                    {label}
                   </p>
-                  <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-                    {desc}
-                  </p>
+                  {!done && (
+                    <p className="text-[11px] text-text-muted mt-0.5">{hint}</p>
+                  )}
                 </div>
-              </div>
-              <ArrowRight className="h-5 w-5 text-[var(--color-border)] group-hover:text-[var(--color-primary)] group-hover:translate-x-1 transition-all" />
-            </Link>
-          ))}
+              </Link>
+            ))}
+          </div>
         </div>
+      )}
+
+      {/* Quick actions */}
+      <div className="space-y-2">
+        {[
+          {
+            href: "/dashboard/products",
+            icon: Package,
+            title: "Manage products",
+            desc: "Add, edit, or remove products",
+          },
+          {
+            href: "/dashboard/settings",
+            icon: Settings,
+            title: "Shop settings",
+            desc: "Logo, name, WhatsApp number",
+          },
+        ].map(({ href, icon: Icon, title, desc }) => (
+          <Link
+            key={href}
+            href={href}
+            className="group flex items-center justify-between bg-surface border border-border rounded-2xl p-4 hover:border-primary transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 bg-bubble-out rounded-xl flex items-center justify-center">
+                <Icon className="h-4 w-4 text-primary-dark" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-text">{title}</p>
+                <p className="text-[11px] text-text-muted mt-0.5">{desc}</p>
+              </div>
+            </div>
+            <ArrowRight className="h-4 w-4 text-border group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+          </Link>
+        ))}
       </div>
 
       {/* No products nudge */}
       {totalProducts === 0 && (
-        <div className="mt-5 bg-[var(--color-warning-light)] border border-[var(--color-warning)]/20 rounded-2xl p-5 flex items-start gap-4">
-          <div className="h-9 w-9 bg-[var(--color-warning)]/10 rounded-xl flex items-center justify-center shrink-0">
-            <Package className="h-5 w-5 text-[var(--color-warning)]" />
+        <div className="bg-surface-alt border border-border rounded-2xl p-4 flex items-start gap-3">
+          <div className="h-8 w-8 bg-surface rounded-xl border border-border flex items-center justify-center shrink-0">
+            <Package className="h-4 w-4 text-text-muted" />
           </div>
-          <div className="flex-1">
-            <p className="font-bold text-[var(--color-text)] text-sm">
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-text">
               Your shop has no products yet
             </p>
-            <p className="text-[var(--color-text-secondary)] text-xs mt-0.5 mb-3">
-              Customers who visit your storefront link will see an empty page.
-              Add products now so they can start ordering.
+            <p className="text-[11px] text-text-muted mt-0.5 mb-3 leading-relaxed">
+              Customers who visit your storefront will see an empty page. Add
+              products so they can start ordering.
             </p>
             <Link
               href="/dashboard/products"
-              className="inline-flex items-center gap-1.5 bg-[var(--color-warning)] hover:bg-[var(--color-warning-hover,#b45309)] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all"
+              className="inline-flex items-center gap-1.5 bg-primary hover:bg-primary-dark text-white text-xs font-bold px-4 py-2 rounded-full transition-colors"
             >
               Add your first product
-              <ArrowRight className="h-3.5 w-3.5" />
+              <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
         </div>

@@ -15,16 +15,16 @@ export default function CopyLinkButton({ url }: { url: string }) {
   return (
     <button
       onClick={handleCopy}
-      className="flex items-center gap-2 bg-white text-emerald-700 text-sm font-bold px-4 py-2 rounded-xl transition-all hover:bg-emerald-50"
+      className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-3 py-1.5 rounded-full transition-colors"
     >
       {copied ? (
         <>
-          <CheckCircle className="h-4 w-4" />
+          <CheckCircle className="h-3.5 w-3.5" />
           Copied!
         </>
       ) : (
         <>
-          <Copy className="h-4 w-4" />
+          <Copy className="h-3.5 w-3.5" />
           Copy link
         </>
       )}

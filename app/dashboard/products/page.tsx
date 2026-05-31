@@ -22,37 +22,37 @@ export default async function ProductsPage() {
   }));
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-4xl mx-auto">
+    <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 mb-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black text-gray-900 dark:text-white">
+          <h1 className="text-lg font-bold text-text leading-tight">
             Products
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+          <p className="text-text-muted text-xs mt-0.5">
             Manage what customers see on your storefront.
           </p>
         </div>
         {products.length > 0 && (
-          <div className="shrink-0 text-right">
-            <p className="text-2xl font-black text-gray-900 dark:text-white">
+          <div className="text-right shrink-0">
+            <p className="text-lg font-black text-text leading-tight">
               {available}
-              <span className="text-gray-300 dark:text-gray-600 font-normal">
+              <span className="text-border font-normal">
                 /{products.length}
               </span>
             </p>
-            <p className="text-xs text-gray-400">live products</p>
+            <p className="text-[11px] text-text-muted">live</p>
           </div>
         )}
       </div>
 
-      {/* Context hint — only shown when they have products */}
+      {/* Context hint */}
       {products.length > 0 && (
-        <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-xl px-4 py-3 mb-5 flex items-center gap-3">
-          <div className="h-1.5 w-1.5 rounded-full bg-blue-400 shrink-0" />
-          <p className="text-xs text-blue-700 dark:text-blue-300">
-            Changes you make here appear on your storefront immediately.
-            Toggling a product off hides it from customers without deleting it.
+        <div className="flex items-center gap-2.5 bg-surface border border-border rounded-2xl px-4 py-3">
+          <div className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+          <p className="text-[11px] text-text-muted leading-relaxed">
+            Changes appear on your storefront immediately. Toggling a product
+            off hides it from customers without deleting it.
           </p>
         </div>
       )}
