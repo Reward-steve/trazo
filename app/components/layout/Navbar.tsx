@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShoppingBag, Menu, X, LogIn } from "lucide-react";
 import { cn } from "../../lib/utils";
+import Image from "next/image";
+import logo from "../../../public/trazo_omega.png";
 
 interface NavbarProps {
   shopName?: string;
@@ -44,8 +46,13 @@ export default function Navbar({
             href="/"
             className="flex items-center gap-2.5 font-bold text-xl"
           >
-            <div className="h-9 w-9 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black shadow-sm shrink-0">
-              ₦
+            <div className="relative h-9 w-9 rounded-xl overflow-hidden shrink-0 bg-surface-alt">
+              <Image
+                src={logo}
+                alt={"trazo_logo"}
+                fill
+                className="object-cover"
+              />
             </div>
             <span
               className={cn(

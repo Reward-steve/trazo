@@ -40,20 +40,20 @@ export default function HomePage() {
             {/* Status badge */}
             <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5 text-sm text-emerald-400 mb-8">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Built for Nigerian vendors who are tired of DM chaos
+              The simplest way to sell online
             </div>
 
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.05] mb-6">
-              Your customers{" "}
-              <span className="text-emerald-400">order themselves.</span>
+              Customers browse.{" "}
+              <span className="text-emerald-400">Customers order.</span>
               <br />
-              You just confirm.
+              You fulfill.
             </h1>
 
             <p className="text-lg sm:text-xl text-gray-400 mb-10 leading-relaxed max-w-xl">
-              Turn your Instagram or WhatsApp page into a real storefront in
-              under 5 minutes. Customers browse, pick items, fill their details
-              — a clean order lands straight in your WhatsApp.
+              Turn your Instagram or WhatsApp page into a storefront in under 5
+              minutes. Customers browse products, place orders, and every order
+              lands neatly in your WhatsApp.
             </p>
 
             <div className="flex flex-wrap gap-4 mb-12 w-full sm:w-auto">
@@ -275,8 +275,13 @@ export default function HomePage() {
 
       <footer className="border-t border-white/5 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-600">
-          <div className="flex items-center gap-2">
-            <Image src={logo} alt="TRAZO" />
+          <div className="relative h-9 w-9 rounded-xl overflow-hidden shrink-0 bg-surface-alt">
+            <Image
+              src={logo}
+              alt={"trazo_logo"}
+              fill
+              className="object-cover"
+            />
           </div>
 
           <p>
