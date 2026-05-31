@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { ThemeProvider } from "./components/ui/ThemeProvider";
+import Navbar from "./components/layout/Navbar";
 
 const geist = Geist({ subsets: ["latin"] });
 
@@ -22,7 +23,10 @@ export default function RootLayout({
         <body
           className={`${geist.className} bg-background text-[var(--color-text)] antialiased`}
         >
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider>
+            <Navbar />
+            {children}
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>

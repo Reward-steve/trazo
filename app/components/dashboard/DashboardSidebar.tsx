@@ -14,12 +14,12 @@ import {
   X,
   Copy,
   CheckCircle,
-  Sun,
-  Moon,
 } from "lucide-react";
+import { ThemeToggle } from "../../components/ui/ThemeProvider";
+
 import { useClerk } from "@clerk/nextjs";
 import { cn } from "../../lib/utils";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 interface Shop {
   id: string;
@@ -54,23 +54,23 @@ export default function DashboardSidebar({ shop }: DashboardSidebarProps) {
   const { signOut } = useClerk();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(() =>
-    typeof document !== "undefined"
-      ? document.documentElement.classList.contains("dark")
-      : false,
-  );
+  // const [isDarkMode, setIsDarkMode] = useState(() =>
+  //   typeof document !== "undefined"
+  //     ? document.documentElement.classList.contains("dark")
+  //     : false,
+  // );
 
-  const toggleTheme = () => {
-    if (document.documentElement.classList.contains("dark")) {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-      setIsDarkMode(false);
-    } else {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-      setIsDarkMode(true);
-    }
-  };
+  // const toggleTheme = () => {
+  //   if (document.documentElement.classList.contains("dark")) {
+  //     document.documentElement.classList.remove("dark");
+  //     localStorage.setItem("theme", "light");
+  //     setIsDarkMode(false);
+  //   } else {
+  //     document.documentElement.classList.add("dark");
+  //     localStorage.setItem("theme", "dark");
+  //     setIsDarkMode(true);
+  //   }
+  // };
 
   const storefrontUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/store/${shop.slug}`;
 
@@ -222,17 +222,7 @@ export default function DashboardSidebar({ shop }: DashboardSidebarProps) {
           <span>Sign out</span>
         </button>
 
-        <button
-          onClick={toggleTheme}
-          aria-label="Toggle theme"
-          className="p-2.5 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-100 dark:border-gray-800 transition-all shrink-0"
-        >
-          {isDarkMode ? (
-            <Sun className="h-4 w-4 text-amber-500" />
-          ) : (
-            <Moon className="h-4 w-4 text-gray-600" />
-          )}
-        </button>
+        <ThemeToggle />
       </div>
     </div>
   );
