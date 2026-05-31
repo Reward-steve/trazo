@@ -116,7 +116,7 @@ export default function StorefrontClient({
 
         {/* Search */}
         {products.length > 4 && (
-          <div className="px-4 pb-3">
+          <div className="px-4 pb-3 max-w-4xl">
             <div className="relative max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40" />
               <input
