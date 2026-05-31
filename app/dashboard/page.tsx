@@ -57,7 +57,6 @@ export default async function DashboardPage() {
     },
   ];
 
-  // Checklist — guides vendor through setup
   const setupSteps = [
     {
       done: !!shop.logoUrl,
@@ -82,22 +81,25 @@ export default async function DashboardPage() {
   const setupComplete = setupSteps.every((s) => s.done);
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-4xl mx-auto">
+    <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-4xl mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-black text-gray-900 dark:text-white">
+        <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white">
           {shop.shopName}
         </h1>
-        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+        <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1">
           Your shop dashboard — manage products, share your link, receive
           orders.
         </p>
       </div>
 
       {/* Storefront link — hero card */}
-      <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-2xl p-5 sm:p-6 mb-5 text-white shadow-lg shadow-emerald-600/20">
-        <div className="flex items-start justify-between gap-4 mb-4">
-          <div>
+      <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-2xl p-4 sm:p-6 mb-5 text-white shadow-lg shadow-emerald-600/20">
+        {/* FIX 1: Responsive flex behavior for link & preview button */}
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
+          <div className="min-w-0">
+            {" "}
+            {/* Prevents flex item clipping */}
             <p className="text-emerald-100 text-xs font-semibold uppercase tracking-wider mb-1">
               Your storefront link
             </p>
@@ -108,7 +110,7 @@ export default async function DashboardPage() {
           <Link
             href={`/store/${shop.slug}`}
             target="_blank"
-            className="shrink-0 flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-medium px-3 py-2 rounded-xl transition-all"
+            className="sm:shrink-0 flex items-center justify-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-medium px-3 py-2 rounded-xl transition-all w-full sm:w-auto"
           >
             <ExternalLink className="h-3.5 w-3.5" />
             Preview
@@ -141,23 +143,26 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3 mb-5">
+      {/* FIX 2: Changed grid-cols-3 to grid-cols-1 sm:grid-cols-3 */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
         {stats.map(({ label, value, icon: Icon, bg, iconColor }) => (
           <div
             key={label}
-            className="bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 shadow-sm"
+            className="bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 shadow-sm flex sm:flex-col items-center sm:items-start gap-4 sm:gap-0"
           >
             <div
-              className={`h-8 w-8 ${bg} rounded-xl flex items-center justify-center mb-2`}
+              className={`h-8 w-8 ${bg} rounded-xl flex items-center justify-center sm:mb-2 shrink-0`}
             >
               <Icon className={`h-4 w-4 ${iconColor}`} />
             </div>
-            <p className="text-xl font-black text-gray-900 dark:text-white">
-              {value}
-            </p>
-            <p className="text-[11px] text-gray-400 mt-0.5 leading-tight">
-              {label}
-            </p>
+            <div>
+              <p className="text-xl font-black text-gray-900 dark:text-white leading-tight">
+                {value}
+              </p>
+              <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5 leading-tight">
+                {label}
+              </p>
+            </div>
           </div>
         ))}
       </div>
