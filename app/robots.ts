@@ -4,6 +4,6 @@ export default function robots() {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://whatsapp-store-front-nu.vercel.app/sitemap.xml",
+    sitemap: "https://trazo-omega.vercel.app/sitemap.xml",
   };
 }

@@ -1,7 +1,7 @@
 export default function sitemap() {
   return [
     {
-      url: "https://whatsapp-store-front-nu.vercel.app",
+      url: "https://trazo-omega.vercel.app/",
       lastModified: new Date(),
     },
   ];
