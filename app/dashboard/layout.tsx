@@ -33,16 +33,8 @@ export default async function DashboardLayout({
   };
 
   return (
-    // FIX 1: Changed 'flex' to a mobile-first column layout that switches to row layout on desktop
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col md:flex-row">
-      {/* 
-        FIX 2: Wrap the sidebar or check its code. 
-        If DashboardSidebar completely disappears on mobile using 'hidden md:block', 
-        any layout crashes inside it are mitigated here.
-      */}
       <DashboardSidebar shop={serializedShop} />
-
-      {/* FIX 3: Ensure main occupies full width on mobile, and scrolls beautifully */}
       <main className="flex-1 w-full min-w-0 overflow-x-hidden pb-16 md:pb-0">
         {children}
       </main>
