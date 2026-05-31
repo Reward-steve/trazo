@@ -29,26 +29,33 @@ export default function StorefrontClient({
   const handleAddToCart = useCallback((item: CartItem) => {
     setCart((prev) => {
       const existing = prev.find((i) => i.id === item.id);
-      if (existing)
+      if (existing) {
+        // Enforce stock limit
+        const limit = item.stock ?? Infinity;
+        if (existing.quantity >= limit) return prev;
         return prev.map((i) =>
           i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i,
         );
+      }
       return [...prev, item];
     });
   }, []);
 
   const handleUpdateQuantity = useCallback((id: string, quantity: number) => {
-    if (quantity <= 0) setCart((prev) => prev.filter((i) => i.id !== id));
-    else
+    if (quantity <= 0) {
+      setCart((prev) => prev.filter((i) => i.id !== id));
+    } else {
       setCart((prev) =>
         prev.map((i) => (i.id === id ? { ...i, quantity } : i)),
       );
+    }
   }, []);
 
   const handleRemove = useCallback((id: string) => {
     setCart((prev) => prev.filter((i) => i.id !== id));
   }, []);
 
+  // Filter by search
   const filtered = products.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase()),
   );

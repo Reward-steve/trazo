@@ -62,6 +62,7 @@ export default function CartDrawer({
     onClose();
   };
 
+  // Reset step when drawer closes
   const handleClose = () => {
     setStep("cart");
     onClose();
