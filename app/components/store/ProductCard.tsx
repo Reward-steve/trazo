@@ -50,14 +50,12 @@ export default function ProductCard({
       </div>
 
       {/* Info */}
-      <div className="p-4 flex flex-col flex-1 gap-3">
-        <div className="flex-1">
-          <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-snug">
-            {product.name}
-          </h3>
-        </div>
+      <div className="p-3 sm:p-4 flex flex-col flex-1 gap-3">
+        <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-snug flex-1">
+          {product.name}
+        </h3>
         <div className="flex items-center justify-between gap-2">
-          <span className="text-base font-bold text-emerald-700">
+          <span className="text-sm sm:text-base font-bold text-emerald-700 shrink-0">
             {formatNaira(product.price)}
           </span>
           <Button
@@ -65,15 +63,17 @@ export default function ProductCard({
             onClick={handleAdd}
             disabled={!product.available}
             variant={added ? "secondary" : "primary"}
-            className="shrink-0"
+            className="shrink-0 text-xs"
           >
             {added ? (
               <>
-                <CheckCircle className="h-3.5 w-3.5" /> Added
+                <CheckCircle className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Added</span>
               </>
             ) : (
               <>
-                <ShoppingCart className="h-3.5 w-3.5" /> Add
+                <ShoppingCart className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Add</span>
               </>
             )}
           </Button>
