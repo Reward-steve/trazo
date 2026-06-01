@@ -25,6 +25,7 @@ export async function createProduct(data: {
   price: number;
   imageUrl: string;
   available: boolean;
+  stock?: number | null;
 }) {
   const shop = await getUserShop();
   const product = await db.product.create({
@@ -42,6 +43,7 @@ export async function updateProduct(
     price: number;
     imageUrl: string;
     available: boolean;
+    stock?: number | null;
   }>,
 ) {
   const shop = await getUserShop();
