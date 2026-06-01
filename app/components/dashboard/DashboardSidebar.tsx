@@ -17,7 +17,7 @@ import { ThemeToggle } from "../../components/ui/ThemeProvider";
 import { useClerk } from "@clerk/nextjs";
 import { cn } from "../../lib/utils";
 import { useState } from "react";
-import logo from "@/public/trazo_omega.png";
+import logo from "../../../public/trazo_omega.png";
 
 interface Shop {
   id: string;

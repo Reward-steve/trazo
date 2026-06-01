@@ -23,7 +23,7 @@ type Modal = { type: "add" } | { type: "edit"; product: Product } | null;
 
 export default function ProductsClient({
   products,
-  shopSlug,
+  // shopSlug,
 }: ProductsClientProps) {
   const router = useRouter();
   const [modal, setModal] = useState<Modal>(null);
