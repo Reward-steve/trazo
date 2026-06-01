@@ -4,7 +4,7 @@ export interface Product {
   price: number;
   imageUrl: string;
   available: boolean;
-  stock: number | null; // null = unlimited
+  stock?: number | null; // null = unlimited
   createdAt: Date;
 }
 
@@ -23,7 +23,7 @@ export interface CartItem {
   price: number;
   imageUrl: string;
   quantity: number;
-  stock: number | null; // carried from product so cart can enforce limits
+  stock?: number | null; // carried from product so cart can enforce limits
 }
 
 export interface CustomerDetails {

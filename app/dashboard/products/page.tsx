@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { getProducts } from "../../actions/product";
 import { getShopByUser } from "../../actions/settings";
 import ProductsClient from "../../components/dashboard/ProductsClient";
-import { Product } from "@prisma/client";
+import { Product } from "../../types";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +37,7 @@ export default async function ProductsPage() {
           <div className="text-right shrink-0">
             <p className="text-lg font-black text-text leading-tight">
               {available}
-              <span className="text-shadow-text-muted font-normal">
+              <span className="text-text-muted font-normal">
                 /{products.length}
               </span>
             </p>
