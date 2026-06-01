@@ -5,7 +5,6 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("Seeding database...");
 
-  // Create a demo user and shop for testing
   const demoUser = await prisma.user.upsert({
     where: { id: "demo-user-id" },
     update: {},
