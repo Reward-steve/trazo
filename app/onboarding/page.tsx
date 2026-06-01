@@ -8,7 +8,7 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import ImageUpload from "../components/ui/ImageUpload";
 import { createShop, checkSlugAvailable } from "../actions/settings";
-import logo from "@/public/trazo_omega.png";
+import logo from "../../public/trazo_omega.png";
 
 function generateSlug(name: string): string {
   return name
