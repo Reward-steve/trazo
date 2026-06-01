@@ -17,6 +17,7 @@ import { ThemeToggle } from "../../components/ui/ThemeProvider";
 import { useClerk } from "@clerk/nextjs";
 import { cn } from "../../lib/utils";
 import { useState } from "react";
+import logo from "../../../public/trazo_omega.png";
 
 interface Shop {
   id: string;
@@ -70,12 +71,14 @@ export default function DashboardSidebar({ shop }: DashboardSidebarProps) {
         {/* Logo */}
         <div className="px-4 py-4 border-b border-border">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="h-8 w-8 bg-header rounded-xl flex items-center justify-center text-white font-black text-sm">
-              ₦
+            <div className="relative h-9 w-9 rounded-xl overflow-hidden shrink-0 bg-surface-alt">
+              <Image
+                src={logo}
+                alt={"trazo_logo"}
+                fill
+                className="object-cover"
+              />
             </div>
-            <span className="font-bold text-text text-sm group-hover:text-primary transition-colors">
-              Trazo
-            </span>
           </Link>
         </div>
 
