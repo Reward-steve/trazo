@@ -2,15 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Store, ArrowRight, CheckCircle } from "lucide-react";
+import { ArrowRight, CheckCircle, Store } from "lucide-react";
+import Image from "next/image";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import ImageUpload from "../components/ui/ImageUpload";
 import { createShop, checkSlugAvailable } from "../actions/settings";
-import Image from "next/image";
-import logo from "../../public/trazo_omega.png";
+import logo from "@/public/trazo_omega.png";
 
-// Auto-generate a URL-safe slug from shop name
 function generateSlug(name: string): string {
   return name
     .toLowerCase()
@@ -37,13 +36,11 @@ export default function OnboardingPage() {
     description: "",
     logoUrl: "",
   });
-
   const [errors, setErrors] = useState<Partial<typeof form>>({});
 
   const update = (field: keyof typeof form, value: string) => {
     setForm((prev) => {
       const updated = { ...prev, [field]: value };
-      // Auto-generate slug when shop name changes
       if (field === "shopName") {
         updated.slug = generateSlug(value);
         setSlugAvailable(null);
@@ -107,181 +104,196 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen bg-surface-alt flex flex-col items-center justify-center px-4 py-12">
       {/* Logo */}
-      <div className="relative h-9 w-9 rounded-xl overflow-hidden shrink-0 bg-surface-alt">
-        <Image src={logo} alt={"trazo_logo"} fill className="object-cover" />
+      <div className="relative h-10 w-10 rounded-xl overflow-hidden mb-6">
+        <Image src={logo} alt="Trazo logo" fill className="object-cover" />
       </div>
 
       {/* Card */}
-      <div className="w-full max-w-md bg-surface border border-text/5 rounded-2xl p-8 shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center">
-            <Store className="h-5 w-5 text-emerald-400" />
-          </div>
-          <div>
-            <h1 className="text-lg font-text text-text">Create your shop</h1>
-            <p className="text-xs text-text-muted">
-              Step {step + 1} of {steps.length} — {steps[step]}
-            </p>
-          </div>
-        </div>
-
-        {/* Progress bar */}
-        <div className="flex gap-1.5 mb-8">
-          {steps.map((_, i) => (
-            <div
-              key={i}
-              className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                i <= step ? "bg-primary" : "bg-text/10"
-              }`}
-            />
-          ))}
-        </div>
-
-        {/* Step 0 — Shop Info */}
-        {step === 0 && (
-          <div className="space-y-5">
-            <Input
-              label="Shop Name"
-              placeholder="e.g. Chisom Fashion House"
-              value={form.shopName}
-              onChange={(e) => update("shopName", e.target.value)}
-              error={errors.shopName}
-            />
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-shadow-text-muted">
-                Your Store URL
-              </label>
-              <div className="relative flex items-center">
-                <span className="absolute left-3 text-text-muted text-sm select-none">
-                  trazo-omega/store/
-                </span>
-                <input
-                  value={form.slug}
-                  onChange={(e) => {
-                    update(
-                      "slug",
-                      e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""),
-                    );
-                    setSlugAvailable(null);
-                  }}
-                  onBlur={handleSlugBlur}
-                  placeholder="your-shop"
-                  className="w-full pl-[168px] pr-10 py-2.5 rounded-xl border border-border bg-surface-alt text-text text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-text-muted"
-                />
-                {/* Availability indicator */}
-                <div className="absolute right-3">
-                  {checkingSlug && (
-                    <div className="h-4 w-4 border-2 border-header border-t-primary rounded-full animate-spin" />
-                  )}
-                  {!checkingSlug && slugAvailable === true && (
-                    <CheckCircle className="h-4 w-4 text-primary" />
-                  )}
-                  {!checkingSlug && slugAvailable === false && (
-                    <span className="text-red-400 text-xs font-medium">
-                      Taken
-                    </span>
-                  )}
-                </div>
-              </div>
-              {errors.slug && (
-                <p className="text-xs text-red-400">{errors.slug}</p>
-              )}
-              <p className="text-xs text-text-muted">
-                This is the link you share with customers. Choose carefully — it
-                can&apos;t be changed later.
+      <div className="w-full max-w-md bg-surface border border-border rounded-2xl shadow-lg overflow-hidden">
+        {/* Card header — step indicator */}
+        <div className="bg-header px-6 py-4">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-9 w-9 bg-white/10 rounded-xl flex items-center justify-center shrink-0">
+              <Store className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-base font-bold text-white leading-tight">
+                Create your shop
+              </h1>
+              <p className="text-xs text-white/60">
+                Step {step + 1} of {steps.length} — {steps[step]}
               </p>
             </div>
           </div>
-        )}
 
-        {/* Step 1 — Contact */}
-        {step === 1 && (
-          <div className="space-y-5">
-            <Input
-              label="WhatsApp Number"
-              placeholder="e.g. 2348012345678"
-              value={form.whatsappNumber}
-              onChange={(e) => update("whatsappNumber", e.target.value)}
-              error={errors.whatsappNumber}
-              className="bg-surface-alt border-border text-text placeholder:text-text-muted"
-            />
-            <p className="text-xs text-text-muted -mt-2">
-              Include your country code. Nigerian numbers start with 234.
-            </p>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-shadow-text-muted">
-                Shop Description{" "}
-                <span className="text-text-muted font-normal">(optional)</span>
-              </label>
-              <textarea
-                value={form.description}
-                onChange={(e) => update("description", e.target.value)}
-                placeholder="Tell customers what you sell..."
-                rows={3}
-                className="w-full px-3 py-2.5 rounded-xl border border-border bg-surface-alt text-text text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-text-muted transition"
+          {/* Progress bar */}
+          <div className="flex gap-1.5">
+            {steps.map((_, i) => (
+              <div
+                key={i}
+                className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                  i <= step ? "bg-primary" : "bg-white/20"
+                }`}
               />
-            </div>
+            ))}
           </div>
-        )}
+        </div>
 
-        {/* Step 2 — Branding */}
-        {step === 2 && (
-          <div className="space-y-5">
-            <p className="text-sm text-text-muted">
-              Add a logo so customers recognise your shop. You can always update
-              this later.
-            </p>
-            <ImageUpload
-              value={form.logoUrl}
-              onChange={(url) => update("logoUrl", url)}
-            />
-            {/* Preview of storefront URL */}
-            <div className="bg-header/30 border border-primary/20 rounded-xl p-4">
-              <p className="text-xs text-emerald-400 font-medium mb-1">
-                Your storefront link
+        {/* Card body */}
+        <div className="px-6 py-6 space-y-5">
+          {/* ── STEP 0: Shop Info ─────────────────────────────── */}
+          {step === 0 && (
+            <>
+              <Input
+                label="Shop Name"
+                placeholder="e.g. Chisom Fashion House"
+                value={form.shopName}
+                onChange={(e) => update("shopName", e.target.value)}
+                error={errors.shopName}
+              />
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-text">
+                  Your Store URL
+                </label>
+                <div className="relative flex items-center bg-surface-alt border border-border rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-primary transition">
+                  <span className="pl-3 text-text-muted text-xs select-none whitespace-nowrap shrink-0">
+                    trazo.com/store/
+                  </span>
+                  <input
+                    value={form.slug}
+                    onChange={(e) => {
+                      update(
+                        "slug",
+                        e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""),
+                      );
+                      setSlugAvailable(null);
+                    }}
+                    onBlur={handleSlugBlur}
+                    placeholder="your-shop"
+                    className="flex-1 py-2.5 pr-10 bg-transparent text-text text-sm focus:outline-none placeholder:text-text-muted"
+                  />
+                  {/* Availability indicator */}
+                  <div className="absolute right-3 flex items-center">
+                    {checkingSlug && (
+                      <div className="h-4 w-4 border-2 border-border border-t-primary rounded-full animate-spin" />
+                    )}
+                    {!checkingSlug && slugAvailable === true && (
+                      <CheckCircle className="h-4 w-4 text-primary" />
+                    )}
+                    {!checkingSlug && slugAvailable === false && (
+                      <span className="text-red-400 text-xs font-medium">
+                        Taken
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {errors.slug && (
+                  <p className="text-xs text-red-400">{errors.slug}</p>
+                )}
+                <p className="text-xs text-text-muted">
+                  This is the link you share with customers. Choose carefully —
+                  it can&apos;t be changed later.
+                </p>
+              </div>
+            </>
+          )}
+
+          {/* ── STEP 1: Contact ───────────────────────────────── */}
+          {step === 1 && (
+            <>
+              <div className="flex flex-col gap-1.5">
+                <Input
+                  label="WhatsApp Number"
+                  placeholder="e.g. 2348012345678"
+                  value={form.whatsappNumber}
+                  onChange={(e) => update("whatsappNumber", e.target.value)}
+                  error={errors.whatsappNumber}
+                  type="tel"
+                />
+                <p className="text-xs text-text-muted">
+                  Include your country code. Nigerian numbers start with{" "}
+                  <span className="font-semibold text-text">234</span>. All
+                  customer orders go to this number.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-text">
+                  Shop Description{" "}
+                  <span className="text-text-muted font-normal text-xs">
+                    (optional)
+                  </span>
+                </label>
+                <textarea
+                  value={form.description}
+                  onChange={(e) => update("description", e.target.value)}
+                  placeholder="Tell customers what you sell e.g. Premium thrift fashion for Lagos women..."
+                  rows={3}
+                  className="w-full px-3 py-2.5 rounded-xl border border-border bg-surface-alt text-text text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-text-muted transition"
+                />
+              </div>
+            </>
+          )}
+
+          {/* ── STEP 2: Branding ──────────────────────────────── */}
+          {step === 2 && (
+            <>
+              <p className="text-sm text-text-muted">
+                Add a logo so customers recognise your shop. You can always
+                update this later.
               </p>
-              <p className="text-sm text-text font-mono break-all">
-                trazo-omega/store/{form.slug}
-              </p>
-              <p className="text-xs text-text-muted mt-1">
-                Share this link in your Instagram bio or WhatsApp status
-              </p>
-            </div>
+
+              <ImageUpload
+                value={form.logoUrl}
+                onChange={(url) => update("logoUrl", url)}
+              />
+
+              {/* Storefront URL preview */}
+              <div className="bg-bubble-out border border-primary/20 rounded-xl p-4">
+                <p className="text-xs text-primary font-semibold mb-1">
+                  Your storefront link
+                </p>
+                <p className="text-sm text-text font-mono break-all">
+                  trazo.com/store/{form.slug || "your-shop"}
+                </p>
+                <p className="text-xs text-text-muted mt-1">
+                  Share this in your Instagram bio or WhatsApp status
+                </p>
+              </div>
+            </>
+          )}
+
+          {/* Actions */}
+          <div className="flex gap-2 pt-1">
+            {step > 0 && (
+              <Button
+                variant="ghost"
+                onClick={() => setStep((s) => s - 1)}
+                className="flex-1 text-text-muted hover:text-text hover:bg-surface-alt"
+              >
+                Back
+              </Button>
+            )}
+            {step < steps.length - 1 ? (
+              <Button
+                onClick={handleNext}
+                className="flex-1 bg-primary hover:bg-primary-dark text-white font-bold"
+              >
+                Continue
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            ) : (
+              <Button
+                onClick={handleSubmit}
+                loading={loading}
+                className="flex-1 bg-primary hover:bg-primary-dark text-white font-bold"
+              >
+                Launch my shop
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            )}
           </div>
-        )}
-
-        {/* Actions */}
-        <div className="mt-8 flex gap-3">
-          {step > 0 && (
-            <Button
-              variant="ghost"
-              onClick={() => setStep((s) => s - 1)}
-              className="flex-1 text-text-muted hover:text-text hover:bg-text/5"
-            >
-              Back
-            </Button>
-          )}
-          {step < steps.length - 1 ? (
-            <Button
-              onClick={handleNext}
-              className="flex-1 bg-primary hover:bg-emerald-400 text-text font-bold"
-            >
-              Continue
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          ) : (
-            <Button
-              onClick={handleSubmit}
-              loading={loading}
-              className="flex-1 bg-primary hover:bg-emerald-400 text-text font-bold"
-            >
-              Launch my shop
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          )}
         </div>
       </div>
 
