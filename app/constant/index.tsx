@@ -7,6 +7,7 @@ import {
   Clock,
   XCircle,
   LucideIcon,
+  Image as ImageIcon,
 } from "lucide-react";
 
 const painPoints = [
@@ -147,6 +148,48 @@ const trustBadges = [
   "Works with WhatsApp",
 ];
 
+const COUNTRY_CODES = [
+  { code: "+234", flag: "🇳🇬", name: "Nigeria" },
+  { code: "+1", flag: "🇺🇸", name: "USA / Canada" },
+  { code: "+44", flag: "🇬🇧", name: "United Kingdom" },
+  { code: "+233", flag: "🇬🇭", name: "Ghana" },
+  { code: "+27", flag: "🇿🇦", name: "South Africa" },
+  { code: "+254", flag: "🇰🇪", name: "Kenya" },
+  { code: "+255", flag: "🇹🇿", name: "Tanzania" },
+  { code: "+256", flag: "🇺🇬", name: "Uganda" },
+  { code: "+251", flag: "🇪🇹", name: "Ethiopia" },
+  { code: "+212", flag: "🇲🇦", name: "Morocco" },
+  { code: "+20", flag: "🇪🇬", name: "Egypt" },
+  { code: "+225", flag: "🇨🇮", name: "Côte d'Ivoire" },
+  { code: "+221", flag: "🇸🇳", name: "Senegal" },
+  { code: "+237", flag: "🇨🇲", name: "Cameroon" },
+  { code: "+91", flag: "🇮🇳", name: "India" },
+  { code: "+49", flag: "🇩🇪", name: "Germany" },
+  { code: "+33", flag: "🇫🇷", name: "France" },
+  { code: "+971", flag: "🇦🇪", name: "UAE" },
+];
+
+const ONBOARDING_STEPS = [
+  {
+    number: 1,
+    icon: Store,
+    title: "Name your shop",
+    hint: "This is what customers will see when they visit your store.",
+  },
+  {
+    number: 2,
+    icon: MessageCircle,
+    title: "Add your WhatsApp",
+    hint: "All customer orders land here. Make sure it's correct.",
+  },
+  {
+    number: 3,
+    icon: ImageIcon,
+    title: "Add a logo",
+    hint: "A face to your brand. You can always change this later.",
+  },
+];
+
 export {
   trustBadges,
   painPoints,
@@ -154,4 +197,6 @@ export {
   steps,
   /*testimonials,*/
   features,
+  ONBOARDING_STEPS,
+  COUNTRY_CODES,
 };

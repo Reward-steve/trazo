@@ -2,73 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  ArrowRight,
-  ArrowLeft,
-  CheckCircle,
-  Store,
-  MessageCircle,
-  Image as ImageIcon,
-  ChevronDown,
-} from "lucide-react";
+import { ArrowRight, ArrowLeft, CheckCircle, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import ImageUpload from "../components/ui/ImageUpload";
 import { createShop, checkSlugAvailable } from "../actions/settings";
 import logo from "../../public/trazo_omega.png";
-import { cn } from "../lib/utils";
-
-function generateSlug(name: string) {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .slice(0, 40);
-}
-
-const COUNTRY_CODES = [
-  { code: "+234", flag: "🇳🇬", name: "Nigeria" },
-  { code: "+1", flag: "🇺🇸", name: "USA / Canada" },
-  { code: "+44", flag: "🇬🇧", name: "United Kingdom" },
-  { code: "+233", flag: "🇬🇭", name: "Ghana" },
-  { code: "+27", flag: "🇿🇦", name: "South Africa" },
-  { code: "+254", flag: "🇰🇪", name: "Kenya" },
-  { code: "+255", flag: "🇹🇿", name: "Tanzania" },
-  { code: "+256", flag: "🇺🇬", name: "Uganda" },
-  { code: "+251", flag: "🇪🇹", name: "Ethiopia" },
-  { code: "+212", flag: "🇲🇦", name: "Morocco" },
-  { code: "+20", flag: "🇪🇬", name: "Egypt" },
-  { code: "+225", flag: "🇨🇮", name: "Côte d'Ivoire" },
-  { code: "+221", flag: "🇸🇳", name: "Senegal" },
-  { code: "+237", flag: "🇨🇲", name: "Cameroon" },
-  { code: "+91", flag: "🇮🇳", name: "India" },
-  { code: "+49", flag: "🇩🇪", name: "Germany" },
-  { code: "+33", flag: "🇫🇷", name: "France" },
-  { code: "+971", flag: "🇦🇪", name: "UAE" },
-];
-
-const STEPS = [
-  {
-    number: 1,
-    icon: Store,
-    title: "Name your shop",
-    hint: "This is what customers will see when they visit your store.",
-  },
-  {
-    number: 2,
-    icon: MessageCircle,
-    title: "Add your WhatsApp",
-    hint: "All customer orders land here. Make sure it's correct.",
-  },
-  {
-    number: 3,
-    icon: ImageIcon,
-    title: "Add a logo",
-    hint: "A face to your brand. You can always change this later.",
-  },
-];
+import { cn, generateSlug } from "../lib/utils";
+import { COUNTRY_CODES, ONBOARDING_STEPS } from "../constant";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -152,7 +94,7 @@ export default function OnboardingPage() {
     }
   };
 
-  const current = STEPS[step - 1];
+  const current = ONBOARDING_STEPS[step - 1];
   const Icon = current.icon;
   const selectedCountry =
     COUNTRY_CODES.find((c) => c.code === countryCode) ?? COUNTRY_CODES[0];
@@ -179,13 +121,13 @@ export default function OnboardingPage() {
 
         {/* Step counter — always top right */}
         <span className="text-[11px] text-white/50 font-medium tabular-nums">
-          {step} / {STEPS.length}
+          {step} / {ONBOARDING_STEPS.length}
         </span>
       </div>
 
       {/* ── Progress bar ── */}
       <div className="flex gap-1 bg-header pb-3 px-4">
-        {STEPS.map((s) => (
+        {ONBOARDING_STEPS.map((s) => (
           <div
             key={s.number}
             className={cn(

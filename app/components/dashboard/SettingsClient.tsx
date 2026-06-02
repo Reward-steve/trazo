@@ -101,7 +101,7 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
           </div>
           <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-border bg-surface-alt text-xs text-text-muted">
             <span className="truncate flex-1">
-              naijacart.com/store/{shop.slug}
+              trazo-omega.vercel.app/store/{shop.slug}
             </span>
             <a
               href={`/store/${shop.slug}`}
@@ -186,18 +186,13 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
           loading={loading}
           size="lg"
           disabled={!hasChanges && !loading}
-          className={cn(
-            "w-full transition-colors",
-            saved
-              ? "bg-primary cursor-default"
-              : hasChanges
-                ? "bg-header hover:bg-primary-dark"
-                : "bg-surface-alt text-text-muted border border-border cursor-not-allowed",
-          )}
+          variant={saved ? "primary" : hasChanges ? "primary" : "secondary"}
+          className="w-full"
         >
           {saved ? (
             <>
-              <CheckCircle className="h-4 w-4" /> Saved
+              <CheckCircle className="h-4 w-4" />
+              Saved
             </>
           ) : (
             "Save changes"

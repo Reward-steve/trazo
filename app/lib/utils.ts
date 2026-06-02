@@ -42,3 +42,12 @@ export function generateWhatsAppURL(
 export function cn(...classes: (string | undefined | false | null)[]): string {
   return classes.filter(Boolean).join(" ");
 }
+
+export function generateSlug(name: string) {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .slice(0, 40);
+}
