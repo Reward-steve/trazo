@@ -99,9 +99,7 @@ export default function StorefrontClient({
           {/* RIGHT: Controls */}
           <div className="flex items-center gap-2">
             {/* Theme toggle — now visible, intentional, accessible */}
-            <div className="bg-white/10 hover:bg-white/20 rounded-full px-2 py-1 transition-colors">
-              <ThemeToggle />
-            </div>
+            <ThemeToggle />
 
             {/* Cart */}
             <button
