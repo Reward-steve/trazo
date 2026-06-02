@@ -35,8 +35,8 @@ model Product {
   shop      Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)
   name      String
   price     Int
-  imageUrl  String
+  imageUrl String @default("")
   available Boolean  @default(true)
-  stock     Int     // null = unlimited
+  stock Int? // null = unlimited
   createdAt DateTime @default(now())
 }
