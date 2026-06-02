@@ -1,7 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { ShoppingCart, CheckCircle, AlertTriangle } from "lucide-react";
+import {
+  ShoppingCart,
+  CheckCircle,
+  AlertTriangle,
+  X,
+  Info,
+} from "lucide-react";
 import { useState } from "react";
 import { Product, CartItem } from "../../types";
 import { formatNaira } from "../../lib/utils";
@@ -20,6 +26,7 @@ export default function ProductCard({
   cartQuantity = 0,
 }: ProductCardProps) {
   const [added, setAdded] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const isTracked = product.stock !== null && product.stock !== undefined;
   const stockLeft = isTracked ? (product.stock ?? 0) - cartQuantity : Infinity;
@@ -29,8 +36,10 @@ export default function ProductCard({
   const isLowStock =
     isTracked && (product.stock ?? 0) > 0 && (product.stock ?? 0) <= 5;
 
-  const handleAdd = () => {
+  const handleAdd = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation(); // Prevents modal from opening when clicking add button
     if (isOutOfStock || isMaxedInCart) return;
+
     onAddToCart({
       id: product.id,
       name: product.name,
@@ -44,82 +53,200 @@ export default function ProductCard({
   };
 
   return (
-    <div className="bg-surface-alt rounded-2xl shadow-text-muted border border-border overflow-hidden hover:shadow-text-muted transition-all duration-300 hover:-translate-y-0.5 flex flex-col">
-      {/* Image */}
-      <div className="relative aspect-square bg-surface overflow-hidden">
-        <Image
-          src={product.imageUrl}
-          alt={product.name}
-          fill
-          className="object-cover transition-transform duration-500 hover:scale-105"
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-        />
+    <>
+      <div
+        onClick={() => setIsModalOpen(true)}
+        className="bg-surface-alt rounded-2xl shadow-text-muted border border-border overflow-hidden hover:shadow-text-muted transition-all duration-300 hover:-translate-y-0.5 flex flex-col cursor-pointer group"
+      >
+        {/* Image */}
+        <div className="relative aspect-square bg-surface overflow-hidden">
+          <Image
+            src={product.imageUrl}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          />
 
-        {/* Out of stock overlay */}
-        {isOutOfStock && (
-          <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center">
-            <Badge variant="error">Out of Stock</Badge>
-          </div>
-        )}
-
-        {/* Low stock badge — top left */}
-        {!isOutOfStock && isLowStock && (
-          <div className="absolute top-2 left-2">
-            <span className="flex items-center gap-1 bg-amber-500 text-text text-[10px] font-bold px-2 py-0.5 rounded-full">
-              <AlertTriangle className="h-2.5 w-2.5" />
-              Only {product.stock} left
+          {/* Quick View Overlay on Hover */}
+          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
+            <span className="bg-white/90 backdrop-blur-md text-text text-xs font-medium px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1.5 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+              <Info className="h-3.5 w-3.5" /> Quick View
             </span>
           </div>
-        )}
 
-        {/* Already maxed in cart badge */}
-        {!isOutOfStock && isMaxedInCart && (
-          <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center">
-            <span className="bg-surface text-text text-xs font-bold px-3 py-1.5 rounded-full">
-              Max in cart
-            </span>
-          </div>
-        )}
-      </div>
+          {/* Out of stock overlay */}
+          {isOutOfStock && (
+            <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center z-10">
+              <Badge variant="error">Out of Stock</Badge>
+            </div>
+          )}
 
-      {/* Info */}
-      <div className="p-3 sm:p-4 flex flex-col flex-1 gap-3">
-        <h3 className="text-sm font-semibold text-text line-clamp-2 leading-snug flex-1">
-          {product.name}
-        </h3>
+          {/* Low stock badge — top left */}
+          {!isOutOfStock && isLowStock && (
+            <div className="absolute top-2 left-2 z-10">
+              <span className="flex items-center gap-1 bg-amber-500 text-text text-[10px] font-bold px-2 py-0.5 rounded-full">
+                <AlertTriangle className="h-2.5 w-2.5" />
+                Only {product.stock} left
+              </span>
+            </div>
+          )}
 
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-sm sm:text-base font-bold text-primary shrink-0">
-            {formatNaira(product.price)}
-          </span>
-          <Button
-            size="sm"
-            onClick={handleAdd}
-            disabled={isOutOfStock || isMaxedInCart}
-            variant={added ? "secondary" : "primary"}
-            className="shrink-0 text-xs"
-          >
-            {added ? (
-              <>
-                <CheckCircle className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Added</span>
-              </>
-            ) : (
-              <>
-                <ShoppingCart className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Add</span>
-              </>
-            )}
-          </Button>
+          {/* Already maxed in cart badge */}
+          {!isOutOfStock && isMaxedInCart && (
+            <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-10">
+              <span className="bg-surface text-text text-xs font-bold px-3 py-1.5 rounded-full">
+                Max in cart
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* Stock count — visible when tracked and not out of stock */}
-        {isTracked && !isOutOfStock && !isLowStock && (
-          <p className="text-[10px] text-text-muted">
-            {product.stock} in stock
-          </p>
-        )}
+        {/* Info */}
+        <div className="p-3 sm:p-4 flex flex-col flex-1 gap-3">
+          <h3 className="text-sm font-semibold text-text line-clamp-2 leading-snug flex-1 group-hover:text-primary transition-colors">
+            {product.name}
+          </h3>
+
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-sm sm:text-base font-bold text-primary shrink-0">
+              {formatNaira(product.price)}
+            </span>
+            <Button
+              size="sm"
+              onClick={handleAdd}
+              disabled={isOutOfStock || isMaxedInCart}
+              variant={added ? "secondary" : "primary"}
+              className="shrink-0 text-xs relative z-10"
+            >
+              {added ? (
+                <>
+                  <CheckCircle className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Added</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Add</span>
+                </>
+              )}
+            </Button>
+          </div>
+
+          {/* Stock count — visible when tracked and not out of stock */}
+          {isTracked && !isOutOfStock && !isLowStock && (
+            <p className="text-[10px] text-text-muted">
+              {product.stock} in stock
+            </p>
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* Slick Product Overview Modal */}
+      {isModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div
+            className="bg-surface-alt rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-border flex flex-col md:flex-row relative max-h-[90vh] md:max-h-[auto] animate-scale-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-4 right-4 z-20 bg-surface/80 backdrop-blur-md p-1.5 rounded-full border border-border hover:bg-surface text-text transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            {/* Modal Image */}
+            <div className="relative w-full md:w-1/2 aspect-square bg-surface shrink-0">
+              <Image
+                src={product.imageUrl}
+                alt={product.name}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </div>
+
+            {/* Modal Body Info */}
+            <div className="p-6 flex flex-col justify-between flex-1 gap-6 overflow-y-auto">
+              <div className="space-y-3">
+                <h2 className="text-xl font-bold text-text leading-tight">
+                  {product.name}
+                </h2>
+
+                <p className="text-xl font-extrabold text-primary">
+                  {formatNaira(product.price)}
+                </p>
+
+                <hr className="border-border" />
+
+                {/* Description slot (safeguarded if your interface has it, fallback if not) */}
+                <div className="text-sm text-text-muted leading-relaxed">
+                  <p>
+                    Experience premium quality and high performance tailored to
+                    fit perfectly into your lifestyle needs.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4 mt-auto">
+                {/* Status Badges */}
+                <div className="flex flex-wrap gap-2 items-center text-xs">
+                  {isOutOfStock ? (
+                    <Badge variant="error">Out of Stock</Badge>
+                  ) : isMaxedInCart ? (
+                    <span className="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-md font-semibold">
+                      Maximum quantity reached in cart
+                    </span>
+                  ) : isLowStock ? (
+                    <span className="flex items-center gap-1 text-amber-600 font-medium">
+                      <AlertTriangle className="h-3.5 w-3.5" /> Only{" "}
+                      {product.stock} items left!
+                    </span>
+                  ) : isTracked ? (
+                    <span className="text-text-muted font-medium">
+                      Availability:{" "}
+                      <span className="text-emerald-600 font-semibold">
+                        {product.stock} items available
+                      </span>
+                    </span>
+                  ) : (
+                    <span className="text-emerald-600 font-semibold">
+                      Item Available
+                    </span>
+                  )}
+                </div>
+
+                {/* Modal Action CTA */}
+                <Button
+                  onClick={() => {
+                    handleAdd();
+                    setIsModalOpen(false); // smoothly auto-close modal on add
+                  }}
+                  disabled={isOutOfStock || isMaxedInCart}
+                  variant={added ? "secondary" : "primary"}
+                  className="w-full py-3 text-sm font-semibold flex items-center justify-center gap-2"
+                >
+                  {added ? (
+                    <>
+                      <CheckCircle className="h-4 w-4" /> Added successfully
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="h-4 w-4" /> Add to Cart —{" "}
+                      {formatNaira(product.price)}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

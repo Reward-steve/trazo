@@ -344,7 +344,7 @@ export default function OnboardingPage() {
         {/* ── STEP 3 ── */}
         {step === 3 && (
           <div className="flex flex-col items-center gap-3">
-            <div className="w-full flex justify-center items-center">
+            <div className="w-full">
               <ImageUpload
                 value={form.logoUrl}
                 onChange={(url) => update("logoUrl", url)}
