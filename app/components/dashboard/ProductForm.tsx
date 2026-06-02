@@ -12,7 +12,7 @@ interface ProductFormProps {
   onSuccess: () => void;
   onCancel: () => void;
 }
-//up to data
+
 export default function ProductForm({
   product,
   onSuccess,
