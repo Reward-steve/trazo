@@ -45,6 +45,10 @@ export default function CartDrawer({
     return Object.keys(e).length === 0;
   };
 
+  // const maxStock = items.stock ?? Infinity;
+  // const canIncrease = items.quantity < maxStock;
+  // const canDecrease = items.quantity > 1;
+
   const handleOrder = () => {
     if (!validate()) return;
     const url = generateWhatsAppURL(
@@ -132,57 +136,91 @@ export default function CartDrawer({
         {items.length > 0 && step === "cart" && (
           <>
             <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
-              {items.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex gap-3 p-3 bg-surface-alt rounded-2xl border border-border"
-                >
-                  <div className="relative h-16 w-16 rounded-xl overflow-hidden shrink-0 bg-surface">
-                    <Image
-                      src={item.imageUrl}
-                      alt={item.name}
-                      fill
-                      className="object-cover"
-                      sizes="64px"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-text line-clamp-2 leading-snug">
-                      {item.name}
-                    </p>
-                    <p className="text-sm font-bold text-primary-dark mt-0.5">
-                      {formatNaira(item.price * item.quantity)}
-                    </p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <button
-                        onClick={() =>
-                          onUpdateQuantity(item.id, item.quantity - 1)
-                        }
-                        className="h-7 w-7 rounded-lg bg-surface border border-border flex items-center justify-center hover:border-primary transition-colors active:scale-95"
-                      >
-                        <Minus className="h-3 w-3 text-text-muted" />
-                      </button>
-                      <span className="text-sm font-bold w-5 text-center text-text">
-                        {item.quantity}
-                      </span>
-                      <button
-                        onClick={() =>
-                          onUpdateQuantity(item.id, item.quantity + 1)
-                        }
-                        className="h-7 w-7 rounded-lg bg-surface border border-border flex items-center justify-center hover:border-primary transition-colors active:scale-95"
-                      >
-                        <Plus className="h-3 w-3 text-text-muted" />
-                      </button>
-                      <button
-                        onClick={() => onRemove(item.id)}
-                        className="ml-auto text-[11px] text-text-muted hover:text-red-500 transition-colors font-medium"
-                      >
-                        Remove
-                      </button>
+              {items.map((item) => {
+                const maxStock = item.stock ?? Infinity;
+                const canIncrease = item.quantity < maxStock;
+                const canDecrease = item.quantity > 1;
+
+                return (
+                  <div
+                    key={item.id}
+                    className="flex gap-3 p-3 bg-surface-alt rounded-2xl border border-border"
+                  >
+                    <div className="relative h-16 w-16 rounded-xl overflow-hidden shrink-0 bg-surface">
+                      <Image
+                        src={item.imageUrl}
+                        alt={item.name}
+                        fill
+                        className="object-cover"
+                        sizes="64px"
+                      />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-text line-clamp-2 leading-snug">
+                        {item.name}
+                      </p>
+
+                      <p className="text-sm font-bold text-primary-dark mt-0.5">
+                        {formatNaira(item.price * item.quantity)}
+                      </p>
+
+                      {/* STOCK WARNING (optional but useful UX) */}
+                      {item.stock !== null && item.stock !== undefined && (
+                        <p className="text-[11px] text-text-muted mt-1">
+                          Max available: {item.stock}
+                        </p>
+                      )}
+
+                      <div className="flex items-center gap-2 mt-2">
+                        {/* MINUS */}
+                        <button
+                          onClick={() =>
+                            canDecrease &&
+                            onUpdateQuantity(item.id, item.quantity - 1)
+                          }
+                          disabled={!canDecrease}
+                          className={cn(
+                            "h-7 w-7 rounded-lg bg-surface border border-border flex items-center justify-center transition active:scale-95",
+                            !canDecrease && "opacity-40 cursor-not-allowed",
+                          )}
+                        >
+                          <Minus className="h-3 w-3 text-text-muted" />
+                        </button>
+
+                        <span className="text-sm font-bold w-5 text-center text-text">
+                          {item.quantity}
+                        </span>
+
+                        {/* PLUS (STOCK LIMITED) */}
+                        <button
+                          onClick={() =>
+                            canIncrease &&
+                            onUpdateQuantity(item.id, item.quantity + 1)
+                          }
+                          disabled={!canIncrease}
+                          className={cn(
+                            "h-7 w-7 rounded-lg bg-surface border border-border flex items-center justify-center transition active:scale-95",
+                            canIncrease
+                              ? "hover:border-primary"
+                              : "opacity-40 cursor-not-allowed",
+                          )}
+                        >
+                          <Plus className="h-3 w-3 text-text-muted" />
+                        </button>
+
+                        {/* REMOVE */}
+                        <button
+                          onClick={() => onRemove(item.id)}
+                          className="ml-auto text-[11px] text-text-muted hover:text-red-500 font-medium"
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="px-4 py-4 border-t border-border space-y-3">
