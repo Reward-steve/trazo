@@ -37,6 +37,6 @@ model Product {
   price     Int
   imageUrl  String
   available Boolean  @default(true)
-  stock     Int?     // null = unlimited
+  stock     Int     // null = unlimited
   createdAt DateTime @default(now())
 }
