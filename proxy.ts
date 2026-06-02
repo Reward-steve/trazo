@@ -1,36 +1,39 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-const isPublicRoute = createRouteMatcher([
-  "/",
-  "/login(.*)",
-  "/signup(.*)",
-  "/store(.*)",
+const isPublicRoute = createRouteMatcher(["/", "/store(.*)"]);
+
+const isAuthRoute = createRouteMatcher(["/login(.*)", "/signup(.*)"]);
+
+const isProtectedRoute = createRouteMatcher([
+  "/dashboard(.*)",
+  "/onboarding(.*)",
 ]);
 
-export default clerkMiddleware(async (auth, request) => {
+export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
-  const url = request.nextUrl;
 
-  // Signed in user hits login or signup — send to dashboard
-  if (userId && (url.pathname === "/login" || url.pathname === "/signup")) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+  // 1. Public routes → no interference
+  if (isPublicRoute(req)) {
+    return NextResponse.next();
   }
 
-  // Signed in user hits landing page — send to dashboard
-  if (userId && url.pathname === "/") {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+  // 2. Auth pages
+  if (isAuthRoute(req)) {
+    if (userId) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+    return NextResponse.next();
   }
 
-  // Unsigned user hits protected route — send to login
-  if (!isPublicRoute(request) && !userId) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  // 3. Protected pages
+  if (isProtectedRoute(req)) {
+    if (!userId) {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+    return NextResponse.next();
   }
+
+  // 4. fallback safe behavior
+  return NextResponse.next();
 });
-
-export const config = {
-  matcher: [
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    "/(api|trpc)(.*)",
-  ],
-};
