@@ -1,243 +1,212 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import Image from "next/image";
-import {
-  ShoppingCart,
-  CheckCircle,
-  AlertTriangle,
-  X,
-  Info,
-} from "lucide-react";
-import { useState } from "react";
-import { Product, CartItem } from "../../types";
+import { ShoppingBag, Store, Search } from "lucide-react";
+import { Product, ShopSettings, CartItem } from "../../types";
+import ProductCard from "../../components/store/ProductCard";
+import CartDrawer from "../../components/store/CartDrawer";
+import EmptyState from "../../components/ui/EmptyState";
 import { formatNaira } from "../../lib/utils";
-import Badge from "../../components/ui/Badge";
-import Button from "../../components/ui/Button";
+import { ThemeToggle } from "../ui/ThemeProvider";
 
-interface ProductCardProps {
-  product: Product;
-  onAddToCart: (item: CartItem) => void;
-  cartQuantity?: number;
+interface StorefrontClientProps {
+  products: Product[];
+  settings: ShopSettings;
 }
 
-export default function ProductCard({
-  product,
-  onAddToCart,
-  cartQuantity = 0,
-}: ProductCardProps) {
-  const [added, setAdded] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+export default function StorefrontClient({
+  products,
+  settings,
+}: StorefrontClientProps) {
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [search, setSearch] = useState("");
 
-  const isTracked = product.stock !== null && product.stock !== undefined;
-  const stockLeft = isTracked ? (product.stock ?? 0) - cartQuantity : Infinity;
-  const isOutOfStock =
-    !product.available || (isTracked && (product.stock ?? 0) === 0);
-  const isMaxedInCart = isTracked && stockLeft <= 0;
-  const isLowStock =
-    isTracked && (product.stock ?? 0) > 0 && (product.stock ?? 0) <= 5;
+  const cartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
+  const cartTotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
-  const handleAdd = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    if (isOutOfStock || isMaxedInCart) return;
-    onAddToCart({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      imageUrl: product.imageUrl,
-      quantity: 1,
-      stock: product.stock ?? null,
+  const handleAddToCart = useCallback((item: CartItem) => {
+    setCart((prev) => {
+      const existing = prev.find((i) => i.id === item.id);
+      if (existing) {
+        const limit = item.stock ?? Infinity;
+        if (existing.quantity >= limit) return prev;
+        return prev.map((i) =>
+          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i,
+        );
+      }
+      return [...prev, item];
     });
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
-  };
+  }, []);
+
+  const handleUpdateQuantity = useCallback((id: string, quantity: number) => {
+    if (quantity <= 0) {
+      setCart((prev) => prev.filter((i) => i.id !== id));
+    } else {
+      setCart((prev) =>
+        prev.map((i) => (i.id === id ? { ...i, quantity } : i)),
+      );
+    }
+  }, []);
+
+  const handleRemove = useCallback((id: string) => {
+    setCart((prev) => prev.filter((i) => i.id !== id));
+  }, []);
+
+  const filtered = products.filter((p) =>
+    p.name.toLowerCase().includes(search.toLowerCase()),
+  );
+
+  const availableProducts = filtered.filter((p) => p.available);
+  const outOfStock = filtered.filter((p) => !p.available);
+  const hasSearch = search.trim().length > 0;
 
   return (
-    <>
-      {/* ── CARD ──────────────────────────────────────────────── */}
-      <div
-        onClick={() => setIsModalOpen(true)}
-        className="bg-surface rounded-2xl border border-border overflow-hidden hover:border-primary/30 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col cursor-pointer group"
-      >
-        {/* Image */}
-        <div className="relative aspect-square bg-surface-alt overflow-hidden">
-          <Image
-            src={product.imageUrl}
-            alt={product.name}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          />
+    <div className="min-h-screen bg-surface-alt flex flex-col">
+      {/* ── NAVBAR ── */}
+      <nav className="sticky top-0 z-40 bg-header border-b border-white/10">
+        <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
+          {/* LEFT: Shop identity */}
+          <div className="flex items-center gap-2.5 min-w-0">
+            {settings.logoUrl ? (
+              <div className="relative h-8 w-8 rounded-xl overflow-hidden shrink-0 bg-white/10">
+                <Image
+                  src={settings.logoUrl}
+                  alt={settings.shopName}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            ) : (
+              <div className="h-8 w-8 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
+                <Store className="h-4 w-4 text-white" />
+              </div>
+            )}
 
-          {/* Quick view hint */}
-          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
-            <span className="bg-surface/90 backdrop-blur-md text-text text-xs font-medium px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1.5 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-              <Info className="h-3.5 w-3.5" /> Quick View
-            </span>
+            <div className="min-w-0">
+              <p className="font-bold text-white text-sm truncate">
+                {settings.shopName}
+              </p>
+              {settings.description && (
+                <p className="text-[11px] text-white/60 truncate hidden sm:block">
+                  {settings.description}
+                </p>
+              )}
+            </div>
           </div>
 
-          {/* Out of stock */}
-          {isOutOfStock && (
-            <div className="absolute inset-0 bg-surface/70 backdrop-blur-sm flex items-center justify-center z-10">
-              <Badge variant="error">Out of Stock</Badge>
+          {/* RIGHT: Controls */}
+          <div className="flex items-center gap-2">
+            {/* Theme toggle — now visible, intentional, accessible */}
+            <div className="bg-white/10 hover:bg-white/20 rounded-full px-2 py-1 transition-colors">
+              <ThemeToggle />
             </div>
-          )}
 
-          {/* Low stock */}
-          {!isOutOfStock && isLowStock && (
-            <div className="absolute top-2 left-2 z-10">
-              <span className="flex items-center gap-1 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                <AlertTriangle className="h-2.5 w-2.5" />
-                Only {product.stock} left
-              </span>
-            </div>
-          )}
-
-          {/* Maxed in cart */}
-          {!isOutOfStock && isMaxedInCart && (
-            <div className="absolute inset-0 bg-surface/60 backdrop-blur-sm flex items-center justify-center z-10">
-              <span className="bg-surface text-text text-xs font-bold px-3 py-1.5 rounded-full border border-border">
-                Max in cart
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Info */}
-        <div className="p-3 sm:p-4 flex flex-col flex-1 gap-2.5">
-          <h3 className="text-sm font-semibold text-text line-clamp-2 leading-snug flex-1 group-hover:text-primary transition-colors">
-            {product.name}
-          </h3>
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-sm sm:text-base font-bold text-primary shrink-0">
-              {formatNaira(product.price)}
-            </span>
-            <Button
-              size="sm"
-              onClick={handleAdd}
-              disabled={isOutOfStock || isMaxedInCart}
-              variant={added ? "secondary" : "primary"}
-              className="shrink-0 text-xs relative z-10"
+            {/* Cart */}
+            <button
+              onClick={() => setDrawerOpen(true)}
+              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-full font-semibold text-sm transition-colors active:scale-95"
             >
-              {added ? (
+              <ShoppingBag className="h-4 w-4" />
+              {cartCount > 0 ? (
                 <>
-                  <CheckCircle className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Added</span>
+                  <span className="bg-white/20 rounded-full px-1.5 py-0.5 text-xs font-bold">
+                    {cartCount}
+                  </span>
+                  <span className="hidden sm:inline text-white/60">·</span>
+                  <span className="hidden sm:inline font-bold">
+                    {formatNaira(cartTotal)}
+                  </span>
                 </>
               ) : (
-                <>
-                  <ShoppingCart className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Add</span>
-                </>
+                <span className="text-white/60 text-xs hidden sm:inline">
+                  Empty
+                </span>
               )}
-            </Button>
-          </div>
-          {isTracked && !isOutOfStock && !isLowStock && (
-            <p className="text-[10px] text-text-muted">
-              {product.stock} in stock
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* ── MODAL ─────────────────────────────────────────────── */}
-      {isModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
-          onClick={() => setIsModalOpen(false)}
-        >
-          <div
-            className="bg-surface rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-border flex flex-col md:flex-row relative max-h-[90vh] animate-scale-up"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close */}
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute top-3 right-3 z-20 bg-surface/80 backdrop-blur-md p-1.5 rounded-full border border-border hover:bg-surface-alt text-text transition-colors"
-            >
-              <X className="h-4 w-4" />
             </button>
-
-            {/* Image */}
-            <div className="relative w-full md:w-1/2 aspect-square bg-surface-alt shrink-0">
-              <Image
-                src={product.imageUrl}
-                alt={product.name}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-              {/* Low stock on modal image */}
-              {!isOutOfStock && isLowStock && (
-                <div className="absolute top-3 left-3">
-                  <span className="flex items-center gap-1 bg-amber-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                    <AlertTriangle className="h-3 w-3" />
-                    Only {product.stock} left
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Body */}
-            <div className="p-6 flex flex-col justify-between flex-1 gap-5 overflow-y-auto">
-              <div className="space-y-3">
-                <h2 className="text-xl font-bold text-text leading-tight pr-8">
-                  {product.name}
-                </h2>
-                <p className="text-2xl font-extrabold text-primary">
-                  {formatNaira(product.price)}
-                </p>
-                <hr className="border-border" />
-
-                {/* Stock status */}
-                <div className="flex flex-wrap gap-2 items-center text-xs">
-                  {isOutOfStock ? (
-                    <Badge variant="error">Out of Stock</Badge>
-                  ) : isMaxedInCart ? (
-                    <span className="bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-1 rounded-lg font-semibold">
-                      Maximum quantity in cart
-                    </span>
-                  ) : isLowStock ? (
-                    <span className="flex items-center gap-1 text-amber-600 font-semibold bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg">
-                      <AlertTriangle className="h-3.5 w-3.5" />
-                      Only {product.stock} items left
-                    </span>
-                  ) : isTracked ? (
-                    <span className="text-text-muted font-medium bg-bubble-out px-2.5 py-1 rounded-lg">
-                      {product.stock} available
-                    </span>
-                  ) : (
-                    <span className="text-primary font-semibold bg-bubble-out px-2.5 py-1 rounded-lg">
-                      Available
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* CTA */}
-              <Button
-                onClick={() => {
-                  handleAdd();
-                  if (!isMaxedInCart && !isOutOfStock) setIsModalOpen(false);
-                }}
-                disabled={isOutOfStock || isMaxedInCart}
-                variant={added ? "secondary" : "primary"}
-                className="w-full py-3 text-sm font-semibold"
-              >
-                {added ? (
-                  <>
-                    <CheckCircle className="h-4 w-4" /> Added to cart
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCart className="h-4 w-4" />
-                    Add to Cart — {formatNaira(product.price)}
-                  </>
-                )}
-              </Button>
-            </div>
           </div>
         </div>
-      )}
-    </>
+
+        {/* SEARCH */}
+        {products.length > 4 && (
+          <div className="px-4 pb-3 max-w-4xl mx-auto">
+            <div className="relative max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40" />
+              <input
+                type="text"
+                placeholder="Search products…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 rounded-full border border-white/10 text-sm bg-white/10 text-white placeholder:text-white/40 focus:outline-none focus:bg-white/15"
+              />
+            </div>
+          </div>
+        )}
+      </nav>
+
+      {/* ── REST OF PAGE (unchanged logic) ── */}
+      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-5 pb-28">
+        {products.length === 0 ? (
+          <EmptyState
+            icon={<ShoppingBag className="h-10 w-10" />}
+            title="No products yet"
+            description="This vendor hasn't added any products yet."
+          />
+        ) : hasSearch && filtered.length === 0 ? (
+          <EmptyState
+            icon={<Search className="h-10 w-10" />}
+            title={`No results for "${search}"`}
+            description="Try a different search term."
+          />
+        ) : (
+          <div className="space-y-8">
+            {availableProducts.length > 0 && (
+              <section>
+                <p className="text-[11px] font-semibold text-text-muted uppercase mb-3">
+                  Available
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {availableProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      onAddToCart={handleAddToCart}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {outOfStock.length > 0 && (
+              <section>
+                <p className="text-[11px] font-semibold text-text-muted uppercase mb-3">
+                  Out of stock
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 opacity-50">
+                  {outOfStock.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      onAddToCart={handleAddToCart}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+        )}
+      </main>
+
+      {/* CART DRAWER */}
+      <CartDrawer
+        isOpen={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        items={cart}
+        onUpdateQuantity={handleUpdateQuantity}
+        onRemove={handleRemove}
+        settings={settings}
+      />
+    </div>
   );
 }
