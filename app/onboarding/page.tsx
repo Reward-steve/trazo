@@ -116,7 +116,6 @@ export default function OnboardingPage() {
     }
   };
 
-  // Auto-check slug when shop name changes (debounced via blur on name field)
   const handleNameBlur = () => {
     if (form.slug) handleSlugCheck(form.slug);
   };
@@ -143,7 +142,6 @@ export default function OnboardingPage() {
 
   const handleSubmit = async () => {
     setLoading(true);
-    // Ensure whatsapp is committed before submit
     const digits = localNumber.replace(/\s/g, "");
     const full = `${countryCode.replace("+", "")}${digits}`;
     try {
@@ -161,26 +159,44 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-screen bg-surface-alt flex flex-col">
-      {/* Header */}
-      <div className="bg-header px-4 py-3 flex items-center gap-2">
-        <Image src={logo} alt="Trazo" className="h-7 w-7 rounded-sm" />
-        <span className="font-bold text-white text-sm">Trazo</span>
+      {/* ── Header ── */}
+      <div className="bg-header px-4 py-3 flex items-center justify-between">
+        {/* Back button lives in the header on steps 2+ */}
+        {step > 1 && !loading ? (
+          <button
+            onClick={handleBack}
+            className="flex items-center gap-1.5 text-white/70 hover:text-white text-sm font-medium transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </button>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Image src={logo} alt="Trazo" className="h-7 w-7 rounded-sm" />
+            <span className="font-bold text-white text-sm">Trazo</span>
+          </div>
+        )}
+
+        {/* Step counter — always top right */}
+        <span className="text-[11px] text-white/50 font-medium tabular-nums">
+          {step} / {STEPS.length}
+        </span>
       </div>
 
-      {/* Progress bar */}
-      <div className="flex gap-1.5 px-4 pt-4">
+      {/* ── Progress bar ── */}
+      <div className="flex gap-1 bg-header pb-3 px-4">
         {STEPS.map((s) => (
           <div
             key={s.number}
             className={cn(
               "h-1 flex-1 rounded-full transition-all duration-500",
-              s.number <= step ? "bg-primary" : "bg-border",
+              s.number <= step ? "bg-primary" : "bg-white/15",
             )}
           />
         ))}
       </div>
 
-      {/* Step content */}
+      {/* ── Step content ── */}
       <div className="flex-1 flex flex-col max-w-lg w-full mx-auto px-4 py-8">
         {/* Step header */}
         <div className="flex items-start gap-3 mb-6">
@@ -188,9 +204,6 @@ export default function OnboardingPage() {
             <Icon className="h-5 w-5 text-primary-dark" />
           </div>
           <div>
-            <p className="text-[11px] text-text-muted font-medium uppercase tracking-widest mb-0.5">
-              Step {step} of {STEPS.length}
-            </p>
             <h1 className="text-lg font-bold text-text leading-tight">
               {current.title}
             </h1>
@@ -198,7 +211,7 @@ export default function OnboardingPage() {
           </div>
         </div>
 
-        {/* ── STEP 1: Shop name + auto URL ── */}
+        {/* ── STEP 1 ── */}
         {step === 1 && (
           <div className="space-y-3">
             <Input
@@ -209,8 +222,6 @@ export default function OnboardingPage() {
               onBlur={handleNameBlur}
               autoFocus
             />
-
-            {/* Auto-generated URL — read only */}
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center gap-2">
                 <label className="text-xs font-medium text-text">
@@ -242,14 +253,13 @@ export default function OnboardingPage() {
                 <p className="text-[11px] text-red-500">{slugError}</p>
               )}
               <p className="text-[11px] text-text-muted">
-                This is your unique storefront link. Generated from your shop
-                name.
+                Your unique storefront link, generated from your shop name.
               </p>
             </div>
           </div>
         )}
 
-        {/* ── STEP 2: WhatsApp + description ── */}
+        {/* ── STEP 2 ── */}
         {step === 2 && (
           <div className="space-y-3">
             <div className="flex flex-col gap-1.5">
@@ -257,7 +267,6 @@ export default function OnboardingPage() {
                 WhatsApp number
               </label>
               <div className="flex gap-2">
-                {/* Country picker */}
                 <div className="relative">
                   <button
                     type="button"
@@ -268,7 +277,6 @@ export default function OnboardingPage() {
                     <span className="font-medium">{selectedCountry.code}</span>
                     <ChevronDown className="h-3 w-3 text-text-muted" />
                   </button>
-
                   {showCountryPicker && (
                     <div className="absolute top-full left-0 mt-1 w-56 bg-surface border border-border rounded-2xl shadow-lg z-50 overflow-hidden">
                       <div className="max-h-52 overflow-y-auto py-1">
@@ -297,8 +305,6 @@ export default function OnboardingPage() {
                     </div>
                   )}
                 </div>
-
-                {/* Local number input */}
                 <input
                   type="tel"
                   placeholder="8012345678"
@@ -319,8 +325,6 @@ export default function OnboardingPage() {
                 you.
               </p>
             </div>
-
-            {/* Description */}
             <div className="flex flex-col gap-1.5 pt-1">
               <label className="text-xs font-medium text-text">
                 Shop description{" "}
@@ -337,23 +341,20 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* ── STEP 3: Logo ── */}
+        {/* ── STEP 3 ── */}
         {step === 3 && (
           <div className="flex flex-col items-center gap-3">
-            <div className="w-full max-w-xs mx-auto">
+            <div className="w-full flex justify-center items-center">
               <ImageUpload
                 value={form.logoUrl}
                 onChange={(url) => update("logoUrl", url)}
               />
             </div>
-            <p className="text-[11px] text-text-muted text-center">
-              You can skip this and add a logo later in settings.
-            </p>
           </div>
         )}
 
-        {/* Actions */}
-        <div className="mt-8 space-y-2">
+        {/* ── Actions ── */}
+        <div className="mt-8">
           {step < 3 ? (
             <Button
               onClick={handleNext}
@@ -365,7 +366,7 @@ export default function OnboardingPage() {
               Continue <ArrowRight className="h-4 w-4" />
             </Button>
           ) : (
-            <>
+            <div className="space-y-2">
               <Button
                 onClick={handleSubmit}
                 loading={loading}
@@ -374,25 +375,19 @@ export default function OnboardingPage() {
                 Launch store <ArrowRight className="h-4 w-4" />
               </Button>
               {!loading && (
-                <button
-                  onClick={handleSubmit}
-                  className="w-full text-xs text-text-muted hover:text-text py-2 transition-colors"
-                >
-                  Skip for now
-                </button>
+                /* Skip — sits right below Launch, clearly secondary */
+                <div className="flex items-center gap-3">
+                  <div className="h-px flex-1 bg-border" />
+                  <button
+                    onClick={handleSubmit}
+                    className="text-xs text-text-muted hover:text-text transition-colors px-2 py-1"
+                  >
+                    Skip for now
+                  </button>
+                  <div className="h-px flex-1 bg-border" />
+                </div>
               )}
-            </>
-          )}
-
-          {/* Back button */}
-          {step > 1 && !loading && (
-            <button
-              onClick={handleBack}
-              className="w-full flex items-center justify-center gap-1.5 text-xs text-text-muted hover:text-text py-2 transition-colors"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Back
-            </button>
+            </div>
           )}
         </div>
       </div>

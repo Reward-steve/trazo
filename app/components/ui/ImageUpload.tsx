@@ -50,7 +50,6 @@ export default function ImageUpload({
       if (data.secure_url) {
         onChange(data.secure_url);
       } else {
-        // Log real error for debugging, show friendly message to user
         console.error("Cloudinary error:", data.error?.message ?? data);
         const reason = data.error?.message ?? "";
         if (reason.includes("preset")) {
@@ -72,7 +71,7 @@ export default function ImageUpload({
       setUploading(false);
     }
   };
-  
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) uploadFile(file);
@@ -87,27 +86,20 @@ export default function ImageUpload({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-sm font-medium text-gray-700">Product Image</label>
-
       {value ? (
-        /* Preview */
-        <div className="relative w-full aspect-square max-w-[200px] rounded-xl overflow-hidden border border-gray-200 group">
-          <Image
-            src={value}
-            alt="Product preview"
-            fill
-            className="object-cover"
-          />
+        /* ── Preview ── */
+        <div className="relative w-36 h-36 rounded-2xl overflow-hidden border border-border group mx-auto">
+          <Image src={value} alt="Preview" fill className="object-cover" />
           <button
             type="button"
             onClick={() => onChange("")}
-            className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-lg text-gray-600 hover:text-red-500 hover:bg-white shadow-sm opacity-0 group-hover:opacity-100 transition-all"
+            className="absolute top-2 right-2 h-7 w-7 flex items-center justify-center bg-surface/90 rounded-full text-text-muted hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
           >
-            <X className="h-4 w-4" />
+            <X className="h-3.5 w-3.5" />
           </button>
         </div>
       ) : (
-        /* Upload area */
+        /* ── Upload area ── */
         <div
           onClick={() => !uploading && inputRef.current?.click()}
           onDragOver={(e) => {
@@ -117,37 +109,38 @@ export default function ImageUpload({
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
           className={`
-            w-full aspect-square max-w-[200px] rounded-xl border-2 border-dashed
-            flex flex-col items-center justify-center gap-2 cursor-pointer
-            transition-all duration-200
+            w-full rounded-2xl border-2 border-dashed
+            flex flex-col items-center justify-center gap-3
+            py-10 cursor-pointer transition-colors duration-200
             ${
               dragOver
-                ? "border-emerald-400 bg-emerald-50"
-                : "border-gray-200 hover:border-emerald-400 hover:bg-emerald-50/50"
+                ? "border-primary bg-bubble-out"
+                : "border-border hover:border-primary/50 hover:bg-bubble-out/40"
             }
             ${uploading ? "cursor-not-allowed opacity-60" : ""}
           `}
         >
           {uploading ? (
             <>
-              <Loader2 className="h-7 w-7 text-emerald-500 animate-spin" />
-              <span className="text-xs text-gray-500">Uploading...</span>
+              <Loader2 className="h-7 w-7 text-primary animate-spin" />
+              <span className="text-xs text-text-muted">Uploading…</span>
             </>
           ) : (
             <>
-              <div className="p-2.5 bg-gray-100 rounded-xl">
-                <ImageIcon className="h-6 w-6 text-gray-400" />
+              <div className="h-12 w-12 bg-bubble-out rounded-2xl flex items-center justify-center">
+                <ImageIcon className="h-6 w-6 text-primary-dark" />
               </div>
-              <div className="text-center px-2">
-                <p className="text-xs font-medium text-gray-600">
+              <div className="text-center">
+                <p className="text-sm font-medium text-text">
                   Click or drag to upload
                 </p>
-                <p className="text-[11px] text-gray-400 mt-0.5">
+                <p className="text-[11px] text-text-muted mt-0.5">
                   PNG, JPG up to 5MB
                 </p>
               </div>
-              <div className="flex items-center gap-1.5 bg-emerald-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg">
-                <Upload className="h-3.5 w-3.5" /> Choose Image
+              <div className="flex items-center gap-1.5 bg-primary hover:bg-primary-dark text-white text-xs font-semibold px-4 py-2 rounded-full transition-colors">
+                <Upload className="h-3.5 w-3.5" />
+                Choose image
               </div>
             </>
           )}
@@ -162,7 +155,7 @@ export default function ImageUpload({
         onChange={handleFileChange}
       />
 
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {error && <p className="text-[11px] text-red-500">{error}</p>}
     </div>
   );
 }
