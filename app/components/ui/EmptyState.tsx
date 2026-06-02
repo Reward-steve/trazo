@@ -23,13 +23,15 @@ export default function EmptyState({
       )}
     >
       {icon && (
-        <div className="mb-4 p-4 bg-gray-50 rounded-2xl text-gray-400">
+        <div className="mb-4 h-16 w-16 bg-bubble-out rounded-2xl flex items-center justify-center text-primary-dark">
           {icon}
         </div>
       )}
-      <h3 className="text-base font-semibold text-gray-900 mb-1">{title}</h3>
+      <h3 className="text-sm font-bold text-text mb-1">{title}</h3>
       {description && (
-        <p className="text-sm text-gray-500 mb-6 max-w-xs">{description}</p>
+        <p className="text-xs text-text-muted mb-6 max-w-xs leading-relaxed">
+          {description}
+        </p>
       )}
       {action}
     </div>
