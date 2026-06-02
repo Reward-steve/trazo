@@ -1,1 +1,5 @@
-@AGENTS.md
+- Middleware must only handle authentication, not business logic
+- Onboarding logic must live in server components
+- Do not introduce new tables without updating seed.ts
+- Keep Prisma schema minimal and stable
+- Prefer simple UX over architectural complexity
