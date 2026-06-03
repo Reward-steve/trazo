@@ -23,7 +23,7 @@ export function generateWhatsAppURL(
     .join("\n");
 
   const message = [
-    `🧾 *ORDER RECEIPT • ${shopName.toUpperCase()}*`,
+    `*NEW ORDER • ${shopName.toUpperCase()}*`,
     "````",
     `--------------------------------`,
     `${itemLines}`,
@@ -31,7 +31,7 @@ export function generateWhatsAppURL(
     `TOTAL:${formatNaira(total).padStart(26, " ")}`,
     `--------------------------------`,
     "````",
-    `👤 *CUSTOMER DETAILS*`,
+    `*CUSTOMER DETAILS*`,
     `_*Name:*_ ${customer.name}`,
     `_*Phone:*_ ${customer.phone}`,
     `_*Delivery Address:*_ ${customer.address}`,
