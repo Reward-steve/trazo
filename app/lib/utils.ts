@@ -13,27 +13,30 @@ export function generateWhatsAppURL(
   customer: { name: string; phone: string; address: string },
   total: number,
 ): string {
+  // Pad helper to create a clean, right-aligned receipt column layout
   const itemLines = items
-    .map(
-      (i) =>
-        `  - ${i.quantity}x ${i.name}: ${formatNaira(i.price * i.quantity)}`,
-    )
+    .map((i) => {
+      const qtyAndName = `${i.quantity}x ${i.name}`;
+      const priceStr = formatNaira(i.price * i.quantity);
+      return `${qtyAndName.padEnd(22, " ")}${priceStr.padStart(10, " ")}`;
+    })
     .join("\n");
 
   const message = [
-    `*New Order - ${shopName}*`,
+    `🧾 *ORDER RECEIPT • ${shopName.toUpperCase()}*`,
+    "````",
+    `--------------------------------`,
+    `${itemLines}`,
+    `--------------------------------`,
+    `TOTAL:${formatNaira(total).padStart(26, " ")}`,
+    `--------------------------------`,
+    "````",
+    `👤 *CUSTOMER DETAILS*`,
+    `_*Name:*_ ${customer.name}`,
+    `_*Phone:*_ ${customer.phone}`,
+    `_*Delivery Address:*_ ${customer.address}`,
     ``,
-    `*Items Ordered:*`,
-    itemLines,
-    ``,
-    `*Order Total: ${formatNaira(total)}*`,
-    ``,
-    `*Customer Details:*`,
-    `  Name: ${customer.name}`,
-    `  Phone: ${customer.phone}`,
-    `  Address: ${customer.address}`,
-    ``,
-    `Please confirm this order and provide payment details.`,
+    `_Please confirm this order and provide payment details._`,
   ].join("\n");
 
   return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
