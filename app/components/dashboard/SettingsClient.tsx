@@ -71,6 +71,7 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
     form.description !== shop.description ||
     form.logoUrl !== shop.logoUrl;
 
+  const buttonVariant = hasChanges || saved ? "primary" : "secondary";
   return (
     <div className="space-y-3">
       {/* Shop identity */}
@@ -129,9 +130,8 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
           type="tel"
         />
         <p className="text-[11px] text-text-muted leading-relaxed">
-          Include your country code. Nigerian numbers start with{" "}
-          <span className="font-semibold text-text">234</span>. Every order from
-          customers goes to this number.
+          Enter your WhatsApp number with the country code. Customers will send
+          their orders directly to this number.
         </p>
       </div>
 
@@ -186,7 +186,7 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
           loading={loading}
           size="lg"
           disabled={!hasChanges && !loading}
-          variant={saved ? "primary" : hasChanges ? "primary" : "secondary"}
+          variant={buttonVariant}
           className="w-full"
         >
           {saved ? (

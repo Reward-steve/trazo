@@ -176,9 +176,9 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
         <div className="px-3 pb-4 pt-3 border-t border-border flex items-center gap-2">
           <button
             onClick={() => signOut({ redirectUrl: "/" })}
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-text-muted hover:text-text hover:bg-surface-alt transition-colors flex-1"
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors flex-1"
           >
-            <LogOut className="h-4 w-4 shrink-0" />
+            <LogOut className="h-4 w-4 shrink-0 text-red-500" />
             <span>Sign out</span>
           </button>
           <ThemeToggle />
@@ -194,7 +194,6 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
               <Link
                 key={href}
                 href={href}
-                // touch-action: manipulation removes the 300ms tap delay on mobile
                 style={{ touchAction: "manipulation" }}
                 className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl min-w-0 select-none"
               >
@@ -227,12 +226,12 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
           <button
             onClick={() => signOut({ redirectUrl: "/" })}
             style={{ touchAction: "manipulation" }}
-            className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl min-w-0 select-none"
+            className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl min-w-0 select-none group active:bg-red-500/5"
           >
-            <div className="h-8 w-8 flex items-center justify-center rounded-xl">
-              <LogOut className="h-5 w-5 text-text-muted" />
+            <div className="h-8 w-8 flex items-center justify-center rounded-xl transition-colors group-hover:bg-red-500/10">
+              <LogOut className="h-5 w-5 text-red-500" />
             </div>
-            <span className="text-[10px] font-medium leading-none text-text-muted">
+            <span className="text-[10px] font-medium leading-none text-red-500">
               Out
             </span>
           </button>
