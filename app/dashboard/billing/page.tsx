@@ -6,7 +6,7 @@ const ACCOUNT_NAME = "Trazo";
 const ACCOUNT_NUMBER = "8098069257";
 const BANK_NAME = "Opay";
 
-export default async function BillingPage() {
+export default function BillingPage() {
   const message = encodeURIComponent(
     `Hi, I want to reactivate my Trazo store. I’ve made a payment of ₦3,000. Please confirm.`,
   );
@@ -14,7 +14,7 @@ export default async function BillingPage() {
   return (
     <div className="min-h-screen bg-surface-alt flex items-center justify-center p-6">
       <div className="w-full max-w-md">
-        {/* Header */}
+        {/* HEADER */}
         <div className="bg-surface border border-border rounded-xl p-6 text-center mb-4">
           <div className="h-14 w-14 mx-auto bg-surface-alt border border-border rounded-xl flex items-center justify-center mb-4">
             <Lock className="h-6 w-6 text-text-muted" />
@@ -30,7 +30,7 @@ export default async function BillingPage() {
           </p>
         </div>
 
-        {/* Pricing */}
+        {/* PRICING CARD */}
         <div className="bg-surface border border-border rounded-xl p-6 mb-4">
           <div className="text-center mb-6">
             <p className="text-xs text-text-muted uppercase tracking-wide font-semibold">
@@ -40,7 +40,7 @@ export default async function BillingPage() {
             <p className="text-sm text-text-muted">per month</p>
           </div>
 
-          {/* Payment Details */}
+          {/* PAYMENT DETAILS */}
           <div className="space-y-4 text-sm text-text">
             <div>
               <p className="text-text-muted text-xs mb-1">Bank Name</p>
@@ -52,28 +52,17 @@ export default async function BillingPage() {
               <p>{ACCOUNT_NAME}</p>
             </div>
 
-            <div className="flex items-center justify-between bg-surface-alt border border-border rounded-lg p-3">
-              <div>
-                <p className="text-text-muted text-xs mb-1">Account Number</p>
-                <p className="font-medium">{ACCOUNT_NUMBER}</p>
-              </div>
-
-              <button
-                onClick={() => navigator.clipboard.writeText(ACCOUNT_NUMBER)}
-                className="text-text-muted hover:text-text transition"
-              >
-                <Copy className="h-4 w-4" />
-              </button>
-            </div>
+            {/* COPY ACCOUNT NUMBER (FIXED) */}
+            <CopyAccountNumber />
           </div>
 
-          {/* Steps */}
+          {/* STEPS */}
           <div className="mt-5 space-y-2 text-xs text-text-muted">
             <p>1. Transfer ₦3,000 to the account above</p>
             <p>2. Send receipt on WhatsApp for activation</p>
           </div>
 
-          {/* Primary CTA */}
+          {/* CTA */}
           <a
             href={`https://wa.me/${YOUR_WHATSAPP}?text=${message}`}
             target="_blank"
@@ -89,7 +78,7 @@ export default async function BillingPage() {
           </p>
         </div>
 
-        {/* Secondary Action */}
+        {/* SUPPORT */}
         <div className="text-center text-xs text-text-muted">
           Already paid?{" "}
           <a
@@ -102,6 +91,27 @@ export default async function BillingPage() {
           </a>
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * CLIENT COMPONENT (clipboard fix)
+ */
+function CopyAccountNumber() {
+  return (
+    <div className="flex items-center justify-between bg-surface-alt border border-border rounded-lg p-3">
+      <div>
+        <p className="text-text-muted text-xs mb-1">Account Number</p>
+        <p className="font-medium">{ACCOUNT_NUMBER}</p>
+      </div>
+
+      <button
+        onClick={() => navigator.clipboard.writeText(ACCOUNT_NUMBER)}
+        className="text-text-muted hover:text-text transition"
+      >
+        <Copy className="h-4 w-4" />
+      </button>
     </div>
   );
 }
