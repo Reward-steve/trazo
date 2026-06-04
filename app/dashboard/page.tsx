@@ -11,39 +11,32 @@ import {
   MessageCircle,
   Lightbulb,
   Settings,
+  Clock,
 } from "lucide-react";
-
 import { getShopByUser } from "../actions/settings";
-
+import { getShopBillingBanner } from "../actions/subscriptionGuard";
 import CopyLinkButton from "../components/dashboard/CopyLinkButton";
 import { ThemeToggle } from "../components/ui/ThemeProvider";
-import { getShopBillingBanner } from "../actions/subscriptionGuard";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const { userId } = await auth();
-
-  if (!userId) {
-    redirect("/login");
-  }
+  if (!userId) redirect("/login");
 
   const shop = await getShopByUser();
+  if (!shop) redirect("/onboarding");
 
-  if (!shop) {
-    redirect("/onboarding");
-  }
+  const banner = getShopBillingBanner({
+    trialEndsAt: shop.trialEndsAt,
+    subscriptionEndsAt: shop.subscriptionEndsAt,
+  });
 
-  const banner = getShopBillingBanner(shop);
-
-  // ─────────────────────────────────────────────
-  // DATA
-  // ─────────────────────────────────────────────
   const totalProducts = shop.products.length;
   const availableProducts = shop.products.filter((p) => p.available).length;
   const outOfStock = totalProducts - availableProducts;
 
-  const appUrl = "https://trazo-omega.vercel.app";
+  const appUrl = /*process.env.APP_URL ??*/ "https://trazo-omega.vercel.app";
   const storefrontUrl = `${appUrl}/store/${shop.slug}`;
 
   const stats = [
@@ -51,17 +44,21 @@ export default async function DashboardPage() {
       label: "Total products",
       value: totalProducts,
       icon: Package,
+      highlight: false,
+      warn: false,
     },
     {
       label: "Live & available",
       value: availableProducts,
       icon: ToggleRight,
       highlight: true,
+      warn: false,
     },
     {
       label: "Out of stock",
       value: outOfStock,
       icon: AlertCircle,
+      highlight: false,
       warn: outOfStock > 0,
     },
   ];
@@ -90,9 +87,6 @@ export default async function DashboardPage() {
   const setupComplete = setupSteps.every((s) => s.done);
   const doneCount = setupSteps.filter((s) => s.done).length;
 
-  // ─────────────────────────────────────────────
-  // UI
-  // ─────────────────────────────────────────────
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
       {/* Header */}
@@ -103,73 +97,51 @@ export default async function DashboardPage() {
           </h1>
           <p className="text-text-muted text-xs mt-0.5">Dashboard</p>
         </div>
-
         <ThemeToggle />
       </div>
 
-      {/* Billing Banner */}
-      {banner.type !== "active" && (
-        <div
-          className={`border rounded-2xl p-4 flex items-start gap-3 ${
-            banner.type === "expired"
-              ? "bg-surface border-border"
-              : "bg-surface border-border"
-          }`}
-        >
-          <div
-            className={`h-8 w-8 rounded-xl flex items-center justify-center shrink-0 ${
-              banner.type === "trial" ? "bg-bubble-out" : "bg-surface-alt"
-            }`}
-          >
-            <span className="text-xs font-bold text-primary-dark">
-              {banner.type === "trial" ? "T" : "!"}
-            </span>
+      {/* Trial banner — only shown during trial, never for expired (layout handles that) */}
+      {banner.type === "trial" && (
+        <div className="bg-bubble-out border border-primary/20 rounded-2xl p-4 flex items-start gap-3">
+          <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            <Clock className="h-4 w-4 text-primary-dark" />
           </div>
-
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-text">{banner.title}</p>
-            <p className="text-[11px] text-text-muted mt-0.5">
+            <p className="text-[11px] text-text-muted mt-0.5 leading-relaxed">
               {banner.message}
             </p>
           </div>
-
-          {banner.type === "expired" && (
-            <a
-              href="/dashboard/billing"
-              className="text-xs font-bold text-primary hover:underline"
-            >
-              Renew
-            </a>
-          )}
+          <Link
+            href="/dashboard/billing"
+            className="text-xs font-bold text-primary-dark hover:underline shrink-0"
+          >
+            View plan
+          </Link>
         </div>
       )}
 
-      {/* Storefront */}
+      {/* Storefront card */}
       <div className="bg-primary-dark rounded-2xl p-4 text-white">
         <p className="text-white/60 text-[11px] uppercase tracking-widest mb-1">
           Your storefront
         </p>
-
         <p className="text-sm font-bold break-all mb-3">
           {appUrl.replace("https://", "")}/store/{shop.slug}
         </p>
-
         <div className="flex flex-wrap gap-2 mb-4">
           <CopyLinkButton url={storefrontUrl} />
-
           <Link
             href={`/store/${shop.slug}`}
             target="_blank"
-            className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-medium px-3 py-1.5 rounded-full"
+            className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-medium px-3 py-1.5 rounded-full transition-all"
           >
             <ExternalLink className="h-3 w-3" />
             Preview
           </Link>
         </div>
-
         <div className="border-t border-white/10 pt-3">
           <p className="text-white/50 text-[11px] mb-2">Share on</p>
-
           <div className="flex flex-wrap gap-2">
             {[
               { icon: Instagram, label: "Instagram bio" },
@@ -197,16 +169,23 @@ export default async function DashboardPage() {
           >
             <div
               className={`h-7 w-7 rounded-xl flex items-center justify-center ${
-                highlight ? "bg-bubble-out" : "bg-surface-alt"
+                highlight
+                  ? "bg-bubble-out"
+                  : warn && value > 0
+                    ? "bg-amber-50 dark:bg-amber-900/20"
+                    : "bg-surface-alt"
               }`}
             >
               <Icon
                 className={`h-3.5 w-3.5 ${
-                  highlight ? "text-primary-dark" : "text-text-muted"
+                  highlight
+                    ? "text-primary-dark"
+                    : warn && value > 0
+                      ? "text-amber-500"
+                      : "text-text-muted"
                 }`}
               />
             </div>
-
             <div>
               <p
                 className={`text-2xl font-black ${
@@ -215,7 +194,6 @@ export default async function DashboardPage() {
               >
                 {value}
               </p>
-
               <p className="text-[11px] text-text-muted">{label}</p>
             </div>
           </div>
@@ -230,33 +208,28 @@ export default async function DashboardPage() {
               <Lightbulb className="h-4 w-4 text-primary" />
               <p className="text-sm font-bold text-text">Complete your setup</p>
             </div>
-
             <span className="text-[11px] text-text-muted">
               {doneCount}/{setupSteps.length}
             </span>
           </div>
-
-          <div className="h-1 bg-surface-alt rounded-full mb-4">
+          <div className="h-1 bg-surface-alt rounded-full mb-4 overflow-hidden">
             <div
-              className="h-full bg-primary rounded-full"
-              style={{
-                width: `${(doneCount / setupSteps.length) * 100}%`,
-              }}
+              className="h-full bg-primary rounded-full transition-all duration-500"
+              style={{ width: `${(doneCount / setupSteps.length) * 100}%` }}
             />
           </div>
-
           <div className="space-y-3">
             {setupSteps.map(({ done, label, hint, href }) => (
               <Link
                 key={label}
                 href={done ? "#" : href}
-                className={`flex items-start gap-3 ${
-                  done ? "pointer-events-none" : ""
-                }`}
+                className={`flex items-start gap-3 ${done ? "pointer-events-none" : "group"}`}
               >
                 <div
-                  className={`h-5 w-5 rounded-full border-2 flex items-center justify-center mt-0.5 ${
-                    done ? "border-primary bg-primary" : "border-border"
+                  className={`h-5 w-5 rounded-full border-2 flex items-center justify-center mt-0.5 shrink-0 transition-colors ${
+                    done
+                      ? "border-primary bg-primary"
+                      : "border-border group-hover:border-primary"
                   }`}
                 >
                   {done && (
@@ -275,18 +248,12 @@ export default async function DashboardPage() {
                     </svg>
                   )}
                 </div>
-
                 <div>
                   <p
-                    className={`text-sm ${
-                      done
-                        ? "text-text-muted line-through"
-                        : "text-text font-medium"
-                    }`}
+                    className={`text-sm ${done ? "text-text-muted line-through" : "text-text font-medium group-hover:text-primary transition-colors"}`}
                   >
                     {label}
                   </p>
-
                   {!done && (
                     <p className="text-[11px] text-text-muted mt-0.5">{hint}</p>
                   )}
@@ -322,37 +289,32 @@ export default async function DashboardPage() {
               <div className="h-9 w-9 bg-bubble-out rounded-xl flex items-center justify-center">
                 <Icon className="h-4 w-4 text-primary-dark" />
               </div>
-
               <div>
                 <p className="text-sm font-bold text-text">{title}</p>
                 <p className="text-[11px] text-text-muted mt-0.5">{desc}</p>
               </div>
             </div>
-
-            <ArrowRight className="h-4 w-4 text-border group-hover:text-primary transition-all" />
+            <ArrowRight className="h-4 w-4 text-border group-hover:text-primary transition-all group-hover:translate-x-0.5" />
           </Link>
         ))}
       </div>
 
-      {/* Empty state */}
+      {/* No products nudge */}
       {totalProducts === 0 && (
         <div className="bg-surface-alt border border-border rounded-2xl p-4 flex items-start gap-3">
-          <div className="h-8 w-8 bg-surface rounded-xl border border-border flex items-center justify-center">
+          <div className="h-8 w-8 bg-surface rounded-xl border border-border flex items-center justify-center shrink-0">
             <Package className="h-4 w-4 text-text-muted" />
           </div>
-
           <div>
             <p className="text-sm font-bold text-text">
               Your shop has no products yet
             </p>
-
             <p className="text-[11px] text-text-muted mt-0.5 mb-3">
               Customers will see an empty store.
             </p>
-
             <Link
               href="/dashboard/products"
-              className="inline-flex items-center gap-1.5 bg-primary hover:bg-primary-dark text-white text-xs font-bold px-4 py-2 rounded-full"
+              className="inline-flex items-center gap-1.5 bg-primary hover:bg-primary-dark text-white text-xs font-bold px-4 py-2 rounded-full transition-all"
             >
               Add your first product
               <ArrowRight className="h-3 w-3" />
