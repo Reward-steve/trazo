@@ -3,6 +3,7 @@ import { getShopBySlug } from "../../actions/settings";
 import StorefrontClient from "../../components/store/StorefrontClient";
 import { Product } from "@prisma/client";
 import { getShopStatus } from "../../actions/subscriptionGuard";
+import { Store } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -30,19 +31,31 @@ export default async function StorePage({ params }: StorePageProps) {
   // ❄️ FREEZE ONLY REAL SHOPS
   if (isFrozen) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-6 text-center backdrop-blur-md bg-black/10">
-        <div className="max-w-sm w-full bg-white/40  border border-white/20  rounded-2xl p-6 shadow-xl backdrop-blur-xl">
-          <h1 className="text-lg font-bold text-text">
-            Store temporarily unavailable
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/10 backdrop-blur-md">
+        <div className="max-w-sm w-full bg-white/40 border border-white/20 rounded-3xl p-6 shadow-xl backdrop-blur-xl text-center">
+          <div className="h-14 w-14 mx-auto rounded-2xl bg-white/50 border border-white/30 flex items-center justify-center mb-4">
+            <Store className="h-6 w-6 text-text" />
+          </div>
+
+          <h1 className="text-xl font-black text-text">
+            Store temporarily paused
           </h1>
 
           <p className="text-sm text-text-muted mt-2 leading-relaxed">
-            This store is currently paused. The owner has not renewed their
-            subscription.
+            This storefront is currently unavailable while the owner renews
+            their Trazo subscription.
           </p>
 
+          <div className="mt-4 bg-white/30 border border-white/20 rounded-2xl p-3">
+            <p className="text-xs text-text-muted leading-relaxed">
+              The store&apos;s products and information are still محفوظ and can
+              be restored once the subscription is renewed.
+            </p>
+          </div>
+
           <p className="text-xs text-text-muted mt-4">
-            If you are the owner, please log in to restore access.
+            Are you the owner? Sign in to your dashboard to reactivate your
+            store.
           </p>
         </div>
       </div>
