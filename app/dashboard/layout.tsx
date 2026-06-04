@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
-import { getShopByUser } from "../../app/actions/settings";
-import DashboardSidebar from "../../app/components/dashboard/DashboardSidebar";
+import { headers } from "next/headers";
+import { getShopByUser } from "../actions/settings";
+import DashboardSidebar from "../components/dashboard/DashboardSidebar";
 
 export default async function DashboardLayout({
   children,
@@ -14,21 +15,19 @@ export default async function DashboardLayout({
   const shop = await getShopByUser();
   if (!shop) redirect("/onboarding");
 
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname") ?? "";
+  const isBillingPage = pathname.includes("/dashboard/billing");
+
   const now = new Date();
   const end = shop.subscriptionEndsAt ?? shop.trialEndsAt;
-
   const isExpired = !end || end < now;
 
-  // 🔐 CRITICAL RULE: NEVER block billing page
-  // Layout does NOT know route, so we fix this structurally
-
-  if (isExpired) {
+  // Only redirect to billing if NOT already on billing page
+  if (isExpired && !isBillingPage) {
     redirect("/dashboard/billing");
   }
 
-  // ─────────────────────────────
-  // SERIALIZE (SAFE FOR CLIENT)
-  // ─────────────────────────────
   const serializedShop = {
     id: shop.id,
     shopName: shop.shopName,
