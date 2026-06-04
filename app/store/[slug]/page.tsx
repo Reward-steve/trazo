@@ -31,31 +31,37 @@ export default async function StorePage({ params }: StorePageProps) {
   // ❄️ FREEZE ONLY REAL SHOPS
   if (isFrozen) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/10 backdrop-blur-md">
-        <div className="max-w-sm w-full bg-white/40 border border-white/20 rounded-3xl p-6 shadow-xl backdrop-blur-xl text-center">
-          <div className="h-14 w-14 mx-auto rounded-2xl bg-white/50 border border-white/30 flex items-center justify-center mb-4">
-            <Store className="h-6 w-6 text-text" />
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-surface-alt/40 backdrop-blur-md">
+        <div className="max-w-sm w-full bg-surface/70 border border-border/50 rounded-3xl p-6 shadow-xl backdrop-blur-xl text-center">
+          {/* WhatsApp Green Icon Badge */}
+          <div className="h-14 w-14 mx-auto rounded-full bg-header/10 border border-header/20 flex items-center justify-center mb-4">
+            <Store className="h-6 w-6 text-header" />
           </div>
 
-          <h1 className="text-xl font-black text-text">
-            Store temporarily paused
+          <h1 className="text-xl font-bold text-text">
+            Store taking a short break
           </h1>
 
           <p className="text-sm text-text-muted mt-2 leading-relaxed">
-            This storefront is currently unavailable while the owner renews
-            their Trazo subscription.
+            This store is temporarily offline for maintenance and updates.
+            Please check back again soon!
           </p>
 
-          <div className="mt-4 bg-white/30 border border-white/20 rounded-2xl p-3">
+          {/* Re-styled as a WhatsApp "System Message" box */}
+          <div className="mt-4 bg-surface-alt/60 border border-border/40 rounded-xl p-3">
             <p className="text-xs text-text-muted leading-relaxed">
-              The store&apos;s products and information are still محفوظ and can
-              be restored once the subscription is renewed.
+              Your shopping cart and history are safe. Services will resume as
+              soon as updates are complete.
             </p>
           </div>
 
-          <p className="text-xs text-text-muted mt-4">
-            Are you the owner? Sign in to your dashboard to reactivate your
-            store.
+          {/* Subtle, private call-to-action just for the owner */}
+          <p className="text-xs text-text-muted/70 mt-5 pt-4 border-t border-border/40">
+            Store administrator?{" "}
+            <span className="text-header font-medium hover:underline cursor-pointer">
+              Sign in to your dashboard
+            </span>{" "}
+            to manage your status.
           </p>
         </div>
       </div>
