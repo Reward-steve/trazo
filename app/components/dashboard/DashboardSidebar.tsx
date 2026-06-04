@@ -12,6 +12,7 @@ import {
   Store,
   Copy,
   CheckCircle,
+  CreditCard,
 } from "lucide-react";
 import { ThemeToggle } from "../../components/ui/ThemeProvider";
 import { useClerk } from "@clerk/nextjs";
@@ -39,6 +40,12 @@ const navLinks = [
     href: "/dashboard/settings",
     label: "Settings",
     icon: Settings,
+    exact: false,
+  },
+  {
+    href: "/dashboard/billing",
+    label: "Billing",
+    icon: CreditCard,
     exact: false,
   },
 ];
