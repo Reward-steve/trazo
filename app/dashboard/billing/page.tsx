@@ -15,6 +15,8 @@ import {
   getShopBillingBanner,
   ShopDates,
 } from "../../actions/subscriptionGuard"; // adjust path
+import { getShopByUser } from "../../actions/settings";
+import { redirect } from "next/navigation";
 
 const YOUR_WHATSAPP = "2348098069257";
 
@@ -22,12 +24,14 @@ const BANK_NAME = "Opay";
 const ACCOUNT_NAME = "Trazo";
 const ACCOUNT_NUMBER = "8098069257";
 
-export default function BillingPage({
-  shop,
-}: {
-  shop: ShopDates & { shopName?: string };
-}) {
-  const banner = getShopBillingBanner(shop);
+export default async function BillingPage() {
+  const shop = await getShopByUser();
+  if (!shop) redirect("/onboarding");
+
+  const banner = getShopBillingBanner({
+    trialEndsAt: shop.trialEndsAt,
+    subscriptionEndsAt: shop.subscriptionEndsAt,
+  });
 
   const paymentMessage = encodeURIComponent(
     "Hi, I want to reactivate my Trazo store. I've made a payment of ₦3,000. Please confirm.",
