@@ -34,8 +34,8 @@ export default async function StorePage({ params }: StorePageProps) {
       <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-surface-alt/40 backdrop-blur-md">
         <div className="max-w-sm w-full bg-surface/70 border border-border/50 rounded-3xl p-6 shadow-xl backdrop-blur-xl text-center">
           {/* WhatsApp Green Icon Badge */}
-          <div className="h-14 w-14 mx-auto rounded-full bg-header/10 border border-header/20 flex items-center justify-center mb-4">
-            <Store className="h-6 w-6 text-header" />
+          <div className="h-14 w-14 mx-auto rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
+            <Store className="h-6 w-6 text-primary" />
           </div>
 
           <h1 className="text-xl font-bold text-text">
@@ -58,7 +58,7 @@ export default async function StorePage({ params }: StorePageProps) {
           {/* Subtle, private call-to-action just for the owner */}
           <p className="text-xs text-text-muted/70 mt-5 pt-4 border-t border-border/40">
             Store administrator?{" "}
-            <span className="text-header font-medium hover:underline cursor-pointer">
+            <span className="text-primary font-medium cursor-pointer">
               Sign in to your dashboard
             </span>{" "}
             to manage your status.
