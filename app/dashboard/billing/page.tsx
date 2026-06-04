@@ -3,7 +3,7 @@ import { Lock, MessageSquare, Copy } from "lucide-react";
 const YOUR_WHATSAPP = "2348098069257";
 
 const ACCOUNT_NAME = "Trazo";
-const ACCOUNT_NUMBER = "1234567890";
+const ACCOUNT_NUMBER = "8098069257";
 const BANK_NAME = "Opay";
 
 export default async function BillingPage() {

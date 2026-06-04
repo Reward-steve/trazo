@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
-import { getShopByUser, getShopStatus } from "../../app/actions/settings";
+import { getShopByUser } from "../../app/actions/settings";
 import DashboardSidebar from "../../app/components/dashboard/DashboardSidebar";
+import { getShopStatus } from "../actions/subscriptionGuard";
 
 export default async function DashboardLayout({
   children,
