@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import { getShopByUser } from "../../app/actions/settings";
 import DashboardSidebar from "../../app/components/dashboard/DashboardSidebar";
-import { getShopStatus } from "../actions/subscriptionGuard";
 
 export default async function DashboardLayout({
   children,
@@ -11,41 +10,30 @@ export default async function DashboardLayout({
 }) {
   const { userId } = await auth();
 
-  // ─────────────────────────────────────────
   // 1. AUTH GUARD
-  // ─────────────────────────────────────────
   if (!userId) {
     redirect("/login");
   }
 
   const shop = await getShopByUser();
 
-  // ─────────────────────────────────────────
   // 2. ONBOARDING GUARD
-  // ─────────────────────────────────────────
   if (!shop) {
     redirect("/onboarding");
   }
 
-  // ─────────────────────────────────────────
-  // 3. SUBSCRIPTION CHECK (CORE LOGIC)
-  // ─────────────────────────────────────────
-  const status = getShopStatus(shop);
+  // 3. SUBSCRIPTION CHECK (SIMPLE + DIRECT)
+  const now = new Date();
+  const end = shop.subscriptionEndsAt ?? shop.trialEndsAt;
 
-  const isExpired = status === "expired";
+  const isExpired = !end || end < now;
 
-  // IMPORTANT:
-  // Allow access to billing page even when expired.
-  // We detect route via headers workaround later if needed.
-  // For now, we assume layout-level gating only blocks dashboard.
-
+  // 4. BLOCK EVERYTHING IF EXPIRED
   if (isExpired) {
     redirect("/dashboard/billing");
   }
 
-  // ─────────────────────────────────────────
-  // 4. SAFE SERIALIZATION FOR CLIENT COMPONENTS
-  // ─────────────────────────────────────────
+  // 5. SERIALIZE (ONLY WHAT UI NEEDS)
   const serializedShop = {
     id: shop.id,
     shopName: shop.shopName,
@@ -57,19 +45,13 @@ export default async function DashboardLayout({
       available: p.available,
     })),
 
-    trialEndsAt: shop.trialEndsAt ? shop.trialEndsAt.toISOString() : null,
-
-    subscriptionEndsAt: shop.subscriptionEndsAt
-      ? shop.subscriptionEndsAt.toISOString()
-      : null,
+    trialEndsAt: shop.trialEndsAt?.toISOString() ?? null,
+    subscriptionEndsAt: shop.subscriptionEndsAt?.toISOString() ?? null,
 
     createdAt: shop.createdAt.toISOString(),
     updatedAt: shop.updatedAt.toISOString(),
   };
 
-  // ─────────────────────────────────────────
-  // 5. RENDER
-  // ─────────────────────────────────────────
   return (
     <div className="min-h-screen bg-surface-alt flex flex-col md:flex-row">
       <DashboardSidebar shop={serializedShop} />
