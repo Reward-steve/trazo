@@ -14,7 +14,7 @@ import CopyAccountNumber from "../../components/dashboard/CopyAccountNumber";
 import {
   getShopBillingBanner,
   ShopDates,
-} from "../../actions/subscriptionGuard";
+} from "../../actions/subscriptionGuard"; // adjust path
 
 const YOUR_WHATSAPP = "2348098069257";
 
