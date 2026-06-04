@@ -22,24 +22,6 @@ export function getShopStatus(shop: {
 }
 
 /**
- * Hard gate: blocks access completely
- * Use in protected pages (dashboard, products, settings)
- */
-// export function requireActiveShop(shop: {
-//   trialEndsAt: Date | null;
-//   subscriptionEndsAt: Date | null;
-//   slug: string;
-// }) {
-//   const status = getShopStatus(shop);
-
-//   if (status === "expired") {
-//     redirect("/dashboard/billing");
-//   }
-
-//   return status;
-// }
-
-/**
  * Soft gate: UI banner logic only (no redirects)
  * Use for dashboard banners
  */

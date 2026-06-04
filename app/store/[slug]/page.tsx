@@ -19,16 +19,19 @@ export default async function StorePage({ params }: StorePageProps) {
     notFound();
   }
 
+  // 🧪 OVERRIDE RULE (SAFE TEST / DEMO MODE)
+  const isDemoShop = shop.slug === "demo";
+
   // 🔐 SUBSCRIPTION CHECK (CORE FREEZE LOGIC)
   const status = getShopStatus(shop);
 
-  const isFrozen = status === "expired";
+  const isFrozen = status === "expired" && !isDemoShop;
 
-  // ❄️ HARD FREEZE STATE (MVP SAFE)
+  // ❄️ FREEZE ONLY REAL SHOPS
   if (isFrozen) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-surface-alt px-6 text-center">
-        <div className="max-w-sm w-full bg-surface border border-border rounded-2xl p-6">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-6 text-center backdrop-blur-md bg-black/10">
+        <div className="max-w-sm w-full bg-white/40  border border-white/20  rounded-2xl p-6 shadow-xl backdrop-blur-xl">
           <h1 className="text-lg font-bold text-text">
             Store temporarily unavailable
           </h1>
