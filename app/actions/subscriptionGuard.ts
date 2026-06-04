@@ -25,19 +25,19 @@ export function getShopStatus(shop: {
  * Hard gate: blocks access completely
  * Use in protected pages (dashboard, products, settings)
  */
-export function requireActiveShop(shop: {
-  trialEndsAt: Date | null;
-  subscriptionEndsAt: Date | null;
-  slug: string;
-}) {
-  const status = getShopStatus(shop);
+// export function requireActiveShop(shop: {
+//   trialEndsAt: Date | null;
+//   subscriptionEndsAt: Date | null;
+//   slug: string;
+// }) {
+//   const status = getShopStatus(shop);
 
-  if (status === "expired") {
-    redirect("/dashboard/billing");
-  }
+//   if (status === "expired") {
+//     redirect("/dashboard/billing");
+//   }
 
-  return status;
-}
+//   return status;
+// }
 
 /**
  * Soft gate: UI banner logic only (no redirects)
@@ -99,4 +99,45 @@ export function isShopActive(shop: {
   subscriptionEndsAt: Date | null;
 }) {
   return getShopStatus(shop) !== "expired";
+}
+
+export function getDaysLeft(shop: {
+  trialEndsAt: Date | null;
+  subscriptionEndsAt: Date | null;
+}) {
+  const now = new Date();
+  const end = shop.subscriptionEndsAt ?? shop.trialEndsAt;
+
+  if (!end) return 0;
+
+  const diff = end.getTime() - now.getTime();
+
+  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+}
+
+export function isTrialUser(shop: {
+  trialEndsAt: Date | null;
+  subscriptionEndsAt: Date | null;
+}) {
+  return (
+    !shop.subscriptionEndsAt &&
+    !!shop.trialEndsAt &&
+    shop.trialEndsAt > new Date()
+  );
+}
+
+/* 🔐 CORE GATE (YOU NEED THIS) */
+export function requireActiveShop(shop: {
+  trialEndsAt: Date | null;
+  subscriptionEndsAt: Date | null;
+}) {
+  const now = new Date();
+
+  const end = shop.subscriptionEndsAt ?? shop.trialEndsAt;
+
+  const isExpired = !end || end < now;
+
+  if (isExpired) {
+    throw new Error("SUBSCRIPTION_EXPIRED");
+  }
 }

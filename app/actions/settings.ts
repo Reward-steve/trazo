@@ -3,11 +3,12 @@
 import { db } from "../lib/db";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
+/* ─────────────────────────────
+   GET SHOP (AUTHENTICATED)
+───────────────────────────── */
 export async function getShopByUser() {
   const { userId } = await auth();
-
   if (!userId) return null;
 
   return db.shop.findUnique({
@@ -16,19 +17,23 @@ export async function getShopByUser() {
   });
 }
 
+/* ─────────────────────────────
+   GET SHOP BY SLUG (PUBLIC)
+───────────────────────────── */
 export async function getShopBySlug(slug: string) {
   return db.shop.findUnique({
     where: { slug },
     include: {
       products: {
-        orderBy: {
-          createdAt: "desc",
-        },
+        orderBy: { createdAt: "desc" },
       },
     },
   });
 }
 
+/* ─────────────────────────────
+   CREATE SHOP
+───────────────────────────── */
 export async function createShop(data: {
   shopName: string;
   slug: string;
@@ -37,10 +42,7 @@ export async function createShop(data: {
   logoUrl: string;
 }) {
   const { userId } = await auth();
-
-  if (!userId) {
-    throw new Error("Unauthorized");
-  }
+  if (!userId) throw new Error("Unauthorized");
 
   const user = await currentUser();
 
@@ -54,14 +56,10 @@ export async function createShop(data: {
   });
 
   const existingShop = await db.shop.findUnique({
-    where: {
-      ownerId: userId,
-    },
+    where: { ownerId: userId },
   });
 
-  if (existingShop) {
-    return existingShop;
-  }
+  if (existingShop) return existingShop;
 
   const trialEndsAt = new Date();
   trialEndsAt.setDate(trialEndsAt.getDate() + 14);
@@ -75,10 +73,12 @@ export async function createShop(data: {
   });
 
   revalidatePath("/dashboard");
-
   return shop;
 }
 
+/* ─────────────────────────────
+   UPDATE SHOP
+───────────────────────────── */
 export async function updateShop(data: {
   shopName: string;
   whatsappNumber: string;
@@ -86,15 +86,10 @@ export async function updateShop(data: {
   logoUrl: string;
 }) {
   const { userId } = await auth();
-
-  if (!userId) {
-    throw new Error("Unauthorized");
-  }
+  if (!userId) throw new Error("Unauthorized");
 
   const shop = await db.shop.update({
-    where: {
-      ownerId: userId,
-    },
+    where: { ownerId: userId },
     data,
   });
 
@@ -105,7 +100,10 @@ export async function updateShop(data: {
   return shop;
 }
 
-export async function checkSlugAvailable(slug: string): Promise<boolean> {
+/* ─────────────────────────────
+   SLUG CHECK
+───────────────────────────── */
+export async function checkSlugAvailable(slug: string) {
   const existing = await db.shop.findUnique({
     where: { slug },
   });
@@ -113,40 +111,15 @@ export async function checkSlugAvailable(slug: string): Promise<boolean> {
   return !existing;
 }
 
-export function getDaysLeft(shop: {
-  trialEndsAt: Date | null;
-  subscriptionEndsAt: Date | null;
-}): number {
-  const now = new Date();
-
-  const end = shop.subscriptionEndsAt ?? shop.trialEndsAt;
-
-  if (!end) return 0;
-
-  const diff = end.getTime() - now.getTime();
-
-  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-}
-
-export function isTrialUser(shop: {
-  trialEndsAt: Date | null;
-  subscriptionEndsAt: Date | null;
-}) {
-  return (
-    !shop.subscriptionEndsAt &&
-    !!shop.trialEndsAt &&
-    shop.trialEndsAt > new Date()
-  );
-}
-
+/* ─────────────────────────────
+   SUBSCRIPTION ACTION
+───────────────────────────── */
 export async function activateShopSubscription(ownerId: string, days = 30) {
   const shop = await db.shop.findUnique({
     where: { ownerId },
   });
 
-  if (!shop) {
-    throw new Error("Shop not found");
-  }
+  if (!shop) throw new Error("Shop not found");
 
   const now = new Date();
 
@@ -156,14 +129,11 @@ export async function activateShopSubscription(ownerId: string, days = 30) {
       : now;
 
   const subscriptionEndsAt = new Date(baseDate);
-
   subscriptionEndsAt.setDate(subscriptionEndsAt.getDate() + days);
 
   const updatedShop = await db.shop.update({
     where: { ownerId },
-    data: {
-      subscriptionEndsAt,
-    },
+    data: { subscriptionEndsAt },
   });
 
   revalidatePath("/dashboard");
@@ -172,6 +142,9 @@ export async function activateShopSubscription(ownerId: string, days = 30) {
   return updatedShop;
 }
 
+/* ─────────────────────────────
+   ADMIN QUERY
+───────────────────────────── */
 export async function getAllSubscriptions() {
   return db.shop.findMany({
     select: {
@@ -183,8 +156,6 @@ export async function getAllSubscriptions() {
       subscriptionEndsAt: true,
       createdAt: true,
     },
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: { createdAt: "desc" },
   });
 }
