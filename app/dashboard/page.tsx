@@ -34,19 +34,6 @@ export default async function DashboardPage() {
     redirect("/onboarding");
   }
 
-  // ─────────────────────────────────────────────
-  // 🔐 MVP SUBSCRIPTION GATE (CLEAN + RELIABLE)
-  // ─────────────────────────────────────────────
-  const now = new Date();
-
-  const isActive =
-    (shop.subscriptionEndsAt && shop.subscriptionEndsAt > now) ||
-    (shop.trialEndsAt && shop.trialEndsAt > now);
-
-  if (!isActive) {
-    redirect("/dashboard/billing");
-  }
-
   const banner = getShopBillingBanner(shop);
 
   // ─────────────────────────────────────────────
