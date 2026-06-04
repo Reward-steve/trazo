@@ -4,15 +4,27 @@ import { getProducts } from "../../actions/product";
 import { getShopByUser } from "../../actions/settings";
 import ProductsClient from "../../components/dashboard/ProductsClient";
 import { Product } from "../../types";
+import { requireActiveShop } from "../../actions/subscriptionGuard";
 
 export const dynamic = "force-dynamic";
 
 export default async function ProductsPage() {
   const { userId } = await auth();
-  if (!userId) redirect("/login");
 
-  const [products, shop] = await Promise.all([getProducts(), getShopByUser()]);
-  if (!shop) redirect("/onboarding");
+  if (!userId) {
+    redirect("/login");
+  }
+
+  const shop = await getShopByUser();
+
+  if (!shop) {
+    redirect("/onboarding");
+  }
+
+  // 🔐 SUBSCRIPTION GUARD (NEW)
+  requireActiveShop(shop);
+
+  const products = await getProducts();
 
   const available = products.filter((p) => p.available).length;
 
@@ -33,6 +45,7 @@ export default async function ProductsPage() {
             Manage what customers see on your storefront.
           </p>
         </div>
+
         {products.length > 0 && (
           <div className="text-right shrink-0">
             <p className="text-lg font-black text-text leading-tight">

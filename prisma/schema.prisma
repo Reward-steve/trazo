@@ -25,6 +25,10 @@ model Shop {
   description    String    @default("")
   logoUrl        String    @default("")
   products       Product[]
+  
+  trialEndsAt        DateTime?
+  subscriptionEndsAt DateTime?
+
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 }

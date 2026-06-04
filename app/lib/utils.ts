@@ -1,3 +1,5 @@
+import { getShopStatus } from "../actions/settings";
+
 export function formatNaira(amount: number): string {
   return new Intl.NumberFormat("en-NG", {
     style: "currency",
@@ -53,4 +55,11 @@ export function generateSlug(name: string) {
     .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, "-")
     .slice(0, 40);
+}
+
+export function canAccessStore(shop: {
+  trialEndsAt: Date | null;
+  subscriptionEndsAt: Date | null;
+}) {
+  return getShopStatus(shop) !== "expired";
 }

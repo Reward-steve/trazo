@@ -4,15 +4,25 @@ import { getShopByUser } from "../../actions/settings";
 import SettingsClient from "../../components/dashboard/SettingsClient";
 import Link from "next/link";
 import { ExternalLink, MessageCircle } from "lucide-react";
+import { requireActiveShop } from "../../actions/subscriptionGuard";
 
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
   const { userId } = await auth();
-  if (!userId) redirect("/login");
+
+  if (!userId) {
+    redirect("/login");
+  }
 
   const shop = await getShopByUser();
-  if (!shop) redirect("/onboarding");
+
+  if (!shop) {
+    redirect("/onboarding");
+  }
+
+  // 🔐 SUBSCRIPTION GUARD (CRITICAL)
+  requireActiveShop(shop);
 
   const serialized = {
     ...shop,
@@ -32,6 +42,7 @@ export default async function SettingsPage() {
             Changes appear on your storefront immediately.
           </p>
         </div>
+
         <Link
           href={`/store/${shop.slug}`}
           target="_blank"
@@ -47,6 +58,7 @@ export default async function SettingsPage() {
         <div className="h-8 w-8 bg-bubble-out rounded-xl flex items-center justify-center shrink-0">
           <MessageCircle className="h-4 w-4 text-primary-dark" />
         </div>
+
         <div>
           <p className="text-sm font-semibold text-text">WhatsApp number</p>
           <p className="text-[11px] text-text-muted mt-0.5 leading-relaxed">
