@@ -14,16 +14,14 @@ export default async function DashboardLayout({
   const shop = await getShopByUser();
   if (!shop) redirect("/onboarding");
 
-  // ─────────────────────────────
-  // SUBSCRIPTION GATE (ONLY HERE)
-  // ─────────────────────────────
   const now = new Date();
   const end = shop.subscriptionEndsAt ?? shop.trialEndsAt;
 
   const isExpired = !end || end < now;
 
-  // HARD RULE:
-  // allow ONLY billing page when expired
+  // 🔐 CRITICAL RULE: NEVER block billing page
+  // Layout does NOT know route, so we fix this structurally
+
   if (isExpired) {
     redirect("/dashboard/billing");
   }
