@@ -19,13 +19,21 @@ import { useClerk } from "@clerk/nextjs";
 import { cn } from "../../lib/utils";
 import { useState } from "react";
 import logo from "../../../public/trazo_omega.png";
+import { getShopBillingBanner } from "../../actions/subscriptionGuard";
 
 interface Shop {
   id: string;
   shopName: string;
   slug: string;
   logoUrl: string;
-  products: { id: string; available: boolean }[];
+  products: {
+    id: string;
+    available: boolean;
+  }[];
+  trialEndsAt: string;
+  subscriptionEndsAt: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 const navLinks = [
@@ -66,6 +74,13 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const banner = getShopBillingBanner({
+    trialEndsAt: shop.trialEndsAt ? new Date(shop.trialEndsAt) : undefined,
+    subscriptionEndsAt: shop.subscriptionEndsAt
+      ? new Date(shop.subscriptionEndsAt)
+      : undefined,
+  });
 
   return (
     <>
@@ -173,6 +188,16 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
                   >
                     {shop.products.length}
                   </span>
+                )}
+                {href === "/dashboard/billing" && (
+                  <span
+                    className={cn(
+                      "ml-auto h-2 w-2 rounded-full",
+                      banner.type === "active" && "bg-green-500",
+                      banner.type === "trial" && "bg-orange-500",
+                      banner.type === "expired" && "bg-red-500",
+                    )}
+                  />
                 )}
               </Link>
             );
