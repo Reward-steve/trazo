@@ -4,7 +4,6 @@ import { getShopByUser } from "../../actions/settings";
 import SettingsClient from "../../components/dashboard/SettingsClient";
 import Link from "next/link";
 import { ExternalLink, MessageCircle } from "lucide-react";
-import { requireActiveShop } from "../../actions/subscriptionGuard";
 
 export const dynamic = "force-dynamic";
 
@@ -20,9 +19,6 @@ export default async function SettingsPage() {
   if (!shop) {
     redirect("/onboarding");
   }
-
-  // 🔐 SUBSCRIPTION GUARD (CRITICAL)
-  requireActiveShop(shop);
 
   const serialized = {
     ...shop,

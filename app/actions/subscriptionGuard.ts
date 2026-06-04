@@ -1,6 +1,6 @@
 export type ShopStatus = "trial" | "active" | "expired";
 
-interface ShopDates {
+export interface ShopDates {
   trialEndsAt: Date | null;
   subscriptionEndsAt: Date | null;
 }
@@ -30,40 +30,51 @@ export function getDaysLeft(shop: ShopDates): number {
 }
 
 // ─── Banner data for dashboard UI ────────────────────────────────────────────
-
 export function getShopBillingBanner(shop: ShopDates) {
   const status = getShopStatus(shop);
   const daysLeft = getDaysLeft(shop);
 
+  const base = {
+    daysLeft,
+  };
+
   if (status === "active") {
     return {
+      ...base,
       type: "active" as const,
+      tone: "green" as const,
       title: "Subscription active",
-      message: `Your plan renews in ${daysLeft} day${daysLeft !== 1 ? "s" : ""}.`,
+      message: `Renews in ${daysLeft} day${daysLeft !== 1 ? "s" : ""}.`,
+      cta: "Manage plan",
     };
   }
 
   if (status === "trial") {
     const urgent = daysLeft <= 3;
+
     return {
+      ...base,
       type: "trial" as const,
+      tone: urgent ? ("orange" as const) : ("blue" as const),
       urgent,
       title: urgent
-        ? `⚠️ ${daysLeft} day${daysLeft !== 1 ? "s" : ""} left in your trial`
-        : `${daysLeft} day${daysLeft !== 1 ? "s" : ""} left in your free trial`,
+        ? `⚠️ ${daysLeft} day${daysLeft !== 1 ? "s" : ""} left in trial`
+        : `${daysLeft} day${daysLeft !== 1 ? "s" : ""} left in trial`,
       message: urgent
-        ? "Your store will pause soon. Pay ₦3,000 now to keep receiving orders without interruption."
-        : "After your trial ends, continue for ₦3,000/month. Your products and settings are always safe.",
+        ? "Your store may pause soon. Upgrade to avoid interruption."
+        : "Your trial is active. Everything is running normally.",
+      cta: "Upgrade plan",
     };
   }
 
-  // expired
   return {
+    ...base,
     type: "expired" as const,
+    tone: "red" as const,
     urgent: true,
-    title: "Your store is paused",
-    message:
-      "Your trial has ended. Pay ₦3,000 to reactivate and keep receiving orders.",
+    title: "Subscription expired",
+    message: "Your store is paused. Reactivate to resume orders.",
+    cta: "Reactivate store",
   };
 }
 

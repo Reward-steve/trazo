@@ -4,7 +4,6 @@ import { getProducts } from "../../actions/product";
 import { getShopByUser } from "../../actions/settings";
 import ProductsClient from "../../components/dashboard/ProductsClient";
 import { Product } from "../../types";
-import { requireActiveShop } from "../../actions/subscriptionGuard";
 
 export const dynamic = "force-dynamic";
 
@@ -20,9 +19,6 @@ export default async function ProductsPage() {
   if (!shop) {
     redirect("/onboarding");
   }
-
-  // 🔐 SUBSCRIPTION GUARD (NEW)
-  requireActiveShop(shop);
 
   const products = await getProducts();
 
