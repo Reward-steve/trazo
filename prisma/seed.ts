@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { ShopPlan } from "../app/types";
 
 const prisma = new PrismaClient();
 
@@ -14,7 +15,7 @@ const shopData = {
     "Curated contemporary African fashion, design, cuisine, and culture. Delivered directly through WhatsApp.",
   logoUrl:
     "https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&q=80&w=200&h=200",
-  plan: DEMO_PLAN,
+  plan: DEMO_PLAN as ShopPlan,
   planActivatedAt: new Date(),
   isActive: true,
 };
