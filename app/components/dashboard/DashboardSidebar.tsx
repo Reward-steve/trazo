@@ -19,7 +19,7 @@ import { ThemeToggle } from "../../components/ui/ThemeProvider";
 import { useClerk } from "@clerk/nextjs";
 import { cn } from "../../lib/utils";
 import { useState } from "react";
-import logo from "@/public/trazo_omega.png";
+import logo from "../../../public/trazo_omega.png";
 import { ShopPlan } from "../../types";
 
 interface Shop {
@@ -46,8 +46,8 @@ const navLinks = [
     exact: false,
   },
   {
-    href: "/dashboard/billing",
-    label: "Billing",
+    href: "/dashboard/subscription",
+    label: "Subscription",
     icon: CreditCard,
     exact: false,
   },
@@ -210,7 +210,7 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
                 )}
 
                 {/* Billing dot — green for growth, grey for free */}
-                {href === "/dashboard/billing" && (
+                {href === "/dashboard/subscription" && (
                   <span
                     className={cn(
                       "ml-auto h-2 w-2 rounded-full",
@@ -229,7 +229,7 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
         {shop.plan === "free" && (
           <div className="mx-3 mb-3">
             <Link
-              href="/dashboard/billing"
+              href="/dashboard/subscription"
               className="flex items-center gap-2 bg-bubble-out border border-primary/20 rounded-xl px-3 py-2.5 hover:bg-primary/10 transition-colors group"
             >
               <Zap className="h-4 w-4 text-primary-dark shrink-0" />
