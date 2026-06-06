@@ -104,7 +104,7 @@ export default async function DashboardPage() {
           </p>
         </div>
         <Link
-          href="/dashboard/billing"
+          href="/dashboard/subscription"
           className="text-xs font-bold text-primary-dark hover:underline"
         >
           Manage plan
