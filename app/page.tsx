@@ -71,7 +71,7 @@ export default function HomePage() {
                 href="/store/demo"
                 variant="outline"
                 size="lg"
-                className="w-full sm:w-auto text-white"
+                className="w-full sm:w-auto text-white hover:text-text"
               >
                 View demo store
                 <ChevronRight className="h-4 w-4" />
@@ -266,7 +266,7 @@ export default function HomePage() {
                 href="/signup"
                 variant={tier.isPro ? "primary" : "outline"}
                 size="lg"
-                className={`w-full justify-center ${tier.isPro ? "bg-emerald-500 hover:bg-emerald-400 text-black font-bold shadow-lg shadow-emerald-500/20" : ""}`}
+                className={`w-full justify-center ${tier.isPro ? "bg-emerald-500 hover:bg-emerald-400 text-black font-bold shadow-lg shadow-emerald-500/20" : "text-white hover:text-text"}`}
               >
                 {tier.cta}
               </Button>
