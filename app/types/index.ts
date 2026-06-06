@@ -1,3 +1,5 @@
+export type ShopPlan = "free" | "growth" | "pro";
+
 export interface Product {
   id: string;
   name: string;
@@ -15,6 +17,8 @@ export interface ShopSettings {
   description: string;
   logoUrl: string;
   updatedAt: Date;
+  isActive: boolean;
+  plan: ShopPlan;
 }
 
 export interface CartItem {

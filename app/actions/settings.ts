@@ -61,14 +61,13 @@ export async function createShop(data: {
 
   if (existingShop) return existingShop;
 
-  const trialEndsAt = new Date();
-  trialEndsAt.setDate(trialEndsAt.getDate() + 14);
-
   const shop = await db.shop.create({
     data: {
       ...data,
       ownerId: userId,
-      trialEndsAt,
+      plan: "free",
+      planActivatedAt: new Date(),
+      isActive: true,
     },
   });
 
@@ -77,7 +76,7 @@ export async function createShop(data: {
 }
 
 /* ─────────────────────────────
-   UPDATE SHOP
+   UPDATE SHOP SETTINGS
 ───────────────────────────── */
 export async function updateShop(data: {
   shopName: string;
@@ -112,38 +111,7 @@ export async function checkSlugAvailable(slug: string) {
 }
 
 /* ─────────────────────────────
-   SUBSCRIPTION ACTION
-───────────────────────────── */
-export async function activateShopSubscription(ownerId: string, days = 30) {
-  const shop = await db.shop.findUnique({
-    where: { ownerId },
-  });
-
-  if (!shop) throw new Error("Shop not found");
-
-  const now = new Date();
-
-  const baseDate =
-    shop.subscriptionEndsAt && shop.subscriptionEndsAt > now
-      ? shop.subscriptionEndsAt
-      : now;
-
-  const subscriptionEndsAt = new Date(baseDate);
-  subscriptionEndsAt.setDate(subscriptionEndsAt.getDate() + days);
-
-  const updatedShop = await db.shop.update({
-    where: { ownerId },
-    data: { subscriptionEndsAt },
-  });
-
-  revalidatePath("/dashboard");
-  revalidatePath(`/store/${updatedShop.slug}`);
-
-  return updatedShop;
-}
-
-/* ─────────────────────────────
-   ADMIN QUERY
+   ADMIN QUERY (UPDATED)
 ───────────────────────────── */
 export async function getAllSubscriptions() {
   return db.shop.findMany({
@@ -152,8 +120,8 @@ export async function getAllSubscriptions() {
       ownerId: true,
       shopName: true,
       slug: true,
-      trialEndsAt: true,
-      subscriptionEndsAt: true,
+      plan: true,
+      isActive: true,
       createdAt: true,
     },
     orderBy: { createdAt: "desc" },

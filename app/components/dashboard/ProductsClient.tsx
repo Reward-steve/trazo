@@ -2,7 +2,16 @@
 
 import { useState, useTransition } from "react";
 import Image from "next/image";
-import { Plus, Pencil, Trash2, Package, Eye, EyeOff, X } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Package,
+  Eye,
+  EyeOff,
+  X,
+  AlertTriangle,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Product } from "../../types";
 import { formatNaira, cn } from "../../lib/utils";
@@ -17,36 +26,60 @@ import {
 interface ProductsClientProps {
   products: Product[];
   shopSlug: string;
+  productLimit: number; // NEW
+  plan: string; // NEW
 }
 
 type Modal = { type: "add" } | { type: "edit"; product: Product } | null;
 
 export default function ProductsClient({
   products,
-  // shopSlug,
+  productLimit,
+  plan,
 }: ProductsClientProps) {
   const router = useRouter();
   const [modal, setModal] = useState<Modal>(null);
   const [isPending, startTransition] = useTransition();
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [error, setError] = useState<string>("");
+
+  const atLimit = products.length >= productLimit;
 
   const handleDelete = (id: string, name: string) => {
     if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+
     setPendingId(id);
     startTransition(async () => {
-      await deleteProduct(id);
-      setPendingId(null);
-      router.refresh();
+      try {
+        await deleteProduct(id);
+        router.refresh();
+      } finally {
+        setPendingId(null);
+      }
     });
   };
 
   const handleToggle = (id: string, current: boolean) => {
     setPendingId(id);
+
     startTransition(async () => {
-      await toggleProductAvailability(id, !current);
-      setPendingId(null);
-      router.refresh();
+      try {
+        await toggleProductAvailability(id, !current);
+        router.refresh();
+      } finally {
+        setPendingId(null);
+      }
     });
+  };
+
+  const openAddModal = () => {
+    if (atLimit) {
+      setError(
+        `You’ve reached your ${plan} plan limit (${productLimit} products). Upgrade to add more.`,
+      );
+      return;
+    }
+    setModal({ type: "add" });
   };
 
   return (
@@ -54,24 +87,46 @@ export default function ProductsClient({
       {/* Toolbar */}
       <div className="flex items-center justify-between">
         <p className="text-[11px] text-text-muted">
-          {products.length === 0
-            ? "No products yet"
-            : `${products.length} product${products.length !== 1 ? "s" : ""}`}
+          {products.length} / {productLimit} products
         </p>
-        <Button onClick={() => setModal({ type: "add" })} size="sm">
-          <Plus className="h-3.5 w-3.5" /> Add product
+
+        <Button onClick={openAddModal} size="sm" disabled={atLimit}>
+          <Plus className="h-3.5 w-3.5" />
+          Add product
         </Button>
       </div>
 
-      {/* Empty state */}
+      {/* LIMIT WARNING */}
+      {atLimit && (
+        <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl px-4 py-3">
+          <AlertTriangle className="h-4 w-4 text-amber-500" />
+          <p className="text-xs text-amber-600 dark:text-amber-300">
+            Product limit reached for your {plan} plan. Upgrade to continue
+            adding products.
+          </p>
+        </div>
+      )}
+
+      {/* ERROR */}
+      {error && (
+        <div className="flex items-center justify-between bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl px-4 py-3">
+          <p className="text-xs text-red-500">{error}</p>
+          <button onClick={() => setError("")}>
+            <X className="h-4 w-4 text-red-400" />
+          </button>
+        </div>
+      )}
+
+      {/* EMPTY STATE */}
       {products.length === 0 ? (
         <EmptyState
           icon={<Package className="h-10 w-10" />}
           title="No products yet"
-          description="Add your first product so customers can start ordering from your storefront."
+          description="Add your first product so customers can start ordering."
           action={
-            <Button onClick={() => setModal({ type: "add" })}>
-              <Plus className="h-4 w-4" /> Add your first product
+            <Button onClick={openAddModal}>
+              <Plus className="h-4 w-4" />
+              Add product
             </Button>
           }
         />
@@ -79,6 +134,7 @@ export default function ProductsClient({
         <div className="space-y-2">
           {products.map((product) => {
             const isThisPending = pendingId === product.id;
+
             return (
               <div
                 key={product.id}
@@ -88,55 +144,31 @@ export default function ProductsClient({
                   isThisPending && "opacity-40 pointer-events-none",
                 )}
               >
-                {/* Image */}
+                {/* IMAGE */}
                 <div className="relative h-14 w-14 rounded-xl overflow-hidden shrink-0 bg-surface-alt">
                   <Image
                     src={product.imageUrl}
                     alt={product.name}
                     fill
                     className="object-cover"
-                    sizes="56px"
                   />
                 </div>
 
-                {/* Info */}
+                {/* INFO */}
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-text text-sm truncate leading-tight">
+                  <p className="font-semibold text-text text-sm truncate">
                     {product.name}
                   </p>
                   <p className="text-sm font-bold text-primary-dark mt-0.5">
                     {formatNaira(product.price)}
                   </p>
-                  <div className="flex items-center gap-1 mt-1">
-                    <div
-                      className={cn(
-                        "h-1.5 w-1.5 rounded-full",
-                        product.available ? "bg-primary" : "bg-border",
-                      )}
-                    />
-                    <span className="text-[11px] text-text-muted">
-                      {product.available ? "Visible to customers" : "Hidden"}
-                    </span>
-                  </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex items-center gap-1 shrink-0">
-                  {/* Toggle */}
+                {/* ACTIONS */}
+                <div className="flex items-center gap-1">
                   <button
                     onClick={() => handleToggle(product.id, product.available)}
-                    disabled={isPending}
-                    title={
-                      product.available
-                        ? "Hide from customers"
-                        : "Show to customers"
-                    }
-                    className={cn(
-                      "p-2 rounded-xl transition-colors",
-                      product.available
-                        ? "text-primary bg-bubble-out hover:opacity-80"
-                        : "text-text-muted bg-surface-alt hover:bg-border",
-                    )}
+                    className="p-2 rounded-xl bg-surface-alt"
                   >
                     {product.available ? (
                       <Eye className="h-4 w-4" />
@@ -145,21 +177,16 @@ export default function ProductsClient({
                     )}
                   </button>
 
-                  {/* Edit */}
                   <button
                     onClick={() => setModal({ type: "edit", product })}
-                    title="Edit product"
-                    className="p-2 rounded-xl text-text-muted hover:text-text hover:bg-surface-alt transition-colors"
+                    className="p-2 rounded-xl"
                   >
                     <Pencil className="h-4 w-4" />
                   </button>
 
-                  {/* Delete */}
                   <button
                     onClick={() => handleDelete(product.id, product.name)}
-                    disabled={isPending}
-                    title="Delete product"
-                    className="p-2 rounded-xl text-text-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                    className="p-2 rounded-xl text-red-500"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -170,21 +197,20 @@ export default function ProductsClient({
         </div>
       )}
 
-      {/* Modal */}
+      {/* MODAL */}
       {modal && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="bg-surface rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md p-5 max-h-[90vh] overflow-y-auto border border-border">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-bold text-text text-base">
+            <div className="flex justify-between mb-4">
+              <h2 className="font-bold text-text">
                 {modal.type === "add" ? "Add product" : "Edit product"}
               </h2>
-              <button
-                onClick={() => setModal(null)}
-                className="h-8 w-8 flex items-center justify-center rounded-xl text-text-muted hover:text-text hover:bg-surface-alt transition-colors"
-              >
+
+              <button onClick={() => setModal(null)}>
                 <X className="h-4 w-4" />
               </button>
             </div>
+
             <ProductForm
               product={modal.type === "edit" ? modal.product : undefined}
               onSuccess={() => {

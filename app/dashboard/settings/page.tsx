@@ -4,6 +4,7 @@ import { getShopByUser } from "../../actions/settings";
 import SettingsClient from "../../components/dashboard/SettingsClient";
 import Link from "next/link";
 import { ExternalLink, MessageCircle } from "lucide-react";
+import { ShopPlan } from "../../types";
 
 export const dynamic = "force-dynamic";
 
@@ -20,10 +21,19 @@ export default async function SettingsPage() {
     redirect("/onboarding");
   }
 
+  // explicit safe DTO (future-proof)
   const serialized = {
-    ...shop,
-    updatedAt: new Date(shop.updatedAt),
-    createdAt: new Date(shop.createdAt),
+    id: shop.id,
+    shopName: shop.shopName,
+    slug: shop.slug,
+    whatsappNumber: shop.whatsappNumber,
+    description: shop.description,
+    logoUrl: shop.logoUrl,
+    plan: shop.plan as ShopPlan,
+    isActive: shop.isActive,
+    createdAt: shop.createdAt,
+    updatedAt: shop.updatedAt,
+    products: shop.products,
   };
 
   return (
@@ -49,7 +59,7 @@ export default async function SettingsPage() {
         </Link>
       </div>
 
-      {/* WhatsApp number callout */}
+      {/* WhatsApp warning */}
       <div className="bg-surface border border-border rounded-2xl p-4 flex items-start gap-3">
         <div className="h-8 w-8 bg-bubble-out rounded-xl flex items-center justify-center shrink-0">
           <MessageCircle className="h-4 w-4 text-primary-dark" />
@@ -58,8 +68,7 @@ export default async function SettingsPage() {
         <div>
           <p className="text-sm font-semibold text-text">WhatsApp number</p>
           <p className="text-[11px] text-text-muted mt-0.5 leading-relaxed">
-            All customer orders are sent here. A wrong number means lost orders
-            — double-check before saving.
+            All customer orders are sent here. Wrong number = lost sales.
           </p>
         </div>
       </div>

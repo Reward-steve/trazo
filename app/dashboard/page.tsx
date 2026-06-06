@@ -13,8 +13,8 @@ import {
   Settings,
   Clock,
 } from "lucide-react";
+
 import { getShopByUser } from "../actions/settings";
-import { getShopBillingBanner } from "../actions/subscriptionGuard";
 import CopyLinkButton from "../components/dashboard/CopyLinkButton";
 import { ThemeToggle } from "../components/ui/ThemeProvider";
 
@@ -27,16 +27,11 @@ export default async function DashboardPage() {
   const shop = await getShopByUser();
   if (!shop) redirect("/onboarding");
 
-  const banner = getShopBillingBanner({
-    trialEndsAt: shop.trialEndsAt,
-    subscriptionEndsAt: shop.subscriptionEndsAt,
-  });
-
   const totalProducts = shop.products.length;
   const availableProducts = shop.products.filter((p) => p.available).length;
   const outOfStock = totalProducts - availableProducts;
 
-  const appUrl = /*process.env.APP_URL ??*/ "https://trazo-omega.vercel.app";
+  const appUrl = "https://trazo-omega.vercel.app";
   const storefrontUrl = `${appUrl}/store/${shop.slug}`;
 
   const stats = [
@@ -100,26 +95,21 @@ export default async function DashboardPage() {
         <ThemeToggle />
       </div>
 
-      {/* Trial banner — only shown during trial, never for expired (layout handles that) */}
-      {banner.type === "trial" && (
-        <div className="bg-bubble-out border border-primary/20 rounded-2xl p-4 flex items-start gap-3">
-          <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-            <Clock className="h-4 w-4 text-primary-dark" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-text">{banner.title}</p>
-            <p className="text-[11px] text-text-muted mt-0.5 leading-relaxed">
-              {banner.message}
-            </p>
-          </div>
-          <Link
-            href="/dashboard/billing"
-            className="text-xs font-bold text-primary-dark hover:underline shrink-0"
-          >
-            View plan
-          </Link>
+      {/* Plan badge (NEW — replaces old banner system) */}
+      <div className="bg-surface border border-border rounded-2xl p-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-primary" />
+          <p className="text-sm font-semibold text-text">
+            Plan: <span className="capitalize">{shop.plan}</span>
+          </p>
         </div>
-      )}
+        <Link
+          href="/dashboard/billing"
+          className="text-xs font-bold text-primary-dark hover:underline"
+        >
+          Manage plan
+        </Link>
+      </div>
 
       {/* Storefront card */}
       <div className="bg-primary-dark rounded-2xl p-4 text-white">
@@ -129,17 +119,19 @@ export default async function DashboardPage() {
         <p className="text-sm font-bold break-all mb-3">
           {appUrl.replace("https://", "")}/store/{shop.slug}
         </p>
+
         <div className="flex flex-wrap gap-2 mb-4">
           <CopyLinkButton url={storefrontUrl} />
           <Link
             href={`/store/${shop.slug}`}
             target="_blank"
-            className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-medium px-3 py-1.5 rounded-full transition-all"
+            className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-medium px-3 py-1.5 rounded-full"
           >
             <ExternalLink className="h-3 w-3" />
             Preview
           </Link>
         </div>
+
         <div className="border-t border-white/10 pt-3">
           <p className="text-white/50 text-[11px] mb-2">Share on</p>
           <div className="flex flex-wrap gap-2">
@@ -186,14 +178,9 @@ export default async function DashboardPage() {
                 }`}
               />
             </div>
+
             <div>
-              <p
-                className={`text-2xl font-black ${
-                  highlight ? "text-primary-dark" : "text-text"
-                }`}
-              >
-                {value}
-              </p>
+              <p className="text-2xl font-black text-text">{value}</p>
               <p className="text-[11px] text-text-muted">{label}</p>
             </div>
           </div>
@@ -212,21 +199,18 @@ export default async function DashboardPage() {
               {doneCount}/{setupSteps.length}
             </span>
           </div>
-          <div className="h-1 bg-surface-alt rounded-full mb-4 overflow-hidden">
-            <div
-              className="h-full bg-primary rounded-full transition-all duration-500"
-              style={{ width: `${(doneCount / setupSteps.length) * 100}%` }}
-            />
-          </div>
+
           <div className="space-y-3">
             {setupSteps.map(({ done, label, hint, href }) => (
               <Link
                 key={label}
                 href={done ? "#" : href}
-                className={`flex items-start gap-3 ${done ? "pointer-events-none" : "group"}`}
+                className={`flex items-start gap-3 ${
+                  done ? "pointer-events-none" : "group"
+                }`}
               >
                 <div
-                  className={`h-5 w-5 rounded-full border-2 flex items-center justify-center mt-0.5 shrink-0 transition-colors ${
+                  className={`h-5 w-5 rounded-full border-2 flex items-center justify-center mt-0.5 ${
                     done
                       ? "border-primary bg-primary"
                       : "border-border group-hover:border-primary"
@@ -248,9 +232,14 @@ export default async function DashboardPage() {
                     </svg>
                   )}
                 </div>
+
                 <div>
                   <p
-                    className={`text-sm ${done ? "text-text-muted line-through" : "text-text font-medium group-hover:text-primary transition-colors"}`}
+                    className={`text-sm ${
+                      done
+                        ? "text-text-muted line-through"
+                        : "text-text font-medium"
+                    }`}
                   >
                     {label}
                   </p>
@@ -283,7 +272,7 @@ export default async function DashboardPage() {
           <Link
             key={href}
             href={href}
-            className="group flex items-center justify-between bg-surface border border-border rounded-2xl p-4 hover:border-primary transition-colors"
+            className="group flex items-center justify-between bg-surface border border-border rounded-2xl p-4 hover:border-primary"
           >
             <div className="flex items-center gap-3">
               <div className="h-9 w-9 bg-bubble-out rounded-xl flex items-center justify-center">
@@ -291,18 +280,18 @@ export default async function DashboardPage() {
               </div>
               <div>
                 <p className="text-sm font-bold text-text">{title}</p>
-                <p className="text-[11px] text-text-muted mt-0.5">{desc}</p>
+                <p className="text-[11px] text-text-muted">{desc}</p>
               </div>
             </div>
-            <ArrowRight className="h-4 w-4 text-border group-hover:text-primary transition-all group-hover:translate-x-0.5" />
+            <ArrowRight className="h-4 w-4 text-border group-hover:text-primary" />
           </Link>
         ))}
       </div>
 
-      {/* No products nudge */}
+      {/* Empty state */}
       {totalProducts === 0 && (
         <div className="bg-surface-alt border border-border rounded-2xl p-4 flex items-start gap-3">
-          <div className="h-8 w-8 bg-surface rounded-xl border border-border flex items-center justify-center shrink-0">
+          <div className="h-8 w-8 bg-surface rounded-xl border border-border flex items-center justify-center">
             <Package className="h-4 w-4 text-text-muted" />
           </div>
           <div>
@@ -314,7 +303,7 @@ export default async function DashboardPage() {
             </p>
             <Link
               href="/dashboard/products"
-              className="inline-flex items-center gap-1.5 bg-primary hover:bg-primary-dark text-white text-xs font-bold px-4 py-2 rounded-full transition-all"
+              className="inline-flex items-center gap-1.5 bg-primary hover:bg-primary-dark text-white text-xs font-bold px-4 py-2 rounded-full"
             >
               Add your first product
               <ArrowRight className="h-3 w-3" />
