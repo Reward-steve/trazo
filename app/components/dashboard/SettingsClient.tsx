@@ -217,7 +217,7 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
 
       {/* PLAN WARNING */}
       {plan === "free" && (
-        <div className="flex items-start gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 rounded-2xl p-3">
+        <div className="flex items-start gap-2 bg-amber-500/50 dark:bg-amber-900/20 border border-amber-400 rounded-2xl p-3">
           <Info className="h-4 w-4 text-amber-500 mt-0.5" />
           <p className="text-[11px] text-amber-600 dark:text-amber-300">
             Free plan is limited to {productLimit} products. Upgrade to Growth
