@@ -13,27 +13,22 @@ import {
   Copy,
   CheckCircle,
   CreditCard,
+  Zap,
 } from "lucide-react";
 import { ThemeToggle } from "../../components/ui/ThemeProvider";
 import { useClerk } from "@clerk/nextjs";
 import { cn } from "../../lib/utils";
 import { useState } from "react";
 import logo from "../../../public/trazo_omega.png";
-import { getShopBillingBanner } from "../../actions/subscriptionGuard";
+import { ShopPlan } from "../../types";
 
 interface Shop {
   id: string;
   shopName: string;
   slug: string;
   logoUrl: string;
-  products: {
-    id: string;
-    available: boolean;
-  }[];
-  trialEndsAt: string;
-  subscriptionEndsAt: string;
-  createdAt: string;
-  updatedAt: string;
+  plan: ShopPlan;
+  products: { id: string; available: boolean }[];
 }
 
 const navLinks = [
@@ -51,12 +46,14 @@ const navLinks = [
     exact: false,
   },
   {
-    href: "/dashboard/billing",
-    label: "Billing",
+    href: "/dashboard/subscription",
+    label: "Subscription",
     icon: CreditCard,
     exact: false,
   },
 ];
+
+const PRODUCT_LIMIT = { free: 10, growth: 50 };
 
 export default function DashboardSidebar({ shop }: { shop: Shop }) {
   const pathname = usePathname();
@@ -65,6 +62,9 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
 
   const storefrontUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/store/${shop.slug}`;
   const availableCount = shop.products.filter((p) => p.available).length;
+  const productLimit = PRODUCT_LIMIT[shop.plan];
+  const isNearLimit = shop.plan === "free" && shop.products.length >= 8;
+  const isAtLimit = shop.plan === "free" && shop.products.length >= 10;
 
   const isActive = (href: string, exact: boolean) =>
     exact ? pathname === href : pathname.startsWith(href);
@@ -75,19 +75,12 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const banner = getShopBillingBanner({
-    trialEndsAt: shop.trialEndsAt ? new Date(shop.trialEndsAt) : undefined,
-    subscriptionEndsAt: shop.subscriptionEndsAt
-      ? new Date(shop.subscriptionEndsAt)
-      : undefined,
-  });
-
   return (
     <>
       {/* ── DESKTOP SIDEBAR ─────────────────────────────────────── */}
       <aside className="hidden md:flex w-60 shrink-0 flex-col h-screen sticky top-0 border-r border-border bg-surface">
-        {/* Logo */}
-        <div className="px-4 py-4 border-b border-border">
+        {/* Logo + theme toggle */}
+        <div className="px-4 py-4 border-b border-border flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <div className="relative h-9 w-9 rounded-xl overflow-hidden shrink-0 bg-surface-alt">
               <Image
@@ -98,6 +91,7 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
               />
             </div>
           </Link>
+          <ThemeToggle />
         </div>
 
         {/* Shop identity */}
@@ -127,7 +121,7 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
             </div>
           </div>
 
-          {/* Store link strip */}
+          {/* Store link */}
           <div className="mt-2.5 flex items-center gap-1 bg-surface-alt rounded-xl px-2.5 py-1.5 border border-border">
             <p className="text-[11px] text-text-muted truncate flex-1">
               /store/{shop.slug}
@@ -135,8 +129,8 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
             <button
               onClick={handleCopy}
               title="Copy link"
-              className="p-1 rounded-lg text-text-muted hover:text-primary transition-colors shrink-0"
               style={{ touchAction: "manipulation" }}
+              className="p-1 rounded-lg text-text-muted hover:text-primary transition-colors shrink-0"
             >
               {copied ? (
                 <CheckCircle className="h-3.5 w-3.5 text-primary" />
@@ -152,6 +146,25 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
             >
               <ExternalLink className="h-3.5 w-3.5" />
             </Link>
+          </div>
+
+          {/* Plan badge */}
+          <div className="mt-2 flex items-center justify-between">
+            <span
+              className={cn(
+                "text-[10px] font-bold px-2 py-0.5 rounded-full",
+                shop.plan === "growth"
+                  ? "bg-primary/10 text-primary-dark"
+                  : "bg-surface-alt text-text-muted border border-border",
+              )}
+            >
+              {shop.plan === "growth" ? "Growth Plan" : "Free Plan"}
+            </span>
+            {shop.plan === "free" && (
+              <span className="text-[10px] text-text-muted">
+                {shop.products.length}/{productLimit} products
+              </span>
+            )}
           </div>
         </div>
 
@@ -177,25 +190,33 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
                   )}
                 />
                 <span>{label}</span>
+
+                {/* Products count badge */}
                 {href === "/dashboard/products" && shop.products.length > 0 && (
                   <span
                     className={cn(
                       "ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full",
-                      active
-                        ? "bg-primary/15 text-primary-dark"
-                        : "bg-surface-alt text-text-muted border border-border",
+                      isAtLimit
+                        ? "bg-red-100 text-red-600"
+                        : isNearLimit
+                          ? "bg-amber-100 text-amber-700"
+                          : active
+                            ? "bg-primary/15 text-primary-dark"
+                            : "bg-surface-alt text-text-muted border border-border",
                     )}
                   >
-                    {shop.products.length}
+                    {shop.products.length}/{productLimit}
                   </span>
                 )}
-                {href === "/dashboard/billing" && (
+
+                {/* Billing dot — green for growth, grey for free */}
+                {href === "/dashboard/subscription" && (
                   <span
                     className={cn(
                       "ml-auto h-2 w-2 rounded-full",
-                      banner.type === "active" && "bg-green-500",
-                      banner.type === "trial" && "bg-orange-500",
-                      banner.type === "expired" && "bg-red-500",
+                      shop.plan === "growth"
+                        ? "bg-primary"
+                        : "bg-text-muted/40",
                     )}
                   />
                 )}
@@ -204,16 +225,35 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
           })}
         </nav>
 
-        {/* Bottom */}
-        <div className="px-3 pb-4 pt-3 border-t border-border flex items-center gap-2">
+        {/* Upgrade nudge — only on free plan */}
+        {shop.plan === "free" && (
+          <div className="mx-3 mb-3">
+            <Link
+              href="/dashboard/subscription"
+              className="flex items-center gap-2 bg-bubble-out border border-primary/20 rounded-xl px-3 py-2.5 hover:bg-primary/10 transition-colors group"
+            >
+              <Zap className="h-4 w-4 text-primary-dark shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold text-primary-dark leading-tight">
+                  Upgrade to Growth
+                </p>
+                <p className="text-[10px] text-text-muted mt-0.5">
+                  ₦1,500/mo · 50 products
+                </p>
+              </div>
+            </Link>
+          </div>
+        )}
+
+        {/* Sign out */}
+        <div className="px-3 pb-4 pt-3 border-t border-border">
           <button
             onClick={() => signOut({ redirectUrl: "/" })}
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors flex-1"
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors w-full"
           >
-            <LogOut className="h-4 w-4 shrink-0 text-red-500" />
+            <LogOut className="h-4 w-4 shrink-0" />
             <span>Sign out</span>
           </button>
-          <ThemeToggle />
         </div>
       </aside>
 
@@ -227,11 +267,11 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
                 key={href}
                 href={href}
                 style={{ touchAction: "manipulation" }}
-                className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl min-w-0 select-none"
+                className="flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl min-w-0 select-none"
               >
                 <div
                   className={cn(
-                    "h-8 w-8 flex items-center justify-center rounded-xl transition-colors",
+                    "h-8 w-8 flex items-center justify-center rounded-xl transition-colors relative",
                     active ? "bg-bubble-out" : "",
                   )}
                 >
@@ -241,6 +281,10 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
                       active ? "text-primary-dark" : "text-text-muted",
                     )}
                   />
+                  {/* Limit warning dot on products tab */}
+                  {href === "/dashboard/products" && isAtLimit && (
+                    <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
+                  )}
                 </div>
                 <span
                   className={cn(
@@ -258,9 +302,9 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
           <button
             onClick={() => signOut({ redirectUrl: "/" })}
             style={{ touchAction: "manipulation" }}
-            className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl min-w-0 select-none group active:bg-red-500/5"
+            className="flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl min-w-0 select-none"
           >
-            <div className="h-8 w-8 flex items-center justify-center rounded-xl transition-colors group-hover:bg-red-500/10">
+            <div className="h-8 w-8 flex items-center justify-center rounded-xl">
               <LogOut className="h-5 w-5 text-red-500" />
             </div>
             <span className="text-[10px] font-medium leading-none text-red-500">
@@ -270,7 +314,6 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
         </nav>
       </div>
 
-      {/* Spacer so mobile page content isn't hidden behind the tab bar */}
       <div className="md:hidden h-16 shrink-0" />
     </>
   );

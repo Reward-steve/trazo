@@ -1,3 +1,5 @@
+import { ShopPlan } from "../types";
+
 export function formatNaira(amount: number): string {
   return new Intl.NumberFormat("en-NG", {
     style: "currency",
@@ -24,13 +26,13 @@ export function generateWhatsAppURL(
 
   const message = [
     `*NEW ORDER • ${shopName.toUpperCase()}*`,
-    "````",
+    ``,
     `--------------------------------`,
     `${itemLines}`,
     `--------------------------------`,
     `TOTAL:${formatNaira(total).padStart(26, " ")}`,
     `--------------------------------`,
-    "````",
+    ``,
     `*CUSTOMER DETAILS*`,
     `_*Name:*_ ${customer.name}`,
     `_*Phone:*_ ${customer.phone}`,
@@ -53,4 +55,15 @@ export function generateSlug(name: string) {
     .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, "-")
     .slice(0, 40);
+}
+
+
+export function normalizePlan(plan: string): ShopPlan {
+  const p = plan.toLowerCase().trim();
+
+  if (p === "growth" || p === "pro" || p === "free") {
+    return p;
+  }
+
+  return "free";
 }
