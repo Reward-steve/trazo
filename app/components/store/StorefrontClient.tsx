@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
-import { ShoppingBag, Store, Search } from "lucide-react";
+import { ShoppingBag, Store, Search, ArrowRight } from "lucide-react";
 import { Product, ShopSettings, CartItem } from "../../types";
 import ProductCard from "../../components/store/ProductCard";
 import CartDrawer from "../../components/store/CartDrawer";
@@ -22,9 +22,22 @@ export default function StorefrontClient({
   const [cart, setCart] = useState<CartItem[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [animateCart, setAnimateCart] = useState(false);
 
   const cartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
   const cartTotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+
+  // Trigger a brief animation whenever cartCount increases
+  useEffect(() => {
+    if (cartCount > 0) {
+      const timer = setTimeout(() => setAnimateCart(true), 0);
+      const resetTimer = setTimeout(() => setAnimateCart(false), 500);
+      return () => {
+        clearTimeout(timer);
+        clearTimeout(resetTimer);
+      };
+    }
+  }, [cartCount]);
 
   const handleAddToCart = useCallback((item: CartItem) => {
     setCart((prev) => {
@@ -63,7 +76,7 @@ export default function StorefrontClient({
   const hasSearch = search.trim().length > 0;
 
   return (
-    <div className="min-h-screen bg-surface-alt flex flex-col">
+    <div className="min-h-screen bg-surface-alt flex flex-col relative">
       {/* ── NAVBAR ── */}
       <nav className="sticky top-0 z-40 bg-header border-b border-white/10">
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
@@ -98,13 +111,16 @@ export default function StorefrontClient({
 
           {/* RIGHT: Controls */}
           <div className="flex items-center gap-2">
-            {/* Theme toggle — now visible, intentional, accessible */}
             <ThemeToggle />
 
-            {/* Cart */}
+            {/* Cart Button with micro-interactions */}
             <button
               onClick={() => setDrawerOpen(true)}
-              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-full font-semibold text-sm transition-colors active:scale-95"
+              className={`flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-full font-semibold text-sm transition-all active:scale-95 duration-300 ${
+                animateCart
+                  ? "scale-110 ring-4 ring-primary/30 bg-primary-dark"
+                  : ""
+              }`}
             >
               <ShoppingBag className="h-4 w-4" />
               {cartCount > 0 ? (
@@ -143,8 +159,8 @@ export default function StorefrontClient({
         )}
       </nav>
 
-      {/* ── REST OF PAGE (unchanged logic) ── */}
-      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-5 pb-28">
+      {/* ── MAIN CONTENT ── */}
+      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-5 pb-32">
         {products.length === 0 ? (
           <EmptyState
             icon={<ShoppingBag className="h-10 w-10" />}
@@ -195,6 +211,30 @@ export default function StorefrontClient({
           </div>
         )}
       </main>
+
+      {/* ── UX IMPROVEMENT: UNMISSABLE STICKY BOTTOM CHECKOUT BAR ── */}
+      {cartCount > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-border p-4 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] animate-in slide-in-from-bottom duration-300">
+          <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
+            <div className="flex flex-col">
+              <span className="text-xs text-text-muted font-medium">
+                {cartCount} {cartCount === 1 ? "item" : "items"} added
+              </span>
+              <span className="text-lg font-bold text-text">
+                {formatNaira(cartTotal)}
+              </span>
+            </div>
+
+            <button
+              onClick={() => setDrawerOpen(true)}
+              className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
+            >
+              <span>View Cart & Checkout</span>
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* CART DRAWER */}
       <CartDrawer
