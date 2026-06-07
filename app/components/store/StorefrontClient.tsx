@@ -78,7 +78,7 @@ export default function StorefrontClient({
   return (
     <div className="min-h-screen bg-surface-alt flex flex-col relative">
       {/* ── NAVBAR ── */}
-      <nav className="sticky top-0 z-40 bg-header border-b border-white/10">
+      <nav className="sticky top-0 z-40 bg-surface border-b border-border">
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
           {/* LEFT: Shop identity */}
           <div className="flex items-center gap-2.5 min-w-0">
@@ -92,17 +92,17 @@ export default function StorefrontClient({
                 />
               </div>
             ) : (
-              <div className="h-8 w-8 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
-                <Store className="h-4 w-4 text-white" />
+              <div className="h-8 w-8 rounded-xl bg-text/15 flex items-center justify-center shrink-0">
+                <Store className="h-4 w-4 text-text" />
               </div>
             )}
 
             <div className="min-w-0">
-              <p className="font-bold text-white text-sm truncate">
+              <p className="font-bold text-text text-sm truncate">
                 {settings.shopName}
               </p>
               {settings.description && (
-                <p className="text-[11px] text-white/60 truncate hidden sm:block">
+                <p className="text-[11px] text-text/60 truncate hidden sm:block">
                   {settings.description}
                 </p>
               )}
@@ -116,7 +116,7 @@ export default function StorefrontClient({
             {/* Cart Button with micro-interactions */}
             <button
               onClick={() => setDrawerOpen(true)}
-              className={`flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-full font-semibold text-sm transition-all active:scale-95 duration-300 ${
+              className={`flex items-center gap-2 bg-text/10 hover:bg-text/20 text-text px-3 py-2 rounded-full font-semibold text-sm transition-all active:scale-95 duration-300 ${
                 animateCart
                   ? "scale-110 ring-4 ring-primary/30 bg-primary-dark"
                   : ""
@@ -125,16 +125,16 @@ export default function StorefrontClient({
               <ShoppingBag className="h-4 w-4" />
               {cartCount > 0 ? (
                 <>
-                  <span className="bg-white/20 rounded-full px-1.5 py-0.5 text-xs font-bold">
+                  <span className="bg-text/20 rounded-full px-1.5 py-0.5 text-xs font-bold">
                     {cartCount}
                   </span>
-                  <span className="hidden sm:inline text-white/60">·</span>
+                  <span className="hidden sm:inline text-text/60">·</span>
                   <span className="hidden sm:inline font-bold">
                     {formatNaira(cartTotal)}
                   </span>
                 </>
               ) : (
-                <span className="text-white/60 text-xs hidden sm:inline">
+                <span className="text-text/60 text-xs hidden sm:inline">
                   Empty
                 </span>
               )}
