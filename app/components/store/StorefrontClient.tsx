@@ -146,13 +146,13 @@ export default function StorefrontClient({
         {products.length > 4 && (
           <div className="px-4 pb-3 max-w-4xl mx-auto">
             <div className="relative max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-text/40" />
               <input
                 type="text"
                 placeholder="Search products…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 rounded-full border border-white/10 text-sm bg-white/10 text-white placeholder:text-white/40 focus:outline-none focus:bg-white/15"
+                className="w-full pl-9 pr-4 py-2 rounded-full border border-border text-sm bg-surface-alt text-text placeholder:text-text/40 focus:outline-none focus:bg-text/15"
               />
             </div>
           </div>
