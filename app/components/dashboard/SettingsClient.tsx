@@ -217,9 +217,9 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
 
       {/* PLAN WARNING */}
       {plan === "free" && (
-        <div className="flex items-start gap-2 bg-amber-500/50 dark:bg-amber-900/20 border border-amber-400 rounded-2xl p-3">
-          <Info className="h-4 w-4 text-amber-500 mt-0.5" />
-          <p className="text-[11px] text-amber-600 dark:text-amber-300">
+        <div className="flex items-start gap-2 bg-amber-500/20 rounded-2xl p-3">
+          <Info className="h-4 w-4 text-amber-600 mt-0.5" />
+          <p className="text-[11px] text-amber-600">
             Free plan is limited to {productLimit} products. Upgrade to Growth
             for more.
           </p>
@@ -228,7 +228,7 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
 
       {/* ERROR */}
       {error && (
-        <div className="flex items-center gap-2 bg-surface border border-red-200 rounded-2xl px-4 py-3">
+        <div className="flex items-center gap-2 bg-red-500/20 rounded-2xl px-4 py-3">
           <AlertCircle className="h-4 w-4 text-red-500" />
           <p className="text-xs text-red-500">{error}</p>
         </div>
