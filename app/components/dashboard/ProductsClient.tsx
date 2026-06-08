@@ -98,7 +98,7 @@ export default function ProductsClient({
 
       {/* LIMIT WARNING */}
       {atLimit && (
-        <div className="flex items-center gap-2 bg-amber-500/50 border rounded-2xl px-4 py-3">
+        <div className="flex items-center gap-2 bg-amber-500/20 border rounded-2xl px-4 py-3">
           <AlertTriangle className="h-4 w-4 text-amber-500" />
           <p className="text-xs text-amber-500">
             Product limit reached for your {plan} plan. Upgrade to continue
@@ -109,7 +109,7 @@ export default function ProductsClient({
 
       {/* ERROR */}
       {error && (
-        <div className="flex items-center justify-between bg-red-500/50 border rounded-2xl px-4 py-3">
+        <div className="flex items-center justify-between bg-red-500/20 border rounded-2xl px-4 py-3">
           <p className="text-xs text-red-500">{error}</p>
           <button onClick={() => setError("")}>
             <X className="h-4 w-4 text-red-500" />
