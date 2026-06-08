@@ -197,9 +197,9 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
                     className={cn(
                       "ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full",
                       isAtLimit
-                        ? "bg-red-100 text-red-600"
+                        ? "bg-red-500/50 text-red-500"
                         : isNearLimit
-                          ? "bg-amber-100 text-amber-700"
+                          ? "bg-amber-500/50 text-amber-700"
                           : active
                             ? "bg-primary/15 text-primary-dark"
                             : "bg-surface-alt text-text-muted border border-border",
