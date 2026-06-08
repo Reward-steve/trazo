@@ -197,7 +197,7 @@ export default function StorefrontClient({
                 <p className="text-[11px] font-semibold text-text-muted uppercase mb-3">
                   Out of stock
                 </p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 opacity-50">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 opacity-60">
                   {outOfStock.map((product) => (
                     <ProductCard
                       key={product.id}
