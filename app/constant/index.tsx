@@ -1,156 +1,226 @@
 import {
   MessageCircle,
-  Store,
-  TrendingUp,
-  Zap,
-  ShoppingBag,
+  Image,
+  PenLine,
   Clock,
-  XCircle,
-  LucideIcon,
+  MehIcon,
+  Smartphone,
+  ShoppingCart,
+  Link2,
+  BarChart2,
+  Layers,
+  Zap,
+  Globe,
+  Store,
   Image as ImageIcon,
 } from "lucide-react";
 
-const painPoints = [
-  { icon: XCircle, text: "Customers keep asking for prices in DMs" },
-  { icon: XCircle, text: "You answer the same questions every day" },
-  { icon: XCircle, text: "Orders arrive with missing details" },
-  { icon: XCircle, text: "Receipts and addresses get lost in chats" },
-  { icon: XCircle, text: "You spend more time replying than selling" },
-  { icon: XCircle, text: "Potential customers disappear before ordering" },
+// ── HERO ─────────────────────────────────────────────────────────────────────
+
+export const trustBadges = [
+  "No credit card",
+  "Setup in 3 minutes",
+  "Free forever plan",
+  "No code needed",
 ];
 
-const steps = [
+// ── SOCIAL PROOF ─────────────────────────────────────────────────────────────
+
+export const proofStats = [
+  { num: "2 min", label: "Average setup time" },
+  { num: "₦0", label: "To start selling" },
+  { num: "100%", label: "Orders to WhatsApp" },
+  { num: "Zero", label: "Developer needed" },
+];
+
+// ── PAIN POINTS ──────────────────────────────────────────────────────────────
+
+export const painPoints = [
+  {
+    icon: MessageCircle,
+    text: 'Customers DM "how much?" 40 times a day for the same item',
+  },
+  {
+    icon: Image,
+    text: "You post product photos one by one and they get buried in stories",
+  },
+  {
+    icon: PenLine,
+    text: "Writing out order details manually into every conversation",
+  },
+  {
+    icon: Clock,
+    text: "Hours tracking who paid, who hasn't, who wants what colour",
+  },
+  {
+    icon: MehIcon,
+    text: "Customers ghost mid-order because there's no checkout flow",
+  },
+  {
+    icon: Smartphone,
+    text: 'No way to share your "store" — just a link to your profile',
+  },
+];
+
+// ── HOW IT WORKS ─────────────────────────────────────────────────────────────
+
+export const steps = [
   {
     number: "01",
-    title: "Create your shop",
+    title: "Create your store",
     description:
-      "Sign up, add your shop name, WhatsApp number and logo. Takes less than 3 minutes.",
+      "Pick a name and your store URL is live instantly. No forms, no approval wait.",
   },
   {
     number: "02",
     title: "Add your products",
     description:
-      "Upload product photos from your phone, set prices, toggle availability on or off anytime.",
+      "Upload a photo, write a name, enter a price. Done. Add 1 or 100 products.",
   },
   {
     number: "03",
-    title: "Share your storefront",
+    title: "Share your link",
     description:
-      "Put your storefront in your Instagram bio, WhatsApp status, TikTok profile, or anywhere customers find you.",
+      "Drop your store link in your bio, your status, or send it directly in DMs.",
   },
   {
     number: "04",
-    title: "Receive structured orders",
+    title: "Get orders",
     description:
-      "Every order arrives on your WhatsApp already formatted — name, items, quantity, address. Zero chaos.",
+      "Every order pings your WhatsApp instantly — customer name, items, total.",
   },
 ];
 
-const features: { icon: LucideIcon; title: string; description: string }[] = [
-  {
-    icon: MessageCircle,
-    title: "Orders straight to WhatsApp",
-    description:
-      "No new app to learn. Orders land exactly where you already work — your WhatsApp inbox, perfectly formatted.",
-  },
-  {
-    icon: Store,
-    title: "Your own storefront",
-    description:
-      "A clean mobile storefront customers can browse anytime. Share it anywhere and let it answer questions for you.",
-  },
+// ── FEATURES ─────────────────────────────────────────────────────────────────
+
+export const features = [
   {
     icon: Zap,
-    title: "Live in under 5 minutes",
+    title: "Direct WhatsApp orders",
     description:
-      "No developer needed. No technical knowledge required. Sign up, add products, share your link.",
+      "Every order sent straight to your WhatsApp. No login required to see new sales.",
   },
   {
-    icon: TrendingUp,
-    title: "Never miss an order again",
+    icon: Link2,
+    title: "Shareable store link",
     description:
-      "Every customer fills their own details before ordering. No more chasing names and addresses.",
+      "One clean link. Works in Instagram bio, WhatsApp status, Twitter — anywhere.",
   },
   {
-    icon: ShoppingBag,
-    title: "No payment gateway headache",
+    icon: Layers,
+    title: "Product catalogue",
     description:
-      "Accept bank transfer, cash on delivery, or whatever works for you. We don't touch your money.",
+      "Real images, descriptions, and prices. Customers browse like a proper shop.",
   },
   {
-    icon: Clock,
-    title: "Save hours every week",
+    icon: ShoppingCart,
+    title: "Real checkout flow",
     description:
-      "Stop typing the same price replies 50 times a day. Your storefront answers for you.",
+      'Customers add to cart and confirm — no ghosting, no "okay I\'ll pay you later."',
+  },
+  {
+    icon: BarChart2,
+    title: "Order management",
+    description:
+      "Track pending, confirmed, and fulfilled orders in one clean dashboard.",
+  },
+  {
+    icon: Globe,
+    title: "Mobile-first design",
+    description:
+      "Your store looks stunning on every phone — because your customers are on phones.",
   },
 ];
 
-// const testimonials = [
-//   {
-//     name: "Chisom A.",
-//     business: "Thrift & Fashion, Yaba",
-//     quote:
-//       "Before this I was spending 3 hours daily just answering price DMs. Now my customers order themselves and I just confirm on WhatsApp. My head is free.",
-//     stars: 5,
-//   },
-//   {
-//     name: "Tunde B.",
-//     business: "Sneakers & Streetwear, Ikeja",
-//     quote:
-//       "I put the link in my Instagram bio on a Friday. By Sunday I had 11 orders waiting for me, all with full details. No confusion, no back and forth.",
-//     stars: 5,
-//   },
-//   {
-//     name: "Amaka O.",
-//     business: "Skincare & Beauty, Abuja",
-//     quote:
-//       "My customers always complained ordering from me was stressful. Now they send me voice notes saying how easy it is. That alone is worth everything.",
-//     stars: 5,
-//   },
-// ];
+// ── PRICING ──────────────────────────────────────────────────────────────────
 
-const pricingTiers = [
+export const pricingTiers = [
   {
-    name: "Free Forever",
+    name: "Free",
     price: "₦0",
-    period: "No expiry",
-    features: [
-      "1 storefront",
-      "10 products max",
-      "Trazo branding on store",
-      "Full WhatsApp order system",
-    ],
-    cta: "Start selling free",
+    period: "Forever, no card needed",
     isPro: false,
+    cta: "Get started free",
+    features: [
+      "Up to 10 products",
+      "WhatsApp order alerts",
+      "Shareable store link",
+      "Mobile storefront",
+    ],
   },
   {
     name: "Growth",
-    price: "₦1,500",
+    price: "₦4,999",
     period: "per month",
-    features: ["50 products", "Remove Trazo branding", "Basic analytics"],
-    cta: "Upgrade to Growth",
     isPro: true,
-  },
-  {
-    name: "Pro",
-    price: "₦3,500",
-    period: "per month",
+    cta: "Start free trial",
     features: [
       "Unlimited products",
-      "Custom domain",
-      "Advanced analytics",
+      "Order management dashboard",
+      "Custom store domain",
+      "Analytics & insights",
       "Priority support",
     ],
-    cta: "Go Pro",
-    isPro: true,
+  },
+  {
+    name: "Business",
+    price: "₦14,999",
+    period: "per month",
+    isPro: false,
+    cta: "Contact us",
+    features: [
+      "Everything in Growth",
+      "Multiple staff accounts",
+      "Multi-store management",
+      "API access",
+    ],
   },
 ];
 
-const trustBadges = [
-  "Free to start",
-  "Setup in under 5 minutes",
-  "Works with WhatsApp",
+// ── DEMO PRODUCTS ─────────────────────────────────────────────────────────────
+
+export const demoProducts = [
+  { emoji: "👗", name: "Ankara Dress", price: 12500 },
+  { emoji: "👜", name: "Leather Bag", price: 8000 },
+  { emoji: "👠", name: "Block Heels", price: 6200 },
 ];
+
+// const pricingTiers = [
+//   {
+//     name: "Free Forever",
+//     price: "₦0",
+//     period: "No expiry",
+//     features: [
+//       "1 storefront",
+//       "10 products max",
+//       "Trazo branding on store",
+//       "Full WhatsApp order system",
+//     ],
+//     cta: "Start selling free",
+//     isPro: false,
+//   },
+//   {
+//     name: "Growth",
+//     price: "₦1,500",
+//     period: "per month",
+//     features: ["50 products", "Remove Trazo branding", "Basic analytics"],
+//     cta: "Upgrade to Growth",
+//     isPro: true,
+//   },
+//   {
+//     name: "Pro",
+//     price: "₦3,500",
+//     period: "per month",
+//     features: [
+//       "Unlimited products",
+//       "Custom domain",
+//       "Advanced analytics",
+//       "Priority support",
+//     ],
+//     cta: "Go Pro",
+//     isPro: true,
+//   },
+// ];
 
 const COUNTRY_CODES = [
   { code: "+234", flag: "🇳🇬", name: "Nigeria" },
@@ -194,13 +264,4 @@ const ONBOARDING_STEPS = [
   },
 ];
 
-export {
-  trustBadges,
-  painPoints,
-  pricingTiers,
-  steps,
-  /*testimonials,*/
-  features,
-  ONBOARDING_STEPS,
-  COUNTRY_CODES,
-};
+export { ONBOARDING_STEPS, COUNTRY_CODES };

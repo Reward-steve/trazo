@@ -1,31 +1,32 @@
 import { cn } from "../../lib/utils";
 
-interface CardProps {
+type DarkCardProps = {
   children: React.ReactNode;
   className?: string;
+  variant?: "default" | "danger" | "accent";
   hover?: boolean;
-  variant?: "default" | "accent" | "danger";
-}
+};
 
 export default function DarkCard({
   children,
   className,
-  hover = false,
   variant = "default",
-}: CardProps) {
+  hover = false,
+}: DarkCardProps) {
   const variants = {
-    default: "bg-[#111] border border-white/5",
-    accent: "bg-emerald-950/40 border border-emerald-500/30",
-    danger: "bg-red-950/20 border border-red-900/20",
+    default: "bg-[#111] border-white/[0.07]",
+    danger: "bg-red-500/[0.04] border-red-500/12",
+    accent:
+      "bg-gradient-to-b from-emerald-500/[0.06] to-[#111] border-emerald-500/30",
   };
 
   return (
     <div
       className={cn(
-        "rounded-2xl",
+        "border rounded-2xl",
         variants[variant],
         hover &&
-          "hover:border-emerald-500/30 hover:bg-emerald-950/10 transition-all duration-300 hover:-translate-y-1",
+          "transition-all duration-200 hover:border-emerald-500/30 hover:-translate-y-px",
         className,
       )}
     >
