@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Image from "next/image";
 import { X, Plus, Minus, ShoppingBag, Send } from "lucide-react";
 import { CartItem, CustomerDetails, ShopSettings } from "../../types";
@@ -18,6 +18,8 @@ interface CartDrawerProps {
   settings: ShopSettings;
 }
 
+const EMPTY_CUSTOMER: CustomerDetails = { name: "", phone: "", address: "" };
+
 export default function CartDrawer({
   isOpen,
   onClose,
@@ -27,13 +29,10 @@ export default function CartDrawer({
   settings,
 }: CartDrawerProps) {
   const [step, setStep] = useState<"cart" | "checkout">("cart");
-  const [customer, setCustomer] = useState<CustomerDetails>({
-    name: "",
-    phone: "",
-    address: "",
-  });
+  const [customer, setCustomer] = useState<CustomerDetails>(EMPTY_CUSTOMER);
   const [errors, setErrors] = useState<Partial<CustomerDetails>>({});
 
+  const totalQty = items.reduce((sum, i) => sum + i.quantity, 0);
   const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
   const validate = () => {
@@ -45,9 +44,12 @@ export default function CartDrawer({
     return Object.keys(e).length === 0;
   };
 
-  // const maxStock = items.stock ?? Infinity;
-  // const canIncrease = items.quantity < maxStock;
-  // const canDecrease = items.quantity > 1;
+  const handleClose = useCallback(() => {
+    setStep("cart");
+    setCustomer(EMPTY_CUSTOMER);
+    setErrors({});
+    onClose();
+  }, [onClose]);
 
   const handleOrder = () => {
     if (!validate()) return;
@@ -63,13 +65,7 @@ export default function CartDrawer({
       total,
     );
     window.open(url, "_blank");
-    onClose();
-  };
-
-  // Reset step when drawer closes
-  const handleClose = () => {
-    setStep("cart");
-    onClose();
+    handleClose();
   };
 
   if (!isOpen) return null;
@@ -77,17 +73,20 @@ export default function CartDrawer({
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/40 z-50" onClick={handleClose} />
+      <div
+        className="fixed inset-0 bg-black/40 z-50 animate-in fade-in duration-200"
+        onClick={handleClose}
+      />
 
       {/* Drawer */}
-      <div className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-surface z-50 flex flex-col border-l border-border">
+      <div className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-surface z-50 flex flex-col border-l border-border animate-in slide-in-from-right duration-300">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-header">
           <div className="flex items-center gap-2">
             <ShoppingBag className="h-4 w-4 text-white" />
             <h2 className="text-sm font-bold text-white">
               {step === "cart"
-                ? `Cart${items.length > 0 ? ` (${items.length})` : ""}`
+                ? `Cart${totalQty > 0 ? ` (${totalQty})` : ""}`
                 : "Delivery details"}
             </h2>
           </div>
@@ -99,13 +98,13 @@ export default function CartDrawer({
           </button>
         </div>
 
-        {/* Progress bar */}
+        {/* Progress indicator */}
         {items.length > 0 && (
           <div className="flex gap-1 px-4 pt-3">
             <div className="h-1 flex-1 rounded-full bg-primary" />
             <div
               className={cn(
-                "h-1 flex-1 rounded-full transition-colors",
+                "h-1 flex-1 rounded-full transition-colors duration-300",
                 step === "checkout" ? "bg-primary" : "bg-border",
               )}
             />
@@ -140,6 +139,10 @@ export default function CartDrawer({
                 const maxStock = item.stock ?? Infinity;
                 const canIncrease = item.quantity < maxStock;
                 const canDecrease = item.quantity > 1;
+                const atMax =
+                  item.stock !== null &&
+                  item.stock !== undefined &&
+                  item.quantity >= item.stock;
 
                 return (
                   <div
@@ -160,20 +163,18 @@ export default function CartDrawer({
                       <p className="text-sm font-medium text-text line-clamp-2 leading-snug">
                         {item.name}
                       </p>
-
                       <p className="text-sm font-bold text-primary-dark mt-0.5">
                         {formatNaira(item.price * item.quantity)}
                       </p>
 
-                      {/* STOCK WARNING (optional but useful UX) */}
-                      {item.stock !== null && item.stock !== undefined && (
-                        <p className="text-[11px] text-text-muted mt-1">
-                          Max available: {item.stock}
+                      {/* Only show when they've hit the stock ceiling */}
+                      {atMax && (
+                        <p className="text-[11px] text-amber-500 mt-1 font-medium">
+                          Max quantity reached
                         </p>
                       )}
 
                       <div className="flex items-center gap-2 mt-2">
-                        {/* MINUS */}
                         <button
                           onClick={() =>
                             canDecrease &&
@@ -192,7 +193,6 @@ export default function CartDrawer({
                           {item.quantity}
                         </span>
 
-                        {/* PLUS (STOCK LIMITED) */}
                         <button
                           onClick={() =>
                             canIncrease &&
@@ -209,10 +209,9 @@ export default function CartDrawer({
                           <Plus className="h-3 w-3 text-text-muted" />
                         </button>
 
-                        {/* REMOVE */}
                         <button
                           onClick={() => onRemove(item.id)}
-                          className="ml-auto text-[11px] text-text-muted hover:text-red-500 font-medium"
+                          className="ml-auto text-[11px] text-text-muted hover:text-red-500 font-medium transition-colors"
                         >
                           Remove
                         </button>
@@ -272,7 +271,6 @@ export default function CartDrawer({
                 error={errors.phone}
               />
 
-              {/* Address */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-text">
                   Delivery address
@@ -287,8 +285,10 @@ export default function CartDrawer({
                   className={cn(
                     "w-full px-3 py-2.5 rounded-xl border text-sm resize-none transition-colors",
                     "bg-surface text-text placeholder:text-text-muted",
-                    "border-border hover:border-primary/40",
-                    "focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/60",
+                    errors.address
+                      ? "border-red-500/60 focus:ring-red-500/30 focus:border-red-500/60"
+                      : "border-border hover:border-primary/40 focus:ring-primary/30 focus:border-primary/60",
+                    "focus:outline-none focus:ring-2",
                   )}
                 />
                 {errors.address && (
