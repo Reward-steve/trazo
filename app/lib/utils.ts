@@ -15,35 +15,35 @@ export function generateWhatsAppURL(
   customer: { name: string; phone: string; address: string },
   total: number,
 ): string {
-  // Pad helper to create a clean, right-aligned receipt column layout
+  const SEP = "───────────────────────";
+
   const itemLines = items
-    .map((i) => {
-      const qtyAndName = `${i.quantity}x ${i.name}`;
-      const priceStr = formatNaira(i.price * i.quantity);
-      return `${qtyAndName.padEnd(22, " ")}${priceStr.padStart(10, " ")}`;
-    })
+    .map(
+      (i) =>
+        `  • ${i.quantity}x ${i.name} — ${formatNaira(i.price * i.quantity)}`,
+    )
     .join("\n");
 
   const message = [
-    `*NEW ORDER • ${shopName.toUpperCase()}*`,
+    `🛒 *NEW ORDER — ${shopName.toUpperCase()}*`,
     ``,
-    `--------------------------------`,
-    `${itemLines}`,
-    `--------------------------------`,
-    `TOTAL:${formatNaira(total).padStart(26, " ")}`,
-    `--------------------------------`,
+    `*ITEMS*`,
+    SEP,
+    itemLines,
+    SEP,
+    `*Total:* ${formatNaira(total)}`,
     ``,
-    `*CUSTOMER DETAILS*`,
-    `_*Name:*_ ${customer.name}`,
-    `_*Phone:*_ ${customer.phone}`,
-    `_*Delivery Address:*_ ${customer.address}`,
+    `*CUSTOMER*`,
+    SEP,
+    `*Name:* ${customer.name}`,
+    `*Phone:* ${customer.phone}`,
+    `*Address:* ${customer.address}`,
     ``,
-    `_Please confirm this order and provide payment details._`,
+    `_Please confirm this order and send payment details._`,
   ].join("\n");
 
   return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 }
-
 export function cn(...classes: (string | undefined | false | null)[]): string {
   return classes.filter(Boolean).join(" ");
 }
@@ -56,7 +56,6 @@ export function generateSlug(name: string) {
     .replace(/\s+/g, "-")
     .slice(0, 40);
 }
-
 
 export function normalizePlan(plan: string): ShopPlan {
   const p = plan.toLowerCase().trim();
