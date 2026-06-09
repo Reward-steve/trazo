@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import Button from "./components/landing/Button";
 import HeroBadge from "./components/landing/HeroBadge";
