@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CheckCircle } from "lucide-react";
 import SectionHeader from "./SectionHeader";
 import DarkCard from "./DarkCard";
-import Button from "../ui/Button";
+import Button from "../landing/Button";
 import { pricingTiers } from "../../constant";
 
 export default function PricingSection() {
@@ -34,12 +34,17 @@ export default function PricingSection() {
               >
                 {tier.name}
               </p>
-              <p className="text-4xl font-black text-white mb-1">{tier.price}</p>
+              <p className="text-4xl font-black text-white mb-1">
+                {tier.price}
+              </p>
               <p className="text-sm text-gray-500 mb-6">{tier.period}</p>
 
               <ul className="space-y-3 mb-8 flex-1">
                 {tier.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-gray-300">
+                  <li
+                    key={f}
+                    className="flex items-start gap-2.5 text-sm text-gray-300"
+                  >
                     <CheckCircle
                       className={`h-4 w-4 shrink-0 mt-0.5 ${
                         tier.isPro ? "text-emerald-400" : "text-emerald-600"
