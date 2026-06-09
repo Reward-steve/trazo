@@ -37,7 +37,7 @@ export default function ProductCard({
     isTracked && (product.stock ?? 0) > 0 && (product.stock ?? 0) <= 5;
 
   const handleAdd = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
+    e?.stopPropagation();
     if (isOutOfStock || isMaxedInCart) return;
     onAddToCart({
       id: product.id,
@@ -51,20 +51,21 @@ export default function ProductCard({
     setTimeout(() => setAdded(false), 1500);
   };
 
-  const handleCardClick = () => {
-    // Don't open modal for out-of-stock items
-    if (isOutOfStock) return;
-    setIsModalOpen(true);
+  const handleAddFromModal = () => {
+    if (isOutOfStock || isMaxedInCart) return;
+    handleAdd();
+    // Delay close so "Added ✓" feedback is visible before the modal disappears
+    setTimeout(() => setIsModalOpen(false), 800);
   };
 
   return (
     <>
-      {/* ── CARD ──────────────────────────────────────────────── */}
+      {/* ── CARD ── */}
       <div
-        onClick={handleCardClick}
+        onClick={() => setIsModalOpen(true)}
         className={`bg-surface rounded-2xl border border-border overflow-hidden transition-all duration-300 flex flex-col ${
           isOutOfStock
-            ? "opacity-60 cursor-not-allowed"
+            ? "opacity-60 cursor-default"
             : "hover:border-primary/30 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer group"
         }`}
       >
@@ -78,7 +79,7 @@ export default function ProductCard({
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
 
-          {/* Quick view hint — only for available items */}
+          {/* Quick view hint */}
           {!isOutOfStock && (
             <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
               <span className="bg-surface/90 backdrop-blur-md text-text text-xs font-medium px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1.5 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
@@ -133,7 +134,6 @@ export default function ProductCard({
             >
               {formatNaira(product.price)}
             </span>
-            {/* Add button — hidden for out of stock */}
             {!isOutOfStock && (
               <Button
                 size="sm"
@@ -164,8 +164,8 @@ export default function ProductCard({
         </div>
       </div>
 
-      {/* ── MODAL — only renders for available items ───────────── */}
-      {isModalOpen && !isOutOfStock && (
+      {/* ── MODAL ── */}
+      {isModalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
           onClick={() => setIsModalOpen(false)}
@@ -191,7 +191,7 @@ export default function ProductCard({
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
-              {isLowStock && (
+              {isLowStock && !isOutOfStock && (
                 <div className="absolute top-3 left-3">
                   <span className="flex items-center gap-1 bg-amber-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
                     <AlertTriangle className="h-3 w-3" />
@@ -210,52 +210,64 @@ export default function ProductCard({
                 <p className="text-2xl font-extrabold text-primary">
                   {formatNaira(product.price)}
                 </p>
+
                 <hr className="border-border" />
 
-                {/* Stock status */}
+                {/* Stock status — theme-safe colors */}
                 <div className="flex flex-wrap gap-2 items-center text-xs">
-                  {isMaxedInCart ? (
-                    <span className="bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-1 rounded-lg font-semibold">
+                  {isOutOfStock ? (
+                    <span className="bg-red-500/10 text-red-400 border border-red-500/20 px-2.5 py-1 rounded-lg font-semibold">
+                      Out of stock
+                    </span>
+                  ) : isMaxedInCart ? (
+                    <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-lg font-semibold">
                       Maximum quantity in cart
                     </span>
                   ) : isLowStock ? (
-                    <span className="flex items-center gap-1 text-amber-600 font-semibold bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg">
+                    <span className="flex items-center gap-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-lg font-semibold">
                       <AlertTriangle className="h-3.5 w-3.5" />
-                      Only {product.stock} items left
+                      Only {product.stock} left
                     </span>
                   ) : isTracked ? (
-                    <span className="text-text-muted font-medium bg-bubble-out px-2.5 py-1 rounded-lg">
+                    <span className="text-text-muted bg-surface-alt border border-border px-2.5 py-1 rounded-lg">
                       {product.stock} available
                     </span>
                   ) : (
-                    <span className="text-primary font-semibold bg-bubble-out px-2.5 py-1 rounded-lg">
-                      Available
+                    <span className="text-primary bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-lg font-semibold">
+                      In stock
                     </span>
                   )}
                 </div>
               </div>
 
               {/* CTA */}
-              <Button
-                onClick={() => {
-                  handleAdd();
-                  if (!isMaxedInCart) setIsModalOpen(false);
-                }}
-                disabled={isMaxedInCart}
-                variant={added ? "secondary" : "primary"}
-                className="w-full py-3 text-sm font-semibold"
-              >
-                {added ? (
-                  <>
-                    <CheckCircle className="h-4 w-4" /> Added to cart
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCart className="h-4 w-4" />
-                    Add to Cart — {formatNaira(product.price)}
-                  </>
-                )}
-              </Button>
+              {isOutOfStock ? (
+                <Button
+                  disabled
+                  variant="secondary"
+                  className="w-full py-3 text-sm font-semibold"
+                >
+                  Out of Stock
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleAddFromModal}
+                  disabled={isMaxedInCart}
+                  variant={added ? "secondary" : "primary"}
+                  className="w-full py-3 text-sm font-semibold"
+                >
+                  {added ? (
+                    <>
+                      <CheckCircle className="h-4 w-4" /> Added to cart
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="h-4 w-4" /> Add to Cart —{" "}
+                      {formatNaira(product.price)}
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
           </div>
         </div>

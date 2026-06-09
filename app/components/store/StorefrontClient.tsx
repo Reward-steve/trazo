@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import Image from "next/image";
 import { ShoppingBag, Store, Search, ArrowRight } from "lucide-react";
 import { Product, ShopSettings, CartItem } from "../../types";
@@ -22,21 +22,20 @@ export default function StorefrontClient({
   const [cart, setCart] = useState<CartItem[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [animateCart, setAnimateCart] = useState(false);
+  const [cartBump, setCartBump] = useState(false);
 
+  const prevCountRef = useRef(0);
   const cartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
   const cartTotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
-  // Trigger a brief animation whenever cartCount increases
+  // Only bump when count increases (item added), not on removal
   useEffect(() => {
-    if (cartCount > 0) {
-      const timer = setTimeout(() => setAnimateCart(true), 0);
-      const resetTimer = setTimeout(() => setAnimateCart(false), 500);
-      return () => {
-        clearTimeout(timer);
-        clearTimeout(resetTimer);
-      };
+    if (cartCount > prevCountRef.current) {
+      setCartBump(true);
+      const t = setTimeout(() => setCartBump(false), 400);
+      return () => clearTimeout(t);
     }
+    prevCountRef.current = cartCount;
   }, [cartCount]);
 
   const handleAddToCart = useCallback((item: CartItem) => {
@@ -54,13 +53,11 @@ export default function StorefrontClient({
   }, []);
 
   const handleUpdateQuantity = useCallback((id: string, quantity: number) => {
-    if (quantity <= 0) {
-      setCart((prev) => prev.filter((i) => i.id !== id));
-    } else {
-      setCart((prev) =>
-        prev.map((i) => (i.id === id ? { ...i, quantity } : i)),
-      );
-    }
+    setCart((prev) =>
+      quantity <= 0
+        ? prev.filter((i) => i.id !== id)
+        : prev.map((i) => (i.id === id ? { ...i, quantity } : i)),
+    );
   }, []);
 
   const handleRemove = useCallback((id: string) => {
@@ -70,7 +67,6 @@ export default function StorefrontClient({
   const filtered = products.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase()),
   );
-
   const availableProducts = filtered.filter((p) => p.available);
   const outOfStock = filtered.filter((p) => !p.available);
   const hasSearch = search.trim().length > 0;
@@ -80,7 +76,7 @@ export default function StorefrontClient({
       {/* ── NAVBAR ── */}
       <nav className="sticky top-0 z-40 bg-surface border-b border-border">
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
-          {/* LEFT: Shop identity */}
+          {/* Shop identity */}
           <div className="flex items-center gap-2.5 min-w-0">
             {settings.logoUrl ? (
               <div className="relative h-8 w-8 rounded-xl overflow-hidden shrink-0 bg-white/10">
@@ -96,7 +92,6 @@ export default function StorefrontClient({
                 <Store className="h-4 w-4 text-text" />
               </div>
             )}
-
             <div className="min-w-0">
               <p className="font-bold text-text text-sm truncate">
                 {settings.shopName}
@@ -109,17 +104,13 @@ export default function StorefrontClient({
             </div>
           </div>
 
-          {/* RIGHT: Controls */}
+          {/* Controls */}
           <div className="flex items-center gap-2">
             <ThemeToggle />
-
-            {/* Cart Button with micro-interactions */}
             <button
               onClick={() => setDrawerOpen(true)}
-              className={`flex items-center gap-2 bg-text/10 hover:bg-text/20 text-text px-3 py-2 rounded-full font-semibold text-sm transition-all active:scale-95 duration-300 ${
-                animateCart
-                  ? "scale-110 ring-4 ring-primary/30 bg-primary-dark"
-                  : ""
+              className={`flex items-center gap-2 bg-text/10 hover:bg-text/20 text-text px-3 py-2 rounded-full font-semibold text-sm transition-all active:scale-95 ${
+                cartBump ? "scale-110 ring-4 ring-primary/30" : ""
               }`}
             >
               <ShoppingBag className="h-4 w-4" />
@@ -142,7 +133,7 @@ export default function StorefrontClient({
           </div>
         </div>
 
-        {/* SEARCH */}
+        {/* Search — only shown when there are enough products to warrant it */}
         {products.length > 4 && (
           <div className="px-4 pb-3 max-w-4xl mx-auto">
             <div className="relative max-w-sm">
@@ -159,8 +150,10 @@ export default function StorefrontClient({
         )}
       </nav>
 
-      {/* ── MAIN CONTENT ── */}
-      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-5 pb-32">
+      {/* ── MAIN ── */}
+      <main
+        className={`flex-1 max-w-4xl mx-auto w-full px-4 py-5 ${cartCount > 0 ? "pb-32" : "pb-8"}`}
+      >
         {products.length === 0 ? (
           <EmptyState
             icon={<ShoppingBag className="h-10 w-10" />}
@@ -212,24 +205,23 @@ export default function StorefrontClient({
         )}
       </main>
 
-      {/* ── UX IMPROVEMENT: UNMISSABLE STICKY BOTTOM CHECKOUT BAR ── */}
+      {/* ── STICKY CHECKOUT BAR ── */}
       {cartCount > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-border p-4 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] animate-in slide-in-from-bottom duration-300">
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-border px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] animate-in slide-in-from-bottom duration-300">
           <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
-            <div className="flex flex-col">
-              <span className="text-xs text-text-muted font-medium">
-                {cartCount} {cartCount === 1 ? "item" : "items"} added
-              </span>
-              <span className="text-lg font-bold text-text">
+            <div>
+              <p className="text-xs text-text-muted font-medium">
+                {cartCount} {cartCount === 1 ? "item" : "items"}
+              </p>
+              <p className="text-lg font-bold text-text leading-tight">
                 {formatNaira(cartTotal)}
-              </span>
+              </p>
             </div>
-
             <button
               onClick={() => setDrawerOpen(true)}
               className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
             >
-              <span>View Cart & Checkout</span>
+              View Cart & Checkout
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
