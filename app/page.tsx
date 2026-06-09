@@ -4,7 +4,7 @@ import Button from "./components/landing/Button";
 import HeroBadge from "./components/landing/HeroBadge";
 import SocialProofBar from "./components/landing/SocialProofBar";
 import PainSection from "./components/landing/PainSection";
-import DemoSection from "./components/landing/DemoSection";
+import DemoSec from "./components/landing/DemoSec";
 import HowItWorks from "./components/landing/Howitworks";
 import FeaturesSection from "./components/landing/FeaturesSection";
 import PricingSection from "./components/landing/PricingSeciton";
@@ -76,7 +76,7 @@ export default function HomePage() {
 
       <SocialProofBar />
       <PainSection />
-      <DemoSection />
+      <DemoSec />
       <HowItWorks />
       <FeaturesSection />
       <PricingSection />

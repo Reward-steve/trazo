@@ -7,7 +7,7 @@ import { Zap } from "lucide-react";
 
 type CartItem = { name: string; price: number };
 
-export default function DemoSection() {
+export default function DemoSec() {
   const [cart, setCart] = useState<CartItem[]>([]);
 
   const total = cart.reduce((acc, item) => acc + item.price, 0);
