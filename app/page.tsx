@@ -8,9 +8,9 @@ import DemoSection from "./components/landing/DemoSection";
 import HowItWorks from "./components/landing/Howitworks";
 import FeaturesSection from "./components/landing/FeaturesSection";
 import PricingSection from "./components/landing/PricingSeciton";
-import FinalCTA from "./components/landing/Finalcta";
 import Footer from "./components/landing/Footer";
 import TrustBadges from "./components/landing/TrustBadges";
+import FinalCTA from "./components/landing/Finalcta";
 
 export default function HomePage() {
   return (
