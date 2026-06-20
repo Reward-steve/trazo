@@ -1,12 +1,14 @@
 import {
-  Lock,
   MessageSquare,
   ShieldCheck,
   CreditCard,
   Clock3,
   BadgeCheck,
   Zap,
+  Check,
+  Home,
 } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import { getShopByUser } from "../../actions/settings";
@@ -20,9 +22,39 @@ const ACCOUNT_NAME = "Trazo";
 const ACCOUNT_NUMBER = "8098069257";
 
 const PLANS = {
-  free: { label: "Free Plan", limit: 10, price: null },
-  growth: { label: "Growth Plan", limit: 50, price: 1500 },
-  pro: { label: "Pro Plan", limit: 999, price: 3500 },
+  free: {
+    label: "Free Plan",
+    limit: 10,
+    price: null,
+    features: [
+      "10 products",
+      "Trazo branding on storefront",
+      "Unlimited WhatsApp orders",
+    ],
+  },
+  growth: {
+    label: "Growth Plan",
+    limit: 50,
+    price: 1500,
+    features: [
+      "50 products",
+      "No Trazo branding — your store looks 100% yours",
+      "Unlimited WhatsApp orders",
+      "Priority support on WhatsApp",
+    ],
+  },
+  pro: {
+    label: "Pro Plan",
+    limit: 999,
+    price: 3500,
+    features: [
+      "Unlimited products",
+      "No Trazo branding",
+      "Unlimited WhatsApp orders",
+      "Priority support on WhatsApp",
+      "Early access to new features",
+    ],
+  },
 };
 
 export default async function SubscriptionPage() {
@@ -35,8 +67,8 @@ export default async function SubscriptionPage() {
   const plan = shop.plan as "free" | "growth" | "pro";
   const isPaid = plan !== "free";
   const currentPlan = PLANS[plan];
+  const growthPlan = PLANS.growth;
 
-  // Days into current paid cycle
   const daysIntoCycle = shop.planActivatedAt
     ? Math.floor(
         (+new Date() - new Date(shop.planActivatedAt).getTime()) /
@@ -79,6 +111,15 @@ export default async function SubscriptionPage() {
   return (
     <div className="min-h-screen bg-surface-alt px-4 py-8">
       <div className="max-w-md mx-auto space-y-5">
+        {/* Back to home */}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-xs text-text-muted hover:text-primary font-medium transition-colors"
+        >
+          <Home className="h-3.5 w-3.5" />
+          Back to Trazo home
+        </Link>
+
         {/* Status badge */}
         <div className="flex justify-center">
           <div
@@ -99,20 +140,13 @@ export default async function SubscriptionPage() {
           </p>
         </div>
 
-        {/* Current plan card */}
+        {/* Current plan card with full feature list */}
         <div className="bg-primary-dark text-white rounded-2xl p-5">
           <p className="text-white/60 text-xs uppercase tracking-wider mb-2">
             Current plan
           </p>
-          <div className="flex items-end justify-between">
-            <div>
-              <p className="text-2xl font-black">{currentPlan.label}</p>
-              <p className="text-white/70 text-sm mt-0.5">
-                Up to{" "}
-                {currentPlan.limit === 999 ? "unlimited" : currentPlan.limit}{" "}
-                products
-              </p>
-            </div>
+          <div className="flex items-end justify-between mb-4">
+            <p className="text-2xl font-black">{currentPlan.label}</p>
             {isPaid && daysLeft !== null && (
               <div className="text-right">
                 <p className="text-3xl font-black">{daysLeft}</p>
@@ -120,9 +154,20 @@ export default async function SubscriptionPage() {
               </div>
             )}
           </div>
+          <ul className="space-y-1.5 border-t border-white/15 pt-3">
+            {currentPlan.features.map((f) => (
+              <li
+                key={f}
+                className="flex items-start gap-2 text-sm text-white/85"
+              >
+                <Check className="h-3.5 w-3.5 mt-0.5 shrink-0 text-white/60" />
+                {f}
+              </li>
+            ))}
+          </ul>
         </div>
 
-        {/* Safety notice — always shown */}
+        {/* Safety notice */}
         <div className="bg-bubble-out border border-primary/20 rounded-2xl p-4 flex gap-3">
           <ShieldCheck className="h-5 w-5 text-primary-dark mt-0.5 shrink-0" />
           <div>
@@ -136,14 +181,13 @@ export default async function SubscriptionPage() {
           </div>
         </div>
 
-        {/* Upgrade options — shown for free plan */}
+        {/* Upgrade — free plan only */}
         {!isPaid && (
           <div className="space-y-3">
             <h2 className="text-sm font-bold text-text px-1">
               Upgrade your plan
             </h2>
 
-            {/* Growth */}
             <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
               <div className="flex items-start justify-between">
                 <div>
@@ -152,7 +196,7 @@ export default async function SubscriptionPage() {
                     <p className="font-bold text-text">Growth</p>
                   </div>
                   <p className="text-xs text-text-muted">
-                    50 products · No Trazo branding
+                    What you get when you upgrade
                   </p>
                 </div>
                 <div className="text-right">
@@ -161,10 +205,23 @@ export default async function SubscriptionPage() {
                 </div>
               </div>
 
+              {/* Clear feature breakdown before payment */}
+              <ul className="space-y-2 bg-surface-alt rounded-xl p-4">
+                {growthPlan.features.map((f) => (
+                  <li
+                    key={f}
+                    className="flex items-start gap-2 text-sm text-text"
+                  >
+                    <Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
               {/* Payment details */}
               <div className="bg-surface-alt rounded-xl p-4 space-y-3 text-sm">
                 <p className="text-xs font-semibold text-text-muted uppercase tracking-wide">
-                  Pay via bank transfer
+                  Pay via bank transfer to activate
                 </p>
                 <div className="flex justify-between border-b border-border pb-2">
                   <span className="text-text-muted">Bank</span>
@@ -190,7 +247,7 @@ export default async function SubscriptionPage() {
           </div>
         )}
 
-        {/* Renew — shown for paid plan */}
+        {/* Renew — paid plan only */}
         {isPaid && (
           <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
             <div className="flex items-center gap-2 mb-1">
