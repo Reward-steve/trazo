@@ -43,8 +43,9 @@ export default function HomePage() {
             <p className="text-lg sm:text-xl text-gray-400 mb-10 leading-relaxed max-w-xl">
               Turn your WhatsApp or Instagram page into a professional store in{" "}
               <span className="text-white font-semibold">under 5 minutes.</span>{" "}
-              Customers browse, tap, and order — every order lands neatly in
-              your WhatsApp, ready to fulfill.
+              Your customers don&apos;t need an account — they just tap your
+              link, browse, and order. Every order lands neatly in your
+              WhatsApp, ready to fulfill.
             </p>
 
             <div className="flex flex-wrap gap-4 mb-12">
