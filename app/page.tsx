@@ -11,91 +11,87 @@ import Footer from "./components/landing/Footer";
 import TrustBadges from "./components/landing/TrustBadges";
 import FinalCTA from "./components/landing/Finalcta";
 import Image from "next/image";
-import banner_img from "../public/flow.png";
+import banner_img from "../public/banner.png";
 
 export default function HomePage() {
   return (
     <div className="flex flex-col bg-[#0a0a0a] text-white overflow-x-hidden">
       {/* ── HERO ── */}
-      <section className="relative min-h-[90vh] flex items-center bg-[#0d0d0d]">
-        {/* Ambient glows and texture from original image aesthetic */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px]" />
-          <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-amber-500/10 rounded-full blur-[100px]" />
+
+      <section className="relative overflow-hidden">
+        {/* Background */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-40 right-0 h-[600px] w-[600px] rounded-full bg-emerald-500/15 blur-[150px]" />
+          <div className="absolute -bottom-32 left-0 h-[450px] w-[450px] rounded-full bg-yellow-500/10 blur-[130px]" />
+
           <div
             className="absolute inset-0 opacity-[0.03]"
             style={{
               backgroundImage:
-                "radial-gradient(circle, #fff 1px, transparent 1px)",
+                "radial-gradient(circle, white 1px, transparent 1px)",
               backgroundSize: "28px 28px",
             }}
           />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          {/* Left: Text Content - with user experience in mind */}
-          <div className="max-w-xl md:max-w-3xl z-10 text-white">
+        <div className="relative mx-auto flex min-h-[92vh] max-w-7xl items-center px-4 py-16 sm:px-6 lg:grid lg:grid-cols-2 lg:gap-16 lg:px-8">
+          {/* LEFT */}
+          <div className="z-10 max-w-2xl">
             <HeroBadge />
 
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.05] mb-6">
+            <h1 className="mt-6 text-4xl font-black leading-tight tracking-tight sm:text-6xl lg:text-7xl">
               Your products deserve
               <br />
-              <span className="text-primary">a real storefront.</span>
+              <span className="text-emerald-400">a real storefront.</span>
             </h1>
 
-            <p className="text-lg sm:text-xl text-gray-400 mb-10 leading-relaxed max-w-xl">
+            <p className="mt-6 max-w-xl text-base leading-8 text-gray-400 sm:text-lg">
               Turn your WhatsApp or Instagram page into a professional store in{" "}
-              <span className="text-white font-semibold">under 5 minutes.</span>{" "}
-              Your customers don&apos;t need an account — they just tap your
-              link, browse, and order. Every order lands neatly in your
-              WhatsApp, ready to fulfill.
+              <span className="font-semibold text-white">under 5 minutes.</span>{" "}
+              Customers simply tap your link, browse products, place an order,
+              and every order arrives directly in your WhatsApp.
             </p>
 
-            <div className="flex flex-wrap gap-4 mb-12">
+            <div className="mt-10 flex flex-col gap-4 sm:flex-row">
               <Button
                 href="/signup"
                 variant="primary"
                 size="lg"
-                className="w-full sm:w-auto bg-primary text-white hover:bg-primary/90"
+                className="w-full sm:w-auto"
               >
                 Start selling free
-                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
+
               <Button
                 href="/store/demo"
                 variant="outline"
                 size="lg"
-                className="w-full sm:w-auto text-white border-white hover:bg-white/10 hover:text-white"
+                className="w-full sm:w-auto"
               >
                 View demo store
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-5 w-5" />
               </Button>
             </div>
 
-            <TrustBadges />
+            <div className="mt-12">
+              <TrustBadges />
+            </div>
           </div>
 
-          {/* Right: Phone Mockup - properly aligned and responsive */}
-          <div className="relative order-first md:order-last w-full h-[400px] sm:h-[500px] md:h-full lg:h-[700px] flex justify-center items-center">
-            {/* Container for proper scaling of the mock */}
-            <div className="relative w-full max-w-[320px] md:max-w-[360px] aspect-[9/16] p-2 bg-black rounded-3xl shadow-2xl overflow-hidden border-2 border-primary/30">
+          {/* RIGHT */}
+          <div className="relative mt-16 flex justify-center lg:mt-0">
+            <div className="relative w-full max-w-[650px]">
+              {/* Glow */}
+              <div className="absolute inset-0 scale-95 rounded-full bg-emerald-500/20 blur-[90px]" />
+
               <Image
                 src={banner_img}
-                alt={"Trazo Logo Mobile Storefront Mockup"}
-                layout="fill"
-                objectFit="contain" // Crucial for responsive phone view
-                className="rounded-2xl"
-                priority // Prioritize loading for hero section
+                alt="Trazo storefront preview"
+                priority
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="relative h-auto w-full object-contain drop-shadow-[0_25px_80px_rgba(16,185,129,.35)]"
               />
-              {/* Floating WhatsApp chat notification (matching original image) */}
-              <div className="absolute top-[35%] -right-8 w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-xl animate-pulse-subtle pointer-events-none">
-                <Image
-                  src="/images/icons/whatsapp_icon_white.svg"
-                  alt="WhatsApp Icon"
-                  width={24}
-                  height={24}
-                />
-              </div>
             </div>
           </div>
         </div>
