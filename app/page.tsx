@@ -11,7 +11,7 @@ import Footer from "./components/landing/Footer";
 import TrustBadges from "./components/landing/TrustBadges";
 import FinalCTA from "./components/landing/Finalcta";
 import Image from "next/image";
-import banner_img from "../public/banner.png";
+import banner_img from "../public/flow.png";
 
 export default function HomePage() {
   return (
