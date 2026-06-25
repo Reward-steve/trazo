@@ -10,20 +10,17 @@ import PricingSection from "./components/landing/PricingSeciton";
 import Footer from "./components/landing/Footer";
 import TrustBadges from "./components/landing/TrustBadges";
 import FinalCTA from "./components/landing/Finalcta";
-import Image from "next/image";
-import banner_img from "../public/banner.png";
+import FlowIllustration from "./components/landing/FlowIllustration";
 
 export default function HomePage() {
   return (
     <div className="flex flex-col bg-[#0a0a0a] text-white overflow-x-hidden">
       {/* ── HERO ── */}
-
       <section className="relative overflow-hidden">
-        {/* Background */}
+        {/* Background blobs */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute -top-40 right-0 h-[600px] w-[600px] rounded-full bg-emerald-500/15 blur-[150px]" />
           <div className="absolute -bottom-32 left-0 h-[450px] w-[450px] rounded-full bg-yellow-500/10 blur-[130px]" />
-
           <div
             className="absolute inset-0 opacity-[0.03]"
             style={{
@@ -34,25 +31,26 @@ export default function HomePage() {
           />
         </div>
 
-        <div className="relative mx-auto flex min-h-[92vh] max-w-7xl items-center px-4 py-16 sm:px-6 lg:grid lg:grid-cols-2 lg:gap-16 lg:px-8">
-          {/* LEFT */}
-          <div className="z-10 max-w-2xl">
+        {/* Hero content */}
+        <div className="relative mx-auto flex min-h-[92vh] max-w-7xl flex-col items-center justify-center px-4 py-16 sm:px-6 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12 lg:px-8 xl:gap-20">
+          {/* LEFT — copy */}
+          <div className="z-10 w-full max-w-2xl text-center lg:text-left">
             <HeroBadge />
 
-            <h1 className="mt-6 text-4xl font-black leading-tight tracking-tight sm:text-6xl lg:text-7xl">
+            <h1 className="mt-6 text-4xl font-black leading-tight tracking-tight sm:text-5xl xl:text-6xl 2xl:text-7xl">
               Your products deserve
               <br />
               <span className="text-emerald-400">a real storefront.</span>
             </h1>
 
-            <p className="mt-6 max-w-xl text-base leading-8 text-gray-400 sm:text-lg">
+            <p className="mt-6 mx-auto max-w-xl text-base leading-8 text-gray-400 sm:text-lg lg:mx-0">
               Turn your WhatsApp or Instagram page into a professional store in{" "}
               <span className="font-semibold text-white">under 5 minutes.</span>{" "}
               Customers simply tap your link, browse products, place an order,
               and every order arrives directly in your WhatsApp.
             </p>
 
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:justify-start">
               <Button
                 href="/signup"
                 variant="primary"
@@ -74,24 +72,19 @@ export default function HomePage() {
               </Button>
             </div>
 
-            <div className="mt-12">
+            <div className="mt-12 flex justify-center lg:justify-start">
               <TrustBadges />
             </div>
           </div>
 
-          {/* RIGHT */}
-          <div className="relative mt-16 flex justify-center lg:mt-0">
-            <div className="relative w-full max-w-[650px]">
-              {/* Glow */}
-              <div className="absolute inset-0 scale-95 rounded-full bg-emerald-500/20 blur-[90px]" />
+          {/* RIGHT — flow illustration */}
+          <div className="relative mt-14 flex w-full items-center justify-center lg:mt-0">
+            {/* Ambient glow behind the illustration */}
+            <div className="absolute inset-0 scale-90 rounded-full bg-emerald-500/10 blur-[80px]" />
 
-              <Image
-                src={banner_img}
-                alt="Trazo storefront preview"
-                priority
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="relative h-auto w-full object-contain drop-shadow-[0_25px_80px_rgba(16,185,129,.35)]"
-              />
+            {/* Illustration container — constrained so it doesn't blow out on wide screens */}
+            <div className="relative w-full max-w-[420px] sm:max-w-[480px] lg:max-w-[520px] xl:max-w-[580px]">
+              <FlowIllustration />
             </div>
           </div>
         </div>
