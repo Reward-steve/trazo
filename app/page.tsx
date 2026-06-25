@@ -10,6 +10,8 @@ import PricingSection from "./components/landing/PricingSeciton";
 import Footer from "./components/landing/Footer";
 import TrustBadges from "./components/landing/TrustBadges";
 import FinalCTA from "./components/landing/Finalcta";
+import Image from "next/image";
+import banner_img from "../public/banner.png";
 
 export default function HomePage() {
   return (
@@ -30,7 +32,7 @@ export default function HomePage() {
           />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full flex justify-around items-center">
           <div className="max-w-3xl">
             <HeroBadge />
 
@@ -71,6 +73,12 @@ export default function HomePage() {
 
             <TrustBadges />
           </div>
+          <Image
+            src={banner_img}
+            alt={"trazo_logo"}
+            fill
+            className="object-cover rounded-sm"
+          />
         </div>
       </section>
 
