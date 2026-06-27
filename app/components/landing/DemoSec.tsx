@@ -16,34 +16,7 @@ export default function DemoSec                                                 
     setCart((prev) => [...prev, { name, price }]);
   }
 
-  const waMessage = cart.length
-    ? [
-        "🛒 *New order from Trazo*",
-        "",
-        "*Customer:* Chidi Okonkwo",
-        "*Phone:* +234 801 234 5678",
-        "",
-        "*Items:*",
-        ...cart.map((i) => `• ${i.name} × 1 — ₦${i.price.toLocaleString()}`),
-        "",
-        `*Total: ₦${total.toLocaleString()}*`,
-        "",
-        "_Reply to confirm & arrange delivery_",
-      ].join("\n")
-    : [
-        "🛒 *New order from Trazo*",
-        "",
-        "*Customer:* Chidi Okonkwo",
-        "*Phone:* +234 801 234 5678",
-        "",
-        "*Items:*",
-        "• Ankara Dress × 1 — ₦12,500",
-        "",
-        "*Total: ₦12,500*",
-        "",
-        "_Reply to confirm & arrange delivery_",
-      ].join("\n");
-
+   
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
       <SectionHeader
@@ -133,49 +106,7 @@ export default function DemoSec                                                 
             )}
           </div>
         </div>
-
-        {/* WhatsApp preview */}
-        <div className="flex flex-col gap-4">
-          <p className="text-xs font-semibold uppercase tracking-widest text-gray-600">
-            When they tap &ldquo;Order&rdquo; — you get this:
-          </p>
-
-          <div className="bg-[#1a1a1a] border border-white/[0.06] rounded-2xl p-4">
-            {/* WA header */}
-            <div className="flex items-center gap-3 pb-3 mb-3 border-b border-white/[0.06]">
-              <div className="h-8 w-8 rounded-full bg-[#25d366] flex items-center justify-center text-white text-sm shrink-0">
-                💬
-              </div>
-              <div>
-                <div className="text-sm font-bold text-white">
-                  New Order — Amaka Fashion
-                </div>
-                <div className="text-xs text-[#25d366]">Trazo</div>
-              </div>
-            </div>
-            {/* WA bubble */}
-            <div className="bg-[#2a2a2a] rounded-tl-sm rounded-tr-2xl rounded-br-2xl rounded-bl-2xl p-3 max-w-[92%]">
-              <pre className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap font-sans">
-                {waMessage}
-              </pre>
-              <div className="text-[10px] text-gray-600 text-right mt-2">
-                Delivered ✓✓
-              </div>
-            </div>
-          </div>
-
-          {/* Urgency strip */}
-          <div className="flex items-start gap-3 bg-amber-500/[0.06] border border-amber-500/15 rounded-xl p-4">
-            <Zap className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
-            <p className="text-sm text-gray-300 leading-relaxed">
-              Add a product, paste in a price,{" "}
-              <span className="text-amber-400 font-semibold">
-                go live in minutes.
-              </span>{" "}
-              No developer. No Shopify bill. No confusion.
-            </p>
-          </div>
-        </div>
+        
       </div>
     </section>
   );
