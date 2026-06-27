@@ -34,10 +34,10 @@ export default function HomePage() {
         {/* Hero content */}
         <div className="relative mx-auto flex min-h-[92vh] max-w-7xl flex-col items-center justify-center px-4 py-16 sm:px-6 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12 lg:px-8 xl:gap-20">
           {/* LEFT — copy */}
-          <div className="z-10 w-full max-w-2xl text-center lg:text-left">
+          <div className="z-10 w-full max-w-2xl text-left">
             <HeroBadge />
 
-            <h1 className="mt-6 text-4xl font-black leading-tight tracking-tight sm:text-5xl xl:text-6xl 2xl:text-7xl">
+            <h1 className="mt-6 text-6xl font-black leading-tight tracking-tight 2xl:text-7xl">
               Your products deserve
               <br />
               <span className="text-emerald-400">a real storefront.</span>
