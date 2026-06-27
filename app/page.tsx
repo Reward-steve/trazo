@@ -37,7 +37,7 @@ export default function HomePage() {
           <div className="z-10 w-full max-w-2xl text-left">
             <HeroBadge />
 
-            <h1 className="mt-6 text-6xl font-black leading-tight tracking-tight 2xl:text-7xl">
+            <h1 className="mt-6 text-5xl font-black leading-tight tracking-tight 2xl:text-7xl">
               Your products deserve
               <br />
               <span className="text-emerald-400">a real storefront.</span>
