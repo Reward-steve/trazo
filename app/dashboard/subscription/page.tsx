@@ -119,7 +119,6 @@ const paidPlan = isPaid ? (plan as Exclude<Plan, "free">) : null;
     <div className="min-h-screen bg-surface-alt px-4 py-8">
       <div className="max-w-md mx-auto space-y-5">
 
-        {/* Back to home */}
         <Link
           href="/"
           className="inline-flex items-center gap-1.5 text-xs text-text-muted hover:text-primary font-medium transition-colors"
