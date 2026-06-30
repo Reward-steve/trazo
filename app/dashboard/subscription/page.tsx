@@ -74,25 +74,24 @@ export default async function SubscriptionPage({ searchParams }: Props) {
   const { success } = await searchParams;
   const justUpgraded = success === "true";
 
-
-const plan = shop.plan as Plan; // "free" | "growth" | "pro" — Prisma-typed
+  const plan = shop.plan as Plan;
   const isPaid = plan !== "free";
   const currentPlan = PLANS[plan];
 
   // Only "growth" | "pro" are valid for PaystackCheckout
-const paidPlan = isPaid ? (plan as Exclude<Plan, "free">) : null;
+  const paidPlan = isPaid ? (plan as Exclude<Plan, "free">) : null;
 
   const daysIntoCycle = shop.planActivatedAt
     ? Math.floor(
         (+new Date() - new Date(shop.planActivatedAt).getTime()) /
-          (1000 * 60 * 60 * 24)
+          (1000 * 60 * 60 * 24),
       )
     : null;
   const daysLeft =
     daysIntoCycle !== null ? Math.max(0, 30 - daysIntoCycle) : null;
 
   const supportMsg = encodeURIComponent(
-    "Hi, I need help with my Trazo subscription."
+    "Hi, I need help with my Trazo subscription.",
   );
 
   const statusConfig = {
@@ -118,7 +117,6 @@ const paidPlan = isPaid ? (plan as Exclude<Plan, "free">) : null;
   return (
     <div className="min-h-screen bg-surface-alt px-4 py-8">
       <div className="max-w-md mx-auto space-y-5">
-
         <Link
           href="/"
           className="inline-flex items-center gap-1.5 text-xs text-text-muted hover:text-primary font-medium transition-colors"
@@ -136,7 +134,8 @@ const paidPlan = isPaid ? (plan as Exclude<Plan, "free">) : null;
             <div>
               <p className="text-sm font-bold text-text">Plan activated 🎉</p>
               <p className="text-xs text-text-muted mt-0.5">
-                You&apos;re now on the {currentPlan.label}. Your store is fully unlocked.
+                You&apos;re now on the {currentPlan.label}. Your store is fully
+                unlocked.
               </p>
             </div>
           </div>
@@ -144,7 +143,9 @@ const paidPlan = isPaid ? (plan as Exclude<Plan, "free">) : null;
 
         {/* Status badge */}
         <div className="flex justify-center">
-          <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold ${statusConfig[plan].tone}`}>
+          <div
+            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold ${statusConfig[plan].tone}`}
+          >
             <StatusIcon className="h-3.5 w-3.5" />
             {statusConfig[plan].label}
           </div>
@@ -176,7 +177,10 @@ const paidPlan = isPaid ? (plan as Exclude<Plan, "free">) : null;
           </div>
           <ul className="space-y-1.5 border-t border-white/15 pt-3">
             {currentPlan.features.map((f) => (
-              <li key={f} className="flex items-start gap-2 text-sm text-white/85">
+              <li
+                key={f}
+                className="flex items-start gap-2 text-sm text-white/85"
+              >
                 <Check className="h-3.5 w-3.5 mt-0.5 shrink-0 text-white/60" />
                 {f}
               </li>
@@ -188,9 +192,12 @@ const paidPlan = isPaid ? (plan as Exclude<Plan, "free">) : null;
         <div className="bg-bubble-out border border-primary/20 rounded-2xl p-4 flex gap-3">
           <ShieldCheck className="h-5 w-5 text-primary-dark mt-0.5 shrink-0" />
           <div>
-            <p className="text-sm font-semibold text-text">Your data is always safe</p>
+            <p className="text-sm font-semibold text-text">
+              Your data is always safe
+            </p>
             <p className="text-xs text-text-muted mt-1 leading-relaxed">
-              Products, images and settings are never deleted regardless of plan.
+              Products, images and settings are never deleted regardless of
+              plan.
             </p>
           </div>
         </div>
@@ -198,7 +205,9 @@ const paidPlan = isPaid ? (plan as Exclude<Plan, "free">) : null;
         {/* ── UPGRADE — free plan only ─────────────────────────── */}
         {!isPaid && (
           <div className="space-y-3">
-            <h2 className="text-sm font-bold text-text px-1">Upgrade your plan</h2>
+            <h2 className="text-sm font-bold text-text px-1">
+              Upgrade your plan
+            </h2>
 
             {/* Growth plan */}
             <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
@@ -217,13 +226,20 @@ const paidPlan = isPaid ? (plan as Exclude<Plan, "free">) : null;
               </div>
               <ul className="space-y-2 bg-surface-alt rounded-xl p-4">
                 {PLANS.growth.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-text">
+                  <li
+                    key={f}
+                    className="flex items-start gap-2 text-sm text-text"
+                  >
                     <Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
                     {f}
                   </li>
                 ))}
               </ul>
-              <PaystackCheckout plan="growth" email={email} shopName={shop.shopName} />
+              <PaystackCheckout
+                plan="growth"
+                email={email}
+                shopName={shop.shopName}
+              />
               <p className="text-[11px] text-text-muted text-center">
                 Secured by Paystack · Card, bank transfer & USSD accepted
               </p>
@@ -246,13 +262,20 @@ const paidPlan = isPaid ? (plan as Exclude<Plan, "free">) : null;
               </div>
               <ul className="space-y-2 bg-surface-alt rounded-xl p-4">
                 {PLANS.pro.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-text">
+                  <li
+                    key={f}
+                    className="flex items-start gap-2 text-sm text-text"
+                  >
                     <Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
                     {f}
                   </li>
                 ))}
               </ul>
-              <PaystackCheckout plan="pro" email={email} shopName={shop.shopName} />
+              <PaystackCheckout
+                plan="pro"
+                email={email}
+                shopName={shop.shopName}
+              />
               <p className="text-[11px] text-text-muted text-center">
                 Secured by Paystack · Card, bank transfer & USSD accepted
               </p>
@@ -271,7 +294,11 @@ const paidPlan = isPaid ? (plan as Exclude<Plan, "free">) : null;
               Your plan renews manually. Pay before your {daysLeft} days run out
               to avoid any interruption.
             </p>
-            <PaystackCheckout plan={paidPlan} email={email} shopName={shop.shopName} />
+            <PaystackCheckout
+              plan={paidPlan}
+              email={email}
+              shopName={shop.shopName}
+            />
             <p className="text-[11px] text-text-muted text-center">
               Secured by Paystack · Card, bank transfer & USSD accepted
             </p>
@@ -290,7 +317,6 @@ const paidPlan = isPaid ? (plan as Exclude<Plan, "free">) : null;
             Contact support on WhatsApp
           </a>
         </div>
-
       </div>
     </div>
   );
