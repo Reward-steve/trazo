@@ -14,6 +14,7 @@ import {
   CheckCircle,
   CreditCard,
   Zap,
+  BadgeCheck,
 } from "lucide-react";
 import { ThemeToggle } from "../../components/ui/ThemeProvider";
 import { useClerk } from "@clerk/nextjs";
@@ -53,7 +54,45 @@ const navLinks = [
   },
 ];
 
-const PRODUCT_LIMIT = { free: 10, growth: 50 };
+// Single source of truth for plan limits + display info — keeps sidebar in
+// sync with subscription page without duplicating logic across files.
+const PLAN_INFO: Record<
+  ShopPlan,
+  { label: string; shortLabel: string; limit: number; hasBranding: boolean }
+> = {
+  free: {
+    label: "Free Plan",
+    shortLabel: "Free",
+    limit: 10,
+    hasBranding: true,
+  },
+  growth: {
+    label: "Growth Plan",
+    shortLabel: "Growth",
+    limit: 50,
+    hasBranding: false,
+  },
+  pro: {
+    label: "Pro Plan",
+    shortLabel: "Pro",
+    limit: 999,
+    hasBranding: false,
+  },
+};
+
+// What a free/growth user unlocks by upgrading — shown in the sidebar nudge
+const UPGRADE_NUDGE: Partial<
+  Record<ShopPlan, { target: ShopPlan; blurb: string }>
+> = {
+  free: {
+    target: "growth",
+    blurb: "₦1,500/mo · 50 products · no branding",
+  },
+  growth: {
+    target: "pro",
+    blurb: "₦3,500/mo · unlimited products",
+  },
+};
 
 export default function DashboardSidebar({ shop }: { shop: Shop }) {
   const pathname = usePathname();
@@ -62,9 +101,14 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
 
   const storefrontUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/store/${shop.slug}`;
   const availableCount = shop.products.filter((p) => p.available).length;
-  const productLimit = PRODUCT_LIMIT[shop.plan];
-  const isNearLimit = shop.plan === "free" && shop.products.length >= 8;
-  const isAtLimit = shop.plan === "free" && shop.products.length >= 10;
+
+  const planInfo = PLAN_INFO[shop.plan];
+  const productLimit = planInfo.limit;
+  const isUnlimited = shop.plan === "pro";
+  const isNearLimit = !isUnlimited && shop.products.length >= productLimit - 2;
+  const isAtLimit = !isUnlimited && shop.products.length >= productLimit;
+
+  const nudge = UPGRADE_NUDGE[shop.plan];
 
   const isActive = (href: string, exact: boolean) =>
     exact ? pathname === href : pathname.startsWith(href);
@@ -152,16 +196,24 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
           <div className="mt-2 flex items-center justify-between">
             <span
               className={cn(
-                "text-[10px] font-bold px-2 py-0.5 rounded-full",
-                shop.plan === "growth"
-                  ? "bg-primary/10 text-primary-dark"
-                  : "bg-surface-alt text-text-muted border border-border",
+                "flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full",
+                shop.plan === "pro"
+                  ? "bg-primary text-white"
+                  : shop.plan === "growth"
+                    ? "bg-primary/10 text-primary-dark"
+                    : "bg-surface-alt text-text-muted border border-border",
               )}
             >
-              {shop.plan === "growth" ? "Growth Plan" : "Free Plan"}
+              {shop.plan === "pro" && <BadgeCheck className="h-2.5 w-2.5" />}
+              {planInfo.label}
             </span>
-            {shop.plan === "free" && (
-              <span className="text-[10px] text-text-muted">
+            {!isUnlimited && (
+              <span
+                className={cn(
+                  "text-[10px]",
+                  isAtLimit ? "text-red-500 font-semibold" : "text-text-muted",
+                )}
+              >
                 {shop.products.length}/{productLimit} products
               </span>
             )}
@@ -191,32 +243,32 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
                 />
                 <span>{label}</span>
 
-                {/* Products count badge */}
-                {href === "/dashboard/products" && shop.products.length > 0 && (
-                  <span
-                    className={cn(
-                      "ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full",
-                      isAtLimit
-                        ? "bg-red-500/20 text-red-500"
-                        : isNearLimit
-                          ? "bg-amber-500/20 text-amber-700"
-                          : active
-                            ? "bg-primary/15 text-primary-dark"
-                            : "bg-surface-alt text-text-muted border border-border",
-                    )}
-                  >
-                    {shop.products.length}/{productLimit}
-                  </span>
-                )}
+                {/* Products count badge — hidden once unlimited (pro) */}
+                {href === "/dashboard/products" &&
+                  shop.products.length > 0 &&
+                  !isUnlimited && (
+                    <span
+                      className={cn(
+                        "ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full",
+                        isAtLimit
+                          ? "bg-red-500/20 text-red-500"
+                          : isNearLimit
+                            ? "bg-amber-500/20 text-amber-700"
+                            : active
+                              ? "bg-primary/15 text-primary-dark"
+                              : "bg-surface-alt text-text-muted border border-border",
+                      )}
+                    >
+                      {shop.products.length}/{productLimit}
+                    </span>
+                  )}
 
-                {/* Billing dot — green for growth, grey for free */}
+                {/* Billing dot — filled for any paid plan, grey for free */}
                 {href === "/dashboard/subscription" && (
                   <span
                     className={cn(
                       "ml-auto h-2 w-2 rounded-full",
-                      shop.plan === "growth"
-                        ? "bg-primary"
-                        : "bg-text-muted/40",
+                      shop.plan !== "free" ? "bg-primary" : "bg-text-muted/40",
                     )}
                   />
                 )}
@@ -225,8 +277,8 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
           })}
         </nav>
 
-        {/* Upgrade nudge — only on free plan */}
-        {shop.plan === "free" && (
+        {/* Upgrade nudge — free → Growth, growth → Pro, hidden entirely on Pro */}
+        {nudge && (
           <div className="mx-3 mb-3">
             <Link
               href="/dashboard/subscription"
@@ -235,10 +287,10 @@ export default function DashboardSidebar({ shop }: { shop: Shop }) {
               <Zap className="h-4 w-4 text-primary-dark shrink-0" />
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-bold text-primary-dark leading-tight">
-                  Upgrade to Growth
+                  Upgrade to {PLAN_INFO[nudge.target].shortLabel}
                 </p>
                 <p className="text-[10px] text-text-muted mt-0.5">
-                  ₦1,500/mo · 50 products
+                  {nudge.blurb}
                 </p>
               </div>
             </Link>
