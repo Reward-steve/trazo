@@ -7,6 +7,7 @@ import {
   Check,
   Home,
   AlertCircle,
+  ArrowDownCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -18,7 +19,14 @@ export const dynamic = "force-dynamic";
 
 const WHATSAPP = "2348098069257";
 
-const PLANS = {
+// Order matters — index = tier rank. Used to derive upgrade/downgrade options.
+const PLAN_ORDER = ["free", "growth", "pro"] as const;
+type PlanKey = (typeof PLAN_ORDER)[number];
+
+const PLANS: Record<
+  PlanKey,
+  { label: string; limit: number; price: number | null; features: string[] }
+> = {
   free: {
     label: "Free Plan",
     limit: 10,
@@ -76,15 +84,23 @@ export default async function SubscriptionPage({ searchParams }: Props) {
   const user = await currentUser();
   const email = user?.emailAddresses?.[0]?.emailAddress ?? "";
 
-  // Await searchParams — required in Next.js 15
   const params = await searchParams;
   const justUpgraded = params.success === "true";
   const errorKey = params.error;
   const errorMessage = errorKey ? ERROR_MESSAGES[errorKey] : null;
 
-  const plan = shop.plan as "free" | "growth" | "pro";
+  const plan = shop.plan as PlanKey;
   const isPaid = plan !== "free";
   const currentPlan = PLANS[plan];
+  const currentRank = PLAN_ORDER.indexOf(plan);
+
+  // Plans ranked above/below the current one — drives which cards render
+  const upgradePlans = PLAN_ORDER.filter(
+    (p, i) => i > currentRank && p !== "free",
+  );
+  const downgradePlans = PLAN_ORDER.filter(
+    (p, i) => i < currentRank && p !== "free",
+  );
 
   const daysIntoCycle = shop.planActivatedAt
     ? Math.floor(
@@ -252,7 +268,7 @@ export default async function SubscriptionPage({ searchParams }: Props) {
           </div>
         </div>
 
-        {/* ── UPGRADE — free plan ──────────────────────────────── */}
+        {/* ── UPGRADE — free plan (first-time upgraders) ────────── */}
         {!isPaid && (
           <div className="space-y-3">
             <h2 className="text-sm font-bold text-text px-1">
@@ -338,27 +354,117 @@ export default async function SubscriptionPage({ searchParams }: Props) {
           </div>
         )}
 
-        {/* ── RENEW — paid plan ────────────────────────────────── */}
+        {/* ── PAID USERS — renew, upgrade, downgrade ─────────────── */}
         {isPaid && (
-          <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
-            <div className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4 text-primary" />
-              <h2 className="font-bold text-text">Renew subscription</h2>
+          <div className="space-y-3">
+            {/* Renew current plan */}
+            <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
+              <div className="flex items-center gap-2">
+                <CreditCard className="h-4 w-4 text-primary" />
+                <h2 className="font-bold text-text">
+                  Renew {currentPlan.label}
+                </h2>
+              </div>
+              <p className="text-xs text-text-muted">
+                Renew before your {daysLeft} day{daysLeft !== 1 ? "s" : ""} run
+                out to keep your store running without interruption.
+              </p>
+
+              <PaystackCheckout
+                plan={plan}
+                email={email}
+                shopName={shop.shopName}
+              />
+
+              <p className="text-[11px] text-text-muted text-center">
+                Secured by Paystack · Card, bank transfer & USSD accepted
+              </p>
             </div>
-            <p className="text-xs text-text-muted">
-              Renew before your {daysLeft} day{daysLeft !== 1 ? "s" : ""} run
-              out to keep your store running without interruption.
-            </p>
 
-            <PaystackCheckout
-              plan={plan}
-              email={email}
-              shopName={shop.shopName}
-            />
+            {/* Upgrade options — only shown if a higher tier exists (Growth → Pro) */}
+            {upgradePlans.map((upgradeKey) => {
+              const target = PLANS[upgradeKey];
+              return (
+                <div
+                  key={upgradeKey}
+                  className="bg-surface border-2 border-primary rounded-2xl p-5 space-y-4 relative"
+                >
+                  <div className="absolute -top-2.5 left-5 bg-primary text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                    UPGRADE
+                  </div>
+                  <div className="flex items-start justify-between pt-1">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <BadgeCheck className="h-4 w-4 text-primary" />
+                        <p className="font-bold text-text">
+                          Upgrade to {target.label.replace(" Plan", "")}
+                        </p>
+                      </div>
+                      <p className="text-xs text-text-muted">
+                        Unlock more, right now
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xl font-black text-text">
+                        ₦{target.price?.toLocaleString()}
+                      </p>
+                      <p className="text-xs text-text-muted">/month</p>
+                    </div>
+                  </div>
 
-            <p className="text-[11px] text-text-muted text-center">
-              Secured by Paystack · Card, bank transfer & USSD accepted
-            </p>
+                  <ul className="space-y-2 bg-surface-alt rounded-xl p-4">
+                    {target.features.map((f) => (
+                      <li
+                        key={f}
+                        className="flex items-start gap-2 text-sm text-text"
+                      >
+                        <Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <PaystackCheckout
+                    plan={upgradeKey}
+                    email={email}
+                    shopName={shop.shopName}
+                  />
+
+                  <p className="text-[11px] text-text-muted text-center">
+                    Starts a fresh 30-day cycle on {target.label} immediately
+                  </p>
+                </div>
+              );
+            })}
+
+            {/* Downgrade options — de-emphasized, explicit about tradeoffs */}
+            {downgradePlans.map((downgradeKey) => {
+              const target = PLANS[downgradeKey];
+              return (
+                <div
+                  key={downgradeKey}
+                  className="border border-dashed border-border rounded-2xl p-4 space-y-3"
+                >
+                  <div className="flex items-center gap-2">
+                    <ArrowDownCircle className="h-4 w-4 text-text-muted" />
+                    <h3 className="text-sm font-semibold text-text-muted">
+                      Switch to {target.label.replace(" Plan", "")}
+                    </h3>
+                  </div>
+                  <p className="text-xs text-text-muted leading-relaxed">
+                    This ends your {currentPlan.label} immediately and starts a
+                    new 30-day {target.label} cycle at ₦
+                    {target.price?.toLocaleString()}/month. Any remaining days
+                    on your current plan are not refunded or carried over.
+                  </p>
+                  <PaystackCheckout
+                    plan={downgradeKey}
+                    email={email}
+                    shopName={shop.shopName}
+                  />
+                </div>
+              );
+            })}
           </div>
         )}
 
