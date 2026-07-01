@@ -7,16 +7,15 @@ import {
   ExternalLink,
   AlertCircle,
   Crown,
-  // Package,
   Info,
 } from "lucide-react";
-
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import ImageUpload from "../../components/ui/ImageUpload";
 import { updateShop } from "../../actions/settings";
 import { cn } from "../../lib/utils";
-import { Product, ShopPlan } from "../../types";
+import Link from "next/link";
+import { ShopPlan } from "../../types";
 
 interface Shop {
   id: string;
@@ -26,11 +25,22 @@ interface Shop {
   description: string;
   logoUrl: string;
   plan: ShopPlan;
-  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
-  products: Product[];
+  products: { id: string }[]; // only need count, not full Product type
 }
+
+const PLAN_LIMITS: Record<ShopPlan, number> = {
+  free: 10,
+  growth: 50,
+  pro: Infinity,
+};
+
+const PLAN_LABELS: Record<ShopPlan, string> = {
+  free: "Free",
+  growth: "Growth",
+  pro: "Pro",
+};
 
 export default function SettingsClient({ shop }: { shop: Shop }) {
   const router = useRouter();
@@ -48,15 +58,10 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
 
   const [errors, setErrors] = useState<Partial<typeof form>>({});
 
-  const plan = shop.plan ?? "free";
+  const plan = (shop.plan ?? "free") as ShopPlan;
   const productCount = shop.products?.length ?? 0;
-
-  const PLAN_LIMITS = {
-    free: 10,
-    growth: 50,
-  };
-
   const productLimit = PLAN_LIMITS[plan];
+  const planLabel = PLAN_LABELS[plan];
 
   const update = (field: keyof typeof form, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -90,9 +95,12 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
       router.refresh();
-    } catch (err) {
-      if (err?.message === "SUBSCRIPTION_EXPIRED") {
-        setError("Your subscription has expired. Please upgrade.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "";
+      if (message === "SUBSCRIPTION_EXPIRED") {
+        setError(
+          "Your subscription has expired. Please upgrade to save changes.",
+        );
       } else {
         setError("Unable to save changes. Try again.");
       }
@@ -107,34 +115,31 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
     form.description !== shop.description ||
     form.logoUrl !== shop.logoUrl;
 
-  const buttonVariant = hasChanges || saved ? "primary" : "secondary";
-
   return (
     <div className="space-y-3">
-      {/* PLAN STATUS CARD */}
-      <div className="bg-surface border border-border rounded-2xl p-4 flex items-start justify-between">
+      {/* ── PLAN STATUS ──────────────────────────────────────── */}
+      <div className="bg-surface border border-border rounded-2xl p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 bg-bubble-out rounded-xl flex items-center justify-center">
+          <div className="h-9 w-9 bg-bubble-out rounded-xl flex items-center justify-center shrink-0">
             <Crown className="h-4 w-4 text-primary-dark" />
           </div>
-
           <div>
-            <p className="text-sm font-bold text-text capitalize">
-              {plan} plan
-            </p>
-
+            <p className="text-sm font-bold text-text">{planLabel} Plan</p>
             <p className="text-[11px] text-text-muted">
-              {productCount}/{productLimit} products used
+              {productCount}/{productLimit === Infinity ? "∞" : productLimit}{" "}
+              products used
             </p>
           </div>
         </div>
-
-        <span className="text-[10px] px-2 py-1 rounded-full bg-primary/10 text-primary-dark border border-primary/20">
-          Active
-        </span>
+        <Link
+          href="/dashboard/subscription"
+          className="text-[10px] px-2.5 py-1 rounded-full bg-primary/10 text-primary-dark border border-primary/20 hover:bg-primary/20 transition-colors"
+        >
+          {plan === "free" ? "Upgrade" : "Manage"}
+        </Link>
       </div>
 
-      {/* SHOP IDENTITY */}
+      {/* ── SHOP IDENTITY ────────────────────────────────────── */}
       <div className="bg-surface border border-border rounded-2xl p-4 space-y-4">
         <p className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">
           Shop identity
@@ -152,19 +157,22 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
           error={errors.shopName}
         />
 
-        {/* STORE URL */}
+        {/* Store URL — read only */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-text">Store URL</label>
-
-          <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-border bg-surface-alt text-xs text-text-muted">
-            <span className="truncate flex-1">
-              trazo-omega.vercel.app/store/{shop.slug}
+          <label className="text-xs font-medium text-text">
+            Store URL
+            <span className="ml-1.5 text-[10px] text-text-muted font-normal">
+              (cannot be changed)
             </span>
-
+          </label>
+          <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-border bg-surface-alt text-xs text-text-muted">
+            <span className="truncate flex-1">trazo.com/store/{shop.slug}</span>
             <a
               href={`/store/${shop.slug}`}
               target="_blank"
-              className="text-primary hover:text-primary-dark"
+              rel="noopener noreferrer"
+              className="text-primary hover:text-primary-dark transition-colors shrink-0"
+              title="Open storefront"
             >
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
@@ -172,7 +180,7 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
         </div>
       </div>
 
-      {/* CONTACT */}
+      {/* ── CONTACT ──────────────────────────────────────────── */}
       <div className="bg-surface border border-border rounded-2xl p-4 space-y-3">
         <p className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">
           Contact & orders
@@ -184,20 +192,24 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
           value={form.whatsappNumber}
           onChange={(e) => update("whatsappNumber", e.target.value)}
           error={errors.whatsappNumber}
+          type="tel"
         />
 
-        <p className="text-[11px] text-text-muted">
-          Orders are sent directly to this WhatsApp number.
-        </p>
+        <div className="flex items-start gap-1.5 text-[11px] text-text-muted">
+          <Info className="h-3.5 w-3.5 shrink-0 mt-0.5 text-amber-500" />
+          <p>
+            All customer orders go to this number. A wrong number means lost
+            orders — double check it.
+          </p>
+        </div>
       </div>
 
-      {/* ABOUT */}
+      {/* ── ABOUT ────────────────────────────────────────────── */}
       <div className="bg-surface border border-border rounded-2xl p-4 space-y-3">
-        <div className="flex justify-between">
+        <div className="flex items-center justify-between">
           <p className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">
             About shop
           </p>
-
           <span className="text-[11px] text-text-muted">
             {form.description.length}/200
           </span>
@@ -208,33 +220,42 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
           onChange={(e) => update("description", e.target.value.slice(0, 200))}
           rows={3}
           className={cn(
-            "w-full px-3 py-2.5 rounded-xl border text-sm resize-none",
-            "bg-surface text-text border-border focus:border-primary",
+            "w-full px-3 py-2.5 rounded-xl border text-sm resize-none transition-colors",
+            "bg-surface text-text placeholder:text-text-muted",
+            "border-border focus:border-primary focus:outline-none",
           )}
-          placeholder="Describe your shop..."
+          placeholder="Describe what you sell e.g. Premium thrift fashion for Lagos women..."
         />
+
+        <p className="text-[11px] text-text-muted">
+          This appears under your shop name on your storefront.
+        </p>
       </div>
 
-      {/* PLAN WARNING */}
+      {/* ── FREE PLAN NUDGE ──────────────────────────────────── */}
       {plan === "free" && (
-        <div className="flex items-start gap-2 bg-amber-500/20 rounded-2xl p-3">
-          <Info className="h-4 w-4 text-amber-600 mt-0.5" />
-          <p className="text-[11px] text-amber-600">
-            Free plan is limited to {productLimit} products. Upgrade to Growth
-            for more.
+        <Link
+          href="/dashboard/subscription"
+          className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/20 rounded-2xl p-3 hover:bg-amber-500/20 transition-colors"
+        >
+          <Info className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+          <p className="text-[11px] text-amber-600 dark:text-amber-400">
+            You&apos;re on the free plan — limited to {productLimit} products
+            and Trazo branding on your store. Upgrade to Growth for ₦1,500/mo to
+            unlock more.
           </p>
-        </div>
+        </Link>
       )}
 
-      {/* ERROR */}
+      {/* ── ERROR ────────────────────────────────────────────── */}
       {error && (
-        <div className="flex items-center gap-2 bg-red-500/20 rounded-2xl px-4 py-3">
-          <AlertCircle className="h-4 w-4 text-red-500" />
+        <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-2xl px-4 py-3">
+          <AlertCircle className="h-4 w-4 text-red-500 shrink-0" />
           <p className="text-xs text-red-500">{error}</p>
         </div>
       )}
 
-      {/* SAVE */}
+      {/* ── SAVE ─────────────────────────────────────────────── */}
       <Button
         onClick={handleSave}
         loading={loading}

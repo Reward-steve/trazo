@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import Image from "next/image";
-import { Upload, X, ImageIcon, Loader2 } from "lucide-react";
+import { Upload, X, ImageIcon, Loader2, RefreshCw } from "lucide-react";
 
 interface ImageUploadProps {
   value: string;
@@ -75,6 +75,8 @@ export default function ImageUpload({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) uploadFile(file);
+    // Reset input so same file can be re-selected
+    e.target.value = "";
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -87,16 +89,47 @@ export default function ImageUpload({
   return (
     <div className="flex flex-col gap-1.5">
       {value ? (
-        /* ── Preview ── */
-        <div className="relative w-36 h-36 rounded-2xl overflow-hidden border border-border group mx-auto">
-          <Image src={value} alt="Preview" fill className="object-cover" />
-          <button
-            type="button"
-            onClick={() => onChange("")}
-            className="absolute top-2 right-2 h-7 w-7 flex items-center justify-center bg-surface/90 rounded-full text-text-muted hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
+        /* ── Preview state ── */
+        <div className="flex flex-col gap-2">
+          {/* Image preview */}
+          <div className="relative w-full aspect-square max-w-[160px] mx-auto rounded-2xl overflow-hidden border border-border bg-surface-alt">
+            {uploading ? (
+              // Uploading overlay — shown when replacing image
+              <div className="absolute inset-0 bg-surface/80 flex flex-col items-center justify-center gap-2 z-10">
+                <Loader2 className="h-6 w-6 text-primary animate-spin" />
+                <span className="text-xs text-text-muted">Uploading…</span>
+              </div>
+            ) : null}
+            <Image
+              src={value}
+              alt="Preview"
+              fill
+              className="object-cover"
+              sizes="160px"
+            />
+          </div>
+
+          {/* Action buttons — always visible, never hidden on mobile */}
+          <div className="flex gap-2 max-w-[160px] mx-auto w-full">
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              disabled={uploading}
+              className="flex-1 flex items-center justify-center gap-1.5 bg-surface-alt border border-border text-text-muted hover:text-primary hover:border-primary text-xs font-medium py-2 rounded-xl transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              Change
+            </button>
+            <button
+              type="button"
+              onClick={() => onChange("")}
+              disabled={uploading}
+              className="flex-1 flex items-center justify-center gap-1.5 bg-surface-alt border border-border text-text-muted hover:text-red-500 hover:border-red-300 text-xs font-medium py-2 rounded-xl transition-colors disabled:opacity-50"
+            >
+              <X className="h-3.5 w-3.5" />
+              Remove
+            </button>
+          </div>
         </div>
       ) : (
         /* ── Upload area ── */
@@ -117,7 +150,7 @@ export default function ImageUpload({
                 ? "border-primary bg-bubble-out"
                 : "border-border hover:border-primary/50 hover:bg-bubble-out/40"
             }
-            ${uploading ? "cursor-not-allowed opacity-60" : ""}
+            ${uploading ? "cursor-not-allowed opacity-60 pointer-events-none" : ""}
           `}
         >
           {uploading ? (
@@ -130,7 +163,7 @@ export default function ImageUpload({
               <div className="h-12 w-12 bg-bubble-out rounded-2xl flex items-center justify-center">
                 <ImageIcon className="h-6 w-6 text-primary-dark" />
               </div>
-              <div className="text-center">
+              <div className="text-center px-4">
                 <p className="text-sm font-medium text-text">
                   Click or drag to upload
                 </p>
