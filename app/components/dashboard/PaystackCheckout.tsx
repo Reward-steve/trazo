@@ -56,9 +56,10 @@ export default function PaystackCheckout({
       alert("Payment is loading, please try again in a second.");
       return;
     }
+    console.log("Paystack key:", process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY);
 
     const handler = window.PaystackPop.setup({
-      key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!,
+      key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
       email,
       amount: PLAN_PRICES[plan],
       ref: reference.current,
