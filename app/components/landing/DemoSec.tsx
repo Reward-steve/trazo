@@ -3,20 +3,33 @@
 import { useState } from "react";
 import SectionHeader from "./SectionHeader";
 import { demoProducts } from "../../constant";
-import { Zap } from "lucide-react";
+import { MessageCircle, MousePointerClick } from "lucide-react";
 
 type CartItem = { name: string; price: number };
 
-export default function DemoSec                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          () {
+export default function DemoSection() {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [orderSent, setOrderSent] = useState(false);
+  const [justAdded, setJustAdded] = useState<string | null>(null);
 
   const total = cart.reduce((acc, item) => acc + item.price, 0);
 
   function addToCart(name: string, price: number) {
     setCart((prev) => [...prev, { name, price }]);
+    setJustAdded(name);
+    setTimeout(() => setJustAdded(null), 900);
   }
 
-   
+  function sendOrder() {
+    if (cart.length === 0) return;
+    setOrderSent(true);
+  }
+
+  function resetDemo() {
+    setCart([]);
+    setOrderSent(false);
+  }
+
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
       <SectionHeader
@@ -58,10 +71,20 @@ export default function DemoSec                                                 
               </div>
             </div>
 
+            {/* Interactive hint — only shows before first interaction */}
+            {cart.length === 0 && (
+              <div className="flex items-center gap-1.5 text-[11px] text-gray-500 mb-3">
+                <MousePointerClick className="h-3 w-3" />
+                Try it — tap a product to add it to cart
+              </div>
+            )}
+
             {/* Products */}
-            <p className="text-xs font-semibold uppercase tracking-widest text-gray-600 mb-3">
-              Featured products
-            </p>
+            {cart.length > 0 && (
+              <p className="text-xs font-semibold uppercase tracking-widest text-gray-600 mb-3">
+                Featured products
+              </p>
+            )}
             <div className="grid grid-cols-3 gap-2.5 mb-4">
               {demoProducts.map(({ emoji, name, price }) => (
                 <div
@@ -80,9 +103,13 @@ export default function DemoSec                                                 
                     </div>
                     <button
                       onClick={() => addToCart(name, price)}
-                      className="mt-2 w-full text-[11px] font-bold py-1.5 rounded-md bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 hover:bg-emerald-500/25 transition-colors"
+                      className={`mt-2 w-full text-[11px] font-bold py-1.5 rounded-md border transition-colors ${
+                        justAdded === name
+                          ? "bg-emerald-500 text-black border-emerald-400"
+                          : "bg-emerald-500/15 border-emerald-500/25 text-emerald-400 hover:bg-emerald-500/25"
+                      }`}
                     >
-                      + Add
+                      {justAdded === name ? "Added ✓" : "+ Add"}
                     </button>
                   </div>
                 </div>
@@ -90,7 +117,7 @@ export default function DemoSec                                                 
             </div>
 
             {/* Cart bar */}
-            {cart.length > 0 && (
+            {cart.length > 0 && !orderSent && (
               <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
                 <span className="text-sm text-emerald-300 font-semibold">
                   <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-emerald-500 text-black text-[10px] font-black mr-2">
@@ -99,14 +126,70 @@ export default function DemoSec                                                 
                   {cart.length} item{cart.length > 1 ? "s" : ""} ·{" "}
                   <span className="text-white">₦{total.toLocaleString()}</span>
                 </span>
-                <button className="bg-emerald-500 text-black text-xs font-black px-4 py-2 rounded-lg hover:bg-emerald-400 transition-colors">
+                <button
+                  onClick={sendOrder}
+                  className="bg-emerald-500 text-black text-xs font-black px-4 py-2 rounded-lg hover:bg-emerald-400 transition-colors"
+                >
                   Order via WhatsApp →
+                </button>
+              </div>
+            )}
+
+            {/* Post-order state */}
+            {orderSent && (
+              <div className="flex items-center justify-between bg-white/[0.04] border border-white/[0.07] rounded-xl px-4 py-3">
+                <span className="text-sm text-gray-300">
+                  Order sent — no checkout page needed.
+                </span>
+                <button
+                  onClick={resetDemo}
+                  className="text-xs font-semibold text-emerald-400 hover:text-emerald-300"
+                >
+                  Reset demo
                 </button>
               </div>
             )}
           </div>
         </div>
-        
+
+        {/* WhatsApp preview — what the seller receives */}
+        <div className="bg-[#111] border border-white/[0.07] rounded-2xl overflow-hidden flex flex-col h-full min-h-[420px]">
+          <div className="bg-[#1f2c25] border-b border-white/[0.06] px-4 py-3 flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+              <MessageCircle className="h-4 w-4 text-emerald-400" />
+            </div>
+            <div>
+              <div className="text-sm font-semibold text-white leading-tight">
+                Amaka Fashion (You)
+              </div>
+              <div className="text-[11px] text-gray-500">
+                New order notification
+              </div>
+            </div>
+          </div>
+
+          <div className="flex-1 p-4 flex flex-col justify-end gap-2 bg-[#0b141a]">
+            {!orderSent ? (
+              <p className="text-xs text-gray-600 text-center my-auto">
+                Orders placed on your storefront land here — no separate app to
+                check.
+              </p>
+            ) : (
+              <div className="self-end max-w-[85%] bg-emerald-600/90 text-white text-xs rounded-2xl rounded-br-md px-3 py-2.5 leading-relaxed animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <p className="font-semibold mb-1">New order 🛍️</p>
+                {cart.map((item, i) => (
+                  <p key={i}>
+                    • {item.name} — ₦{item.price.toLocaleString()}
+                  </p>
+                ))}
+                <p className="mt-1 font-semibold border-t border-white/20 pt-1">
+                  Total: ₦{total.toLocaleString()}
+                </p>
+                <p className="text-[10px] text-white/70 mt-1">Just now</p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </section>
   );
