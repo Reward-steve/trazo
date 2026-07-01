@@ -258,6 +258,8 @@ export default async function SubscriptionPage({ searchParams }: Props) {
             <h2 className="text-sm font-bold text-text px-1">
               Upgrade your plan
             </h2>
+
+            {/* Growth card */}
             <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
               <div className="flex items-start justify-between">
                 <div>
@@ -290,11 +292,49 @@ export default async function SubscriptionPage({ searchParams }: Props) {
                 email={email}
                 shopName={shop.shopName}
               />
-
-              <p className="text-[11px] text-text-muted text-center">
-                Secured by Paystack · Card, bank transfer & USSD accepted
-              </p>
             </div>
+
+            {/* Pro card */}
+            <div className="bg-surface border-2 border-primary rounded-2xl p-5 space-y-4 relative">
+              <div className="absolute -top-2.5 left-5 bg-primary text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                MOST POPULAR
+              </div>
+              <div className="flex items-start justify-between pt-1">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <BadgeCheck className="h-4 w-4 text-primary" />
+                    <p className="font-bold text-text">Pro</p>
+                  </div>
+                  <p className="text-xs text-text-muted">What you get</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xl font-black text-text">₦3,500</p>
+                  <p className="text-xs text-text-muted">/month</p>
+                </div>
+              </div>
+
+              <ul className="space-y-2 bg-surface-alt rounded-xl p-4">
+                {PLANS.pro.features.map((f) => (
+                  <li
+                    key={f}
+                    className="flex items-start gap-2 text-sm text-text"
+                  >
+                    <Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              <PaystackCheckout
+                plan="pro"
+                email={email}
+                shopName={shop.shopName}
+              />
+            </div>
+
+            <p className="text-[11px] text-text-muted text-center">
+              Secured by Paystack · Card, bank transfer & USSD accepted
+            </p>
           </div>
         )}
 
