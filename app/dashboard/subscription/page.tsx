@@ -6,14 +6,13 @@ import {
   Zap,
   Check,
   Home,
-  Star,
+  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { getShopByUser } from "../../actions/settings";
 import PaystackCheckout from "../../components/dashboard/PaystackCheckout";
-import { Plan } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -55,9 +54,16 @@ const PLANS = {
   },
 };
 
+const ERROR_MESSAGES: Record<string, string> = {
+  amount_mismatch: "Payment amount does not match the selected plan.",
+  email_mismatch: "Payment email does not match your account.",
+  already_used: "This payment has already been applied to an account.",
+  payment_failed: "Payment was not completed successfully.",
+  server_error: "Something went wrong on our end. Please contact support.",
+};
+
 interface Props {
-  // Next.js 15: searchParams is a Promise
-  searchParams: Promise<{ success?: string }>;
+  searchParams: Promise<{ success?: string; error?: string }>;
 }
 
 export default async function SubscriptionPage({ searchParams }: Props) {
@@ -70,16 +76,15 @@ export default async function SubscriptionPage({ searchParams }: Props) {
   const user = await currentUser();
   const email = user?.emailAddresses?.[0]?.emailAddress ?? "";
 
-  // Await searchParams before reading — required in Next.js 15
-  const { success } = await searchParams;
-  const justUpgraded = success === "true";
+  // Await searchParams — required in Next.js 15
+  const params = await searchParams;
+  const justUpgraded = params.success === "true";
+  const errorKey = params.error;
+  const errorMessage = errorKey ? ERROR_MESSAGES[errorKey] : null;
 
-  const plan = shop.plan as Plan;
+  const plan = shop.plan as "free" | "growth" | "pro";
   const isPaid = plan !== "free";
   const currentPlan = PLANS[plan];
-
-  // Only "growth" | "pro" are valid for PaystackCheckout
-  const paidPlan = isPaid ? (plan as Exclude<Plan, "free">) : null;
 
   const daysIntoCycle = shop.planActivatedAt
     ? Math.floor(
@@ -89,9 +94,10 @@ export default async function SubscriptionPage({ searchParams }: Props) {
     : null;
   const daysLeft =
     daysIntoCycle !== null ? Math.max(0, 30 - daysIntoCycle) : null;
+  const isExpiringSoon = daysLeft !== null && daysLeft <= 5;
 
   const supportMsg = encodeURIComponent(
-    "Hi, I need help with my Trazo subscription.",
+    `Hi, I need help with my Trazo subscription for ${shop.shopName}.`,
   );
 
   const statusConfig = {
@@ -117,12 +123,13 @@ export default async function SubscriptionPage({ searchParams }: Props) {
   return (
     <div className="min-h-screen bg-surface-alt px-4 py-8">
       <div className="max-w-md mx-auto space-y-5">
+        {/* Back to home */}
         <Link
           href="/"
           className="inline-flex items-center gap-1.5 text-xs text-text-muted hover:text-primary font-medium transition-colors"
         >
           <Home className="h-3.5 w-3.5" />
-          Back to Website
+          Back to Trazo home
         </Link>
 
         {/* Success banner */}
@@ -136,6 +143,45 @@ export default async function SubscriptionPage({ searchParams }: Props) {
               <p className="text-xs text-text-muted mt-0.5">
                 You&apos;re now on the {currentPlan.label}. Your store is fully
                 unlocked.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Error banner */}
+        {errorMessage && (
+          <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-2xl p-4 flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-bold text-text">
+                Payment could not be verified
+              </p>
+              <p className="text-xs text-text-muted mt-0.5 leading-relaxed">
+                {errorMessage}{" "}
+                <a
+                  href={`https://wa.me/${WHATSAPP}?text=${supportMsg}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline"
+                >
+                  Contact support
+                </a>{" "}
+                if this keeps happening.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Expiring soon warning */}
+        {isPaid && isExpiringSoon && !justUpgraded && (
+          <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-bold text-text">
+                Your plan expires in {daysLeft} day{daysLeft !== 1 ? "s" : ""}
+              </p>
+              <p className="text-xs text-text-muted mt-0.5">
+                Renew now to avoid any interruption to your store.
               </p>
             </div>
           </div>
@@ -170,7 +216,11 @@ export default async function SubscriptionPage({ searchParams }: Props) {
             <p className="text-2xl font-black">{currentPlan.label}</p>
             {isPaid && daysLeft !== null && (
               <div className="text-right">
-                <p className="text-3xl font-black">{daysLeft}</p>
+                <p
+                  className={`text-3xl font-black ${isExpiringSoon ? "text-amber-300" : "text-white"}`}
+                >
+                  {daysLeft}
+                </p>
                 <p className="text-white/60 text-xs">days left</p>
               </div>
             )}
@@ -202,14 +252,12 @@ export default async function SubscriptionPage({ searchParams }: Props) {
           </div>
         </div>
 
-        {/* ── UPGRADE — free plan only ─────────────────────────── */}
+        {/* ── UPGRADE — free plan ──────────────────────────────── */}
         {!isPaid && (
           <div className="space-y-3">
             <h2 className="text-sm font-bold text-text px-1">
               Upgrade your plan
             </h2>
-
-            {/* Growth plan */}
             <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
               <div className="flex items-start justify-between">
                 <div>
@@ -224,6 +272,7 @@ export default async function SubscriptionPage({ searchParams }: Props) {
                   <p className="text-xs text-text-muted">/month</p>
                 </div>
               </div>
+
               <ul className="space-y-2 bg-surface-alt rounded-xl p-4">
                 {PLANS.growth.features.map((f) => (
                   <li
@@ -235,47 +284,13 @@ export default async function SubscriptionPage({ searchParams }: Props) {
                   </li>
                 ))}
               </ul>
+
               <PaystackCheckout
                 plan="growth"
                 email={email}
                 shopName={shop.shopName}
               />
-              <p className="text-[11px] text-text-muted text-center">
-                Secured by Paystack · Card, bank transfer & USSD accepted
-              </p>
-            </div>
 
-            {/* Pro plan */}
-            <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Star className="h-4 w-4 text-primary" />
-                    <p className="font-bold text-text">Pro</p>
-                  </div>
-                  <p className="text-xs text-text-muted">For serious sellers</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xl font-black text-text">₦3,500</p>
-                  <p className="text-xs text-text-muted">/month</p>
-                </div>
-              </div>
-              <ul className="space-y-2 bg-surface-alt rounded-xl p-4">
-                {PLANS.pro.features.map((f) => (
-                  <li
-                    key={f}
-                    className="flex items-start gap-2 text-sm text-text"
-                  >
-                    <Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <PaystackCheckout
-                plan="pro"
-                email={email}
-                shopName={shop.shopName}
-              />
               <p className="text-[11px] text-text-muted text-center">
                 Secured by Paystack · Card, bank transfer & USSD accepted
               </p>
@@ -283,22 +298,24 @@ export default async function SubscriptionPage({ searchParams }: Props) {
           </div>
         )}
 
-        {/* ── RENEW — paid plan only ───────────────────────────── */}
-        {isPaid && paidPlan && (
+        {/* ── RENEW — paid plan ────────────────────────────────── */}
+        {isPaid && (
           <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
             <div className="flex items-center gap-2">
               <CreditCard className="h-4 w-4 text-primary" />
               <h2 className="font-bold text-text">Renew subscription</h2>
             </div>
             <p className="text-xs text-text-muted">
-              Your plan renews manually. Pay before your {daysLeft} days run out
-              to avoid any interruption.
+              Renew before your {daysLeft} day{daysLeft !== 1 ? "s" : ""} run
+              out to keep your store running without interruption.
             </p>
+
             <PaystackCheckout
-              plan={paidPlan}
+              plan={plan}
               email={email}
               shopName={shop.shopName}
             />
+
             <p className="text-[11px] text-text-muted text-center">
               Secured by Paystack · Card, bank transfer & USSD accepted
             </p>
