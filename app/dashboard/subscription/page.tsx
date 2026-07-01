@@ -11,8 +11,8 @@ import {
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { getShopByUser } from "@/app/actions/settings";
-import PaystackCheckout from "@/app/components/dashboard/PaystackCheckout";
+import { getShopByUser } from "../../actions/settings";
+import PaystackCheckout from "../../components/dashboard/PaystackCheckout";
 import { Plan } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
