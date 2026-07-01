@@ -30,10 +30,11 @@ model Shop {
   whatsappNumber String
   description    String    @default("")
   logoUrl        String    @default("")
-  products       Product[]
+  products       Product[] 
 
-  plan             Plan   @default(free)
-  planActivatedAt  DateTime?   
+  plan             Plan      @default(free)
+  planActivatedAt  DateTime?
+  lastPaystackRef  String? 
 
   isActive       Boolean  @default(true)
   createdAt DateTime @default(now())

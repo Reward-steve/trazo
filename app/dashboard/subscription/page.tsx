@@ -1,5 +1,4 @@
 import {
-  MessageSquare,
   ShieldCheck,
   CreditCard,
   Clock3,
@@ -7,19 +6,17 @@ import {
   Zap,
   Check,
   Home,
+  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { getShopByUser } from "../../actions/settings";
-import CopyAccountNumber from "../../components/dashboard/CopyAccountNumber";
+import PaystackCheckout from "../../components/dashboard/PaystackCheckout";
 
 export const dynamic = "force-dynamic";
 
 const WHATSAPP = "2348098069257";
-const BANK = "Opay";
-const ACCOUNT_NAME = "Trazo";
-const ACCOUNT_NUMBER = "8098069257";
 
 const PLANS = {
   free: {
@@ -57,17 +54,37 @@ const PLANS = {
   },
 };
 
-export default async function SubscriptionPage() {
+const ERROR_MESSAGES: Record<string, string> = {
+  amount_mismatch: "Payment amount does not match the selected plan.",
+  email_mismatch: "Payment email does not match your account.",
+  already_used: "This payment has already been applied to an account.",
+  payment_failed: "Payment was not completed successfully.",
+  server_error: "Something went wrong on our end. Please contact support.",
+};
+
+interface Props {
+  searchParams: Promise<{ success?: string; error?: string }>;
+}
+
+export default async function SubscriptionPage({ searchParams }: Props) {
   const { userId } = await auth();
   if (!userId) redirect("/login");
 
   const shop = await getShopByUser();
   if (!shop) redirect("/onboarding");
 
+  const user = await currentUser();
+  const email = user?.emailAddresses?.[0]?.emailAddress ?? "";
+
+  // Await searchParams — required in Next.js 15
+  const params = await searchParams;
+  const justUpgraded = params.success === "true";
+  const errorKey = params.error;
+  const errorMessage = errorKey ? ERROR_MESSAGES[errorKey] : null;
+
   const plan = shop.plan as "free" | "growth" | "pro";
   const isPaid = plan !== "free";
   const currentPlan = PLANS[plan];
-  const growthPlan = PLANS.growth;
 
   const daysIntoCycle = shop.planActivatedAt
     ? Math.floor(
@@ -77,15 +94,10 @@ export default async function SubscriptionPage() {
     : null;
   const daysLeft =
     daysIntoCycle !== null ? Math.max(0, 30 - daysIntoCycle) : null;
+  const isExpiringSoon = daysLeft !== null && daysLeft <= 5;
 
-  const payMsg = encodeURIComponent(
-    `Hi, I want to upgrade my Trazo store (${shop.shopName}) to Growth plan. Sending ₦1,500 now.`,
-  );
-  const renewMsg = encodeURIComponent(
-    `Hi, I want to renew my Trazo ${plan} plan for ${shop.shopName}. Sending payment now.`,
-  );
   const supportMsg = encodeURIComponent(
-    "Hi, I need help with my Trazo subscription.",
+    `Hi, I need help with my Trazo subscription for ${shop.shopName}.`,
   );
 
   const statusConfig = {
@@ -120,6 +132,61 @@ export default async function SubscriptionPage() {
           Back to Trazo home
         </Link>
 
+        {/* Success banner */}
+        {justUpgraded && (
+          <div className="bg-bubble-out border border-primary/20 rounded-2xl p-4 flex items-center gap-3">
+            <div className="h-8 w-8 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+              <Zap className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-text">Plan activated 🎉</p>
+              <p className="text-xs text-text-muted mt-0.5">
+                You&apos;re now on the {currentPlan.label}. Your store is fully
+                unlocked.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Error banner */}
+        {errorMessage && (
+          <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-2xl p-4 flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-bold text-text">
+                Payment could not be verified
+              </p>
+              <p className="text-xs text-text-muted mt-0.5 leading-relaxed">
+                {errorMessage}{" "}
+                <a
+                  href={`https://wa.me/${WHATSAPP}?text=${supportMsg}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline"
+                >
+                  Contact support
+                </a>{" "}
+                if this keeps happening.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Expiring soon warning */}
+        {isPaid && isExpiringSoon && !justUpgraded && (
+          <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-bold text-text">
+                Your plan expires in {daysLeft} day{daysLeft !== 1 ? "s" : ""}
+              </p>
+              <p className="text-xs text-text-muted mt-0.5">
+                Renew now to avoid any interruption to your store.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Status badge */}
         <div className="flex justify-center">
           <div
@@ -140,7 +207,7 @@ export default async function SubscriptionPage() {
           </p>
         </div>
 
-        {/* Current plan card with full feature list */}
+        {/* Current plan card */}
         <div className="bg-primary-dark text-white rounded-2xl p-5">
           <p className="text-white/60 text-xs uppercase tracking-wider mb-2">
             Current plan
@@ -149,7 +216,11 @@ export default async function SubscriptionPage() {
             <p className="text-2xl font-black">{currentPlan.label}</p>
             {isPaid && daysLeft !== null && (
               <div className="text-right">
-                <p className="text-3xl font-black">{daysLeft}</p>
+                <p
+                  className={`text-3xl font-black ${isExpiringSoon ? "text-amber-300" : "text-white"}`}
+                >
+                  {daysLeft}
+                </p>
                 <p className="text-white/60 text-xs">days left</p>
               </div>
             )}
@@ -181,13 +252,12 @@ export default async function SubscriptionPage() {
           </div>
         </div>
 
-        {/* Upgrade — free plan only */}
+        {/* ── UPGRADE — free plan ──────────────────────────────── */}
         {!isPaid && (
           <div className="space-y-3">
             <h2 className="text-sm font-bold text-text px-1">
               Upgrade your plan
             </h2>
-
             <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
               <div className="flex items-start justify-between">
                 <div>
@@ -195,9 +265,7 @@ export default async function SubscriptionPage() {
                     <Zap className="h-4 w-4 text-primary" />
                     <p className="font-bold text-text">Growth</p>
                   </div>
-                  <p className="text-xs text-text-muted">
-                    What you get when you upgrade
-                  </p>
+                  <p className="text-xs text-text-muted">What you get</p>
                 </div>
                 <div className="text-right">
                   <p className="text-xl font-black text-text">₦1,500</p>
@@ -205,9 +273,8 @@ export default async function SubscriptionPage() {
                 </div>
               </div>
 
-              {/* Clear feature breakdown before payment */}
               <ul className="space-y-2 bg-surface-alt rounded-xl p-4">
-                {growthPlan.features.map((f) => (
+                {PLANS.growth.features.map((f) => (
                   <li
                     key={f}
                     className="flex items-start gap-2 text-sm text-text"
@@ -218,69 +285,45 @@ export default async function SubscriptionPage() {
                 ))}
               </ul>
 
-              {/* Payment details */}
-              <div className="bg-surface-alt rounded-xl p-4 space-y-3 text-sm">
-                <p className="text-xs font-semibold text-text-muted uppercase tracking-wide">
-                  Pay via bank transfer to activate
-                </p>
-                <div className="flex justify-between border-b border-border pb-2">
-                  <span className="text-text-muted">Bank</span>
-                  <span className="font-medium text-text">{BANK}</span>
-                </div>
-                <div className="flex justify-between border-b border-border pb-2">
-                  <span className="text-text-muted">Account name</span>
-                  <span className="font-medium text-text">{ACCOUNT_NAME}</span>
-                </div>
-                <CopyAccountNumber accountNumber={ACCOUNT_NUMBER} />
-              </div>
+              <PaystackCheckout
+                plan="growth"
+                email={email}
+                shopName={shop.shopName}
+              />
 
-              <a
-                href={`https://wa.me/${WHATSAPP}?text=${payMsg}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full bg-primary hover:bg-primary-dark text-white font-semibold py-3 rounded-xl transition-all"
-              >
-                <MessageSquare className="h-4 w-4" />
-                Send payment proof
-              </a>
+              <p className="text-[11px] text-text-muted text-center">
+                Secured by Paystack · Card, bank transfer & USSD accepted
+              </p>
             </div>
           </div>
         )}
 
-        {/* Renew — paid plan only */}
+        {/* ── RENEW — paid plan ────────────────────────────────── */}
         {isPaid && (
           <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2">
               <CreditCard className="h-4 w-4 text-primary" />
               <h2 className="font-bold text-text">Renew subscription</h2>
             </div>
+            <p className="text-xs text-text-muted">
+              Renew before your {daysLeft} day{daysLeft !== 1 ? "s" : ""} run
+              out to keep your store running without interruption.
+            </p>
 
-            <div className="bg-surface-alt rounded-xl p-4 space-y-3 text-sm">
-              <div className="flex justify-between border-b border-border pb-2">
-                <span className="text-text-muted">Bank</span>
-                <span className="font-medium text-text">{BANK}</span>
-              </div>
-              <div className="flex justify-between border-b border-border pb-2">
-                <span className="text-text-muted">Account name</span>
-                <span className="font-medium text-text">{ACCOUNT_NAME}</span>
-              </div>
-              <CopyAccountNumber accountNumber={ACCOUNT_NUMBER} />
-            </div>
+            <PaystackCheckout
+              plan={plan}
+              email={email}
+              shopName={shop.shopName}
+            />
 
-            <a
-              href={`https://wa.me/${WHATSAPP}?text=${renewMsg}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full bg-primary hover:bg-primary-dark text-white font-semibold py-3 rounded-xl transition-all"
-            >
-              <MessageSquare className="h-4 w-4" />
-              Send renewal payment
-            </a>
+            <p className="text-[11px] text-text-muted text-center">
+              Secured by Paystack · Card, bank transfer & USSD accepted
+            </p>
           </div>
         )}
 
         {/* Support */}
-        <div className="text-center space-y-1">
+        <div className="text-center space-y-1 pb-4">
           <p className="text-xs text-text-muted">Questions? We respond fast.</p>
           <a
             href={`https://wa.me/${WHATSAPP}?text=${supportMsg}`}
