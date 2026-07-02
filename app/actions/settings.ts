@@ -100,6 +100,27 @@ export async function updateShop(data: {
 }
 
 /* ─────────────────────────────
+   DELETE SHOP
+───────────────────────────── */
+export async function deleteShop() {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  const shop = await db.shop.findUnique({
+    where: { ownerId: userId },
+  });
+
+  if (!shop) throw new Error("Shop not found");
+
+  await db.shop.delete({ where: { id: shop.id } });
+  // Product rows cascade-delete automatically via onDelete: Cascade
+  // No Paystack cancellation needed — plans are one-time payments, not recurring subscriptions
+
+  revalidatePath("/dashboard");
+  revalidatePath(`/store/${shop.slug}`);
+}
+
+/* ─────────────────────────────
    SLUG CHECK
 ───────────────────────────── */
 export async function checkSlugAvailable(slug: string) {
