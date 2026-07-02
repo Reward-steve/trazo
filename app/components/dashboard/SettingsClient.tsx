@@ -6,13 +6,15 @@ import {
   CheckCircle,
   ExternalLink,
   AlertCircle,
+  AlertTriangle,
   Crown,
   Info,
 } from "lucide-react";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import ImageUpload from "../../components/ui/ImageUpload";
-import { updateShop } from "../../actions/settings";
+import DeleteShopModal from "../../components/ui/DeleteShopModal";
+import { updateShop, deleteShop } from "../../actions/settings";
 import { cn } from "../../lib/utils";
 import Link from "next/link";
 import { ShopPlan } from "../../types";
@@ -48,6 +50,9 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const [form, setForm] = useState({
     shopName: shop.shopName,
@@ -107,6 +112,12 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDelete = async () => {
+    await deleteShop();
+    setDeleting(true); // keeps the overlay up through the redirect
+    router.push("/");
   };
 
   const hasChanges =
@@ -276,6 +287,45 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
         <p className="text-[11px] text-center text-text-muted">
           No unsaved changes
         </p>
+      )}
+
+      {/* ── DANGER ZONE ──────────────────────────────────────── */}
+      <div className="bg-danger/5 border border-danger/20 rounded-2xl p-4 space-y-2">
+        <div className="flex items-center gap-1.5">
+          <AlertTriangle className="h-3.5 w-3.5 text-danger" />
+          <p className="text-[11px] font-semibold text-danger uppercase tracking-widest">
+            Danger zone
+          </p>
+        </div>
+        <p className="text-[11px] text-text-muted">
+          Deleting your shop removes it from trazo.com/store/{shop.slug} and
+          permanently deletes all your products. This cannot be undone.
+        </p>
+        <button
+          onClick={() => setShowDeleteModal(true)}
+          className="text-xs font-medium text-danger hover:text-danger-dark transition-colors"
+        >
+          Delete this shop
+        </button>
+      </div>
+
+      {showDeleteModal && (
+        <DeleteShopModal
+          shopName={shop.shopName}
+          isPaidPlan={plan !== "free"}
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={handleDelete}
+        />
+      )}
+
+      {/* ── POST-DELETE OVERLAY ──────────────────────────────── */}
+      {deleting && (
+        <div className="fixed inset-0 bg-surface flex items-center justify-center z-[60]">
+          <div className="flex flex-col items-center gap-3">
+            <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm text-text-muted">Deleting your shop…</p>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -28,6 +28,10 @@
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-full: 9999px;
+
+  /* Feedback */
+  --color-danger: #d32f2f;
+  --color-danger-dark: #b71c1c;
 }
 
 .dark {
@@ -41,6 +45,9 @@
   --color-header: #202c33;
   --color-bubble-out: #005c4b;
   --color-bubble-in: #202c33;
+  /* Feedback */
+  --color-danger: #d32f2f;
+  --color-danger-dark: #b71c1c;
 }
 
 @layer base {
