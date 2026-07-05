@@ -8,7 +8,7 @@ import {
   X,
   Info,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Product, CartItem } from "../../types";
 import { formatNaira } from "../../lib/utils";
 import Badge from "../../components/ui/Badge";
@@ -27,6 +27,7 @@ export default function ProductCard({
 }: ProductCardProps) {
   const [added, setAdded] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   const isTracked = product.stock !== null && product.stock !== undefined;
   const stockLeft = isTracked ? (product.stock ?? 0) - cartQuantity : Infinity;
@@ -35,6 +36,23 @@ export default function ProductCard({
   const isMaxedInCart = isTracked && stockLeft <= 0;
   const isLowStock =
     isTracked && (product.stock ?? 0) > 0 && (product.stock ?? 0) <= 5;
+
+  // Lock background scroll while the modal is open — matters most on mobile
+  useEffect(() => {
+    if (!isModalOpen) return;
+    const original = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsModalOpen(false);
+    };
+    window.addEventListener("keydown", handleKey);
+
+    return () => {
+      document.body.style.overflow = original;
+      window.removeEventListener("keydown", handleKey);
+    };
+  }, [isModalOpen]);
 
   const handleAdd = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -58,29 +76,52 @@ export default function ProductCard({
     setTimeout(() => setIsModalOpen(false), 800);
   };
 
+  const openModal = () => setIsModalOpen(true);
+
   return (
     <>
       {/* ── CARD ── */}
       <div
-        onClick={() => setIsModalOpen(true)}
-        className={`bg-surface rounded-2xl border border-border overflow-hidden transition-all duration-300 flex flex-col ${
+        onClick={openModal}
+        role="button"
+        tabIndex={0}
+        aria-label={`View details for ${product.name}`}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            openModal();
+          }
+        }}
+        className={`bg-surface rounded-2xl border border-border overflow-hidden transition-all duration-300 flex flex-col cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
           isOutOfStock
-            ? "opacity-60 cursor-default"
-            : "hover:border-primary/30 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer group"
+            ? "opacity-70"
+            : "hover:border-primary/30 hover:shadow-lg hover:-translate-y-0.5"
         }`}
       >
         {/* Image */}
         <div className="relative aspect-square bg-surface-alt overflow-hidden">
+          {!imgLoaded && (
+            <div className="absolute inset-0 animate-pulse bg-surface-alt" />
+          )}
           <Image
             src={product.imageUrl}
             alt={product.name}
             fill
-            className={`object-cover transition-transform duration-500 ${!isOutOfStock ? "group-hover:scale-105" : ""}`}
+            onLoad={() => setImgLoaded(true)}
+            className={`object-cover transition-all duration-500 ${
+              !isOutOfStock ? "group-hover:scale-105" : ""
+            } ${imgLoaded ? "opacity-100" : "opacity-0"}`}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
 
-          {/* Quick view hint */}
-          {!isOutOfStock && (
+          {/* Quick view hint — shown for in-stock (on hover) and out-of-stock (always, since it's still tappable) */}
+          {isOutOfStock ? (
+            <div className="absolute bottom-2 left-2 z-10">
+              <span className="bg-surface/90 backdrop-blur-md text-text-muted text-[10px] font-medium px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1">
+                <Info className="h-3 w-3" /> View details
+              </span>
+            </div>
+          ) : (
             <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
               <span className="bg-surface/90 backdrop-blur-md text-text text-xs font-medium px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1.5 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
                 <Info className="h-3.5 w-3.5" /> Quick View
@@ -90,7 +131,7 @@ export default function ProductCard({
 
           {/* Out of stock overlay */}
           {isOutOfStock && (
-            <div className="absolute inset-0 bg-surface/80 flex items-center justify-center z-10">
+            <div className="absolute inset-0 bg-surface/70 flex items-center justify-center z-10">
               <Badge variant="error">Out of Stock</Badge>
             </div>
           )}
@@ -98,7 +139,7 @@ export default function ProductCard({
           {/* Low stock badge */}
           {!isOutOfStock && isLowStock && (
             <div className="absolute top-2 left-2 z-10">
-              <span className="flex items-center gap-1 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+              <span className="flex items-center gap-1 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
                 <AlertTriangle className="h-2.5 w-2.5" />
                 Only {product.stock} left
               </span>
@@ -108,7 +149,7 @@ export default function ProductCard({
           {/* Maxed in cart */}
           {!isOutOfStock && isMaxedInCart && (
             <div className="absolute inset-0 bg-surface/60 backdrop-blur-sm flex items-center justify-center z-10">
-              <span className="bg-surface text-text text-xs font-bold px-3 py-1.5 rounded-full border border-border">
+              <span className="bg-surface text-text text-xs font-bold px-3 py-1.5 rounded-full border border-border shadow-sm">
                 Max in cart
               </span>
             </div>
@@ -141,12 +182,19 @@ export default function ProductCard({
                 disabled={isMaxedInCart}
                 variant={added ? "secondary" : "primary"}
                 className="shrink-0 text-xs relative z-10"
+                aria-label={
+                  isMaxedInCart
+                    ? `Maximum quantity of ${product.name} already in cart`
+                    : `Add ${product.name} to cart`
+                }
               >
                 {added ? (
                   <>
                     <CheckCircle className="h-3.5 w-3.5" />
                     <span className="hidden sm:inline">Added</span>
                   </>
+                ) : isMaxedInCart ? (
+                  <span>Max</span>
                 ) : (
                   <>
                     <ShoppingCart className="h-3.5 w-3.5" />
@@ -169,6 +217,9 @@ export default function ProductCard({
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
           onClick={() => setIsModalOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="product-modal-title"
         >
           <div
             className="bg-surface rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-border flex flex-col md:flex-row relative max-h-[90vh] animate-scale-up"
@@ -177,6 +228,7 @@ export default function ProductCard({
             {/* Close */}
             <button
               onClick={() => setIsModalOpen(false)}
+              aria-label="Close"
               className="absolute top-3 right-3 z-20 bg-surface/80 backdrop-blur-md p-1.5 rounded-full border border-border hover:bg-surface-alt text-text transition-colors"
             >
               <X className="h-4 w-4" />
@@ -191,9 +243,14 @@ export default function ProductCard({
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
+              {isOutOfStock && (
+                <div className="absolute inset-0 bg-surface/60 flex items-center justify-center">
+                  <Badge variant="error">Out of Stock</Badge>
+                </div>
+              )}
               {isLowStock && !isOutOfStock && (
                 <div className="absolute top-3 left-3">
-                  <span className="flex items-center gap-1 bg-amber-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                  <span className="flex items-center gap-1 bg-amber-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
                     <AlertTriangle className="h-3 w-3" />
                     Only {product.stock} left
                   </span>
@@ -204,7 +261,10 @@ export default function ProductCard({
             {/* Body */}
             <div className="p-6 flex flex-col justify-between flex-1 gap-5 overflow-y-auto">
               <div className="space-y-3">
-                <h2 className="text-xl font-bold text-text leading-tight pr-8">
+                <h2
+                  id="product-modal-title"
+                  className="text-xl font-bold text-text leading-tight pr-8"
+                >
                   {product.name}
                 </h2>
                 <p className="text-2xl font-extrabold text-primary">
@@ -213,18 +273,18 @@ export default function ProductCard({
 
                 <hr className="border-border" />
 
-                {/* Stock status — theme-safe colors */}
+                {/* Stock status */}
                 <div className="flex flex-wrap gap-2 items-center text-xs">
                   {isOutOfStock ? (
-                    <span className="bg-red-500/10 text-red-400 border border-red-500/20 px-2.5 py-1 rounded-lg font-semibold">
+                    <span className="bg-red-500/10 text-red-600 border border-red-500/20 px-2.5 py-1 rounded-lg font-semibold">
                       Out of stock
                     </span>
                   ) : isMaxedInCart ? (
-                    <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-lg font-semibold">
+                    <span className="bg-amber-500/10 text-amber-600 border border-amber-500/20 px-2.5 py-1 rounded-lg font-semibold">
                       Maximum quantity in cart
                     </span>
                   ) : isLowStock ? (
-                    <span className="flex items-center gap-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-lg font-semibold">
+                    <span className="flex items-center gap-1 bg-amber-500/10 text-amber-600 border border-amber-500/20 px-2.5 py-1 rounded-lg font-semibold">
                       <AlertTriangle className="h-3.5 w-3.5" />
                       Only {product.stock} left
                     </span>
@@ -260,6 +320,8 @@ export default function ProductCard({
                     <>
                       <CheckCircle className="h-4 w-4" /> Added to cart
                     </>
+                  ) : isMaxedInCart ? (
+                    <>Maximum quantity in cart</>
                   ) : (
                     <>
                       <ShoppingCart className="h-4 w-4" /> Add to Cart —{" "}

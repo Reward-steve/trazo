@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import Image from "next/image";
-import { ShoppingBag, Store, Search, ArrowRight } from "lucide-react";
+import { ShoppingBag, Store, Search, ArrowRight, X } from "lucide-react";
 import { Product, ShopSettings, CartItem } from "../../types";
 import ProductCard from "../../components/store/ProductCard";
 import CartDrawer from "../../components/store/CartDrawer";
@@ -28,14 +28,19 @@ export default function StorefrontClient({
   const cartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
   const cartTotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
-  // Only bump when count increases (item added), not on removal
+  // Only bump when count increases (item added), not on removal.
+  // The ref must update on every render, not just when it doesn't increase —
+  // otherwise it goes stale after the first add and later removals
+  // incorrectly re-trigger the bump.
   useEffect(() => {
-    if (cartCount > prevCountRef.current) {
+    const increased = cartCount > prevCountRef.current;
+    prevCountRef.current = cartCount;
+
+    if (increased) {
       setCartBump(true);
       const t = setTimeout(() => setCartBump(false), 400);
       return () => clearTimeout(t);
     }
-    prevCountRef.current = cartCount;
   }, [cartCount]);
 
   const handleAddToCart = useCallback((item: CartItem) => {
@@ -109,6 +114,11 @@ export default function StorefrontClient({
             <ThemeToggle />
             <button
               onClick={() => setDrawerOpen(true)}
+              aria-label={
+                cartCount > 0
+                  ? `Open cart, ${cartCount} ${cartCount === 1 ? "item" : "items"}, ${formatNaira(cartTotal)}`
+                  : "Open cart, empty"
+              }
               className={`flex items-center gap-2 bg-text/10 hover:bg-text/20 text-text px-3 py-2 rounded-full font-semibold text-sm transition-all active:scale-95 ${
                 cartBump ? "scale-110 ring-4 ring-primary/30" : ""
               }`}
@@ -137,14 +147,24 @@ export default function StorefrontClient({
         {products.length > 4 && (
           <div className="px-4 pb-3 max-w-4xl mx-auto">
             <div className="relative max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-text/40" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-text-muted pointer-events-none" />
               <input
                 type="text"
                 placeholder="Search products…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 rounded-full border border-border text-sm bg-surface-alt text-text placeholder:text-text/40 focus:outline-none focus:bg-text/15"
+                aria-label="Search products"
+                className="w-full pl-9 pr-9 py-2 rounded-full border border-border text-sm bg-surface-alt text-text placeholder:text-text-muted focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
               />
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  aria-label="Clear search"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text transition-colors"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -179,6 +199,9 @@ export default function StorefrontClient({
                       key={product.id}
                       product={product}
                       onAddToCart={handleAddToCart}
+                      cartQuantity={
+                        cart.find((i) => i.id === product.id)?.quantity ?? 0
+                      }
                     />
                   ))}
                 </div>
@@ -190,7 +213,7 @@ export default function StorefrontClient({
                 <p className="text-[11px] font-semibold text-text-muted uppercase mb-3">
                   Out of stock
                 </p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 opacity-60">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                   {outOfStock.map((product) => (
                     <ProductCard
                       key={product.id}
