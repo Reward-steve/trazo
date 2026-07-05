@@ -303,7 +303,7 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
         </p>
         <button
           onClick={() => setShowDeleteModal(true)}
-          className="text-xs font-medium text-danger hover:text-danger-dark transition-colors"
+          className="text-xs font-medium border-dan rounded-xs text-danger hover:text-danger-dark transition-colors"
         >
           Delete this shop
         </button>
