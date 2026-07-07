@@ -28,6 +28,28 @@ export default function TermsOfServicePage() {
       {/* Header */}
       <header className="border-b border-white/[0.05]">
         <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+           {/* Logo */}
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 font-bold text-xl"
+          >
+            <div className="relative h-9 w-9 rounded-xl overflow-hidden shrink-0 bg-surface-alt">
+              <Image
+                src={logo}
+                alt={"trazo_logo"}
+                fill
+                className="object-cover"
+              />
+            </div>
+            <span
+              className={cn(
+                "tracking-tight truncate max-w-[160px] sm:max-w-none",
+                isDark ? "text-white" : "text-gray-900",
+              )}
+            >
+              {isStorefront && shopName ? shopName : "Trazo"}
+            </span>
+          </Link>
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-gray-600">
             Trazo · Legal
           </p>
@@ -274,7 +296,7 @@ export default function TermsOfServicePage() {
               <li>
                 Use the &ldquo;Report this Vendor&rdquo; option available on
                 the storefront, or contact Trazo at{" "}
-                <a href="mailto:support@trazo.app">support@trazo.app</a>.
+                <a href="mailto:rewardstephen30@gmail.com">support@trazo.app</a>.
               </li>
               <li>
                 Trazo will review reports and may suspend or terminate a
@@ -411,10 +433,10 @@ export default function TermsOfServicePage() {
               can be sent to:
             </p>
             <p>
-              <a href="mailto:support@trazo.app">support@trazo.app</a>
+              <a href="mailto:rewardstephen30@gmail.com">support@trazo.app</a>
               <br />
-              <a href="https://wa.me/234XXXXXXXXXX">
-                WhatsApp: +234 XXX XXX XXXX
+              <a href="https://wa.me/2349169354424">
+                WhatsApp: +234 9169 354 424
               </a>
             </p>
           </Section>
