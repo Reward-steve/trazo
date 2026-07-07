@@ -3,6 +3,7 @@
 import { db } from "../lib/db";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { deleteCloudinaryImage } from "../config";
 
 /* ─────────────────────────────
    GET SHOP (AUTHENTICATED)
@@ -87,10 +88,16 @@ export async function updateShop(data: {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
+  const existing = await db.shop.findUnique({ where: { ownerId: userId } });
+
   const shop = await db.shop.update({
     where: { ownerId: userId },
     data,
   });
+
+  if (existing && data.logoUrl && data.logoUrl !== existing.logoUrl) {
+    await deleteCloudinaryImage(existing.logoUrl);
+  }
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/settings");
@@ -108,13 +115,18 @@ export async function deleteShop() {
 
   const shop = await db.shop.findUnique({
     where: { ownerId: userId },
+    include: { products: true },
   });
 
   if (!shop) throw new Error("Shop not found");
 
   await db.shop.delete({ where: { id: shop.id } });
   // Product rows cascade-delete automatically via onDelete: Cascade
-  // No Paystack cancellation needed — plans are one-time payments, not recurring subscriptions
+
+  await deleteCloudinaryImage(shop.logoUrl);
+  await Promise.all(
+    shop.products.map((p) => deleteCloudinaryImage(p.imageUrl)),
+  );
 
   revalidatePath("/dashboard");
   revalidatePath(`/store/${shop.slug}`);
