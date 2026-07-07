@@ -5,6 +5,7 @@ import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { getProductLimit } from "./subscriptionGuard";
 import { normalizePlan } from "../lib/utils";
+import { deleteCloudinaryImage } from "../config";
 
 /* ─────────────────────────────
    GET SHOP WITH SAFETY CHECKS
@@ -140,13 +141,10 @@ export async function updateProduct(
 export async function deleteProduct(id: string) {
   const shop = await getUserShop();
 
-  await getOwnedProduct(id, shop.id);
+  const product = await getOwnedProduct(id, shop.id);
 
-  await db.product.delete({
-    where: {
-      id,
-    },
-  });
+  await db.product.delete({ where: { id } });
+  await deleteCloudinaryImage(product.imageUrl);
 
   revalidatePath("/dashboard/products");
   revalidatePath(`/store/${shop.slug}`);

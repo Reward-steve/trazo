@@ -1,3 +1,5 @@
+"use client";
+
 import { ArrowRight, ChevronRight } from "lucide-react";
 import Button from "./components/landing/Button";
 import HeroBadge from "./components/landing/HeroBadge";
@@ -11,8 +13,10 @@ import Footer from "./components/landing/Footer";
 import TrustBadges from "./components/landing/TrustBadges";
 import FinalCTA from "./components/landing/Finalcta";
 import FlowIllustration from "./components/landing/FlowIllustration";
+ 
 
 export default function HomePage() {
+
   return (
     <div className="flex flex-col bg-[#0a0a0a] text-white overflow-x-hidden">
       {/* ── HERO ── */}
@@ -92,7 +96,7 @@ export default function HomePage() {
 
       <SocialProofBar />
       <PainSection />
-      <DemoSec />
+      <DemoSec  />
       <HowItWorks />
       <FeaturesSection />
       <PricingSection />

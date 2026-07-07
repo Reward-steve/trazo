@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import logo from "../../public/trazo_omega.png"
+import logo from "../../public/trazo_omega.png";
 
 export const metadata: Metadata = {
   title: "Terms of Service — Trazo",
@@ -31,10 +31,10 @@ export default function TermsOfServicePage() {
       {/* Header */}
       <header className="border-b border-white/[0.05]">
         <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
-           {/* Logo */}
+          {/* Logo */}
           <Link
             href="/"
-            className="flex items-center gap-2.5 font-bold text-xl"
+            className="flex items-center gap-2.5 font-bold text-xl mb-2"
           >
             <div className="relative h-9 w-9 rounded-xl overflow-hidden shrink-0 bg-surface-alt">
               <Image
@@ -44,7 +44,6 @@ export default function TermsOfServicePage() {
                 className="object-cover"
               />
             </div>
-         
           </Link>
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-gray-600">
             Trazo · Legal
@@ -53,11 +52,10 @@ export default function TermsOfServicePage() {
             Terms of Service
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-gray-500">
-            Last updated{" "}
-            <time dateTime="2026-07-07">July 7, 2026</time>. Please read
-            this document before you open a storefront or make a purchase
-            through Trazo. It explains, in plain terms, who is responsible
-            for what.
+            Last updated <time dateTime="2026-07-07">July 7, 2026</time>. Please
+            read this document before you open a storefront or make a purchase
+            through Trazo. It explains, in plain terms, who is responsible for
+            what.
           </p>
         </div>
       </header>
@@ -92,23 +90,22 @@ export default function TermsOfServicePage() {
               Read this first
             </p>
             <p className="mt-2 text-[15px] leading-relaxed text-amber-100/80">
-              Trazo is a tool that lets vendors build their own store. It is
-              not a marketplace, and it does not hold your money. When you
-              buy from a vendor, you are trusting that vendor directly —
-              not Trazo. Section 2 explains this fully.
+              Trazo is a tool that lets vendors build their own store. It is not
+              a marketplace, and it does not hold your money. When you buy from
+              a vendor, you are trusting that vendor directly — not Trazo.
+              Section 2 explains this fully.
             </p>
           </div>
 
           <Section id="what-trazo-is" title="1. What Trazo Is (and Is Not)">
             <p>
               Trazo is a <strong>technology platform</strong> that provides
-              tools for individuals and businesses (&ldquo;Vendors&rdquo;)
-              to build and operate their own online storefronts.
+              tools for individuals and businesses (&ldquo;Vendors&rdquo;) to
+              build and operate their own online storefronts.
             </p>
             <p>
               <strong>Trazo is not a marketplace.</strong> This distinction
-              matters and you should understand it before using the
-              platform:
+              matters and you should understand it before using the platform:
             </p>
             <ul>
               <li>
@@ -116,15 +113,15 @@ export default function TermsOfServicePage() {
                 take ownership of any goods listed by Vendors.
               </li>
               <li>
-                Trazo does <strong>not</strong> process, hold, or have
-                custody of payments made between Vendors and Customers,
-                unless explicitly stated otherwise for a specific feature
-                (e.g., a future escrow service).
+                Trazo does <strong>not</strong> process, hold, or have custody
+                of payments made between Vendors and Customers, unless
+                explicitly stated otherwise for a specific feature (e.g., a
+                future escrow service).
               </li>
               <li>
                 Trazo does <strong>not</strong> vet, background-check, or
-                guarantee the identity, legitimacy, honesty, or reliability
-                of any Vendor, unless a storefront is explicitly marked
+                guarantee the identity, legitimacy, honesty, or reliability of
+                any Vendor, unless a storefront is explicitly marked
                 &ldquo;Verified by Trazo&rdquo; under Section 5.
               </li>
               <li>
@@ -145,45 +142,43 @@ export default function TermsOfServicePage() {
               </strong>
             </p>
             <p>
-              Trazo enables Vendors to independently list products,
-              communicate pricing, and receive payment directly from
-              Customers (including via bank transfer, direct payment links,
-              or other methods arranged outside the Trazo platform).
-              Because Trazo does not control these transactions:
+              Trazo enables Vendors to independently list products, communicate
+              pricing, and receive payment directly from Customers (including
+              via bank transfer, direct payment links, or other methods arranged
+              outside the Trazo platform). Because Trazo does not control these
+              transactions:
             </p>
             <ul>
               <li>
-                There is a real risk that a Vendor may misrepresent goods,
-                fail to deliver goods after payment, or act fraudulently.
+                There is a real risk that a Vendor may misrepresent goods, fail
+                to deliver goods after payment, or act fraudulently.
               </li>
               <li>
-                Trazo <strong>does not guarantee</strong> that any Vendor
-                will deliver goods paid for, that goods will match their
-                description, or that any transaction will be completed as
-                agreed.
+                Trazo <strong>does not guarantee</strong> that any Vendor will
+                deliver goods paid for, that goods will match their description,
+                or that any transaction will be completed as agreed.
               </li>
               <li>
-                Customers who choose to pay a Vendor directly (e.g., via
-                bank transfer) do so{" "}
-                <strong>at their own discretion and risk</strong>, in the
-                same way they would when buying from any independent seller
-                on social media, classifieds, or a personal website.
+                Customers who choose to pay a Vendor directly (e.g., via bank
+                transfer) do so{" "}
+                <strong>at their own discretion and risk</strong>, in the same
+                way they would when buying from any independent seller on social
+                media, classifieds, or a personal website.
               </li>
             </ul>
             <p>
-              <strong>If you are a Customer:</strong> only pay Vendors you
-              have reasonable confidence in, prefer Vendors marked
-              &ldquo;Verified by Trazo&rdquo; where available, and
-              understand that Trazo cannot reverse a bank transfer or force
-              a Vendor to deliver.
+              <strong>If you are a Customer:</strong> only pay Vendors you have
+              reasonable confidence in, prefer Vendors marked &ldquo;Verified by
+              Trazo&rdquo; where available, and understand that Trazo cannot
+              reverse a bank transfer or force a Vendor to deliver.
             </p>
             <p>
               <strong>If you are a Vendor:</strong> you are solely and fully
               responsible for fulfilling every order you receive. Fraud,
               non-delivery, or misrepresentation may result in immediate
               termination of your account and may expose you to civil or
-              criminal liability under applicable law — this is between you
-              and the affected Customer, not Trazo.
+              criminal liability under applicable law — this is between you and
+              the affected Customer, not Trazo.
             </p>
           </Section>
 
@@ -191,35 +186,35 @@ export default function TermsOfServicePage() {
             <p>By opening a Trazo storefront, every Vendor agrees to:</p>
             <ol>
               <li>
-                Provide accurate, non-misleading descriptions of all goods
-                and services listed.
+                Provide accurate, non-misleading descriptions of all goods and
+                services listed.
               </li>
               <li>
-                Fulfill all orders honestly and within the timeframe
-                promised to the Customer.
+                Fulfill all orders honestly and within the timeframe promised to
+                the Customer.
               </li>
               <li>
-                Not use Trazo to collect payment for goods or services with
-                no intention of delivering them.
+                Not use Trazo to collect payment for goods or services with no
+                intention of delivering them.
               </li>
               <li>
-                Respond in good faith to Customer complaints and
-                Trazo-mediated reports.
+                Respond in good faith to Customer complaints and Trazo-mediated
+                reports.
               </li>
               <li>
-                Comply with all applicable Nigerian consumer protection,
-                tax, and commerce laws.
+                Comply with all applicable Nigerian consumer protection, tax,
+                and commerce laws.
               </li>
               <li>
-                Not list stolen goods, counterfeit goods, or anything
-                illegal under Nigerian law.
+                Not list stolen goods, counterfeit goods, or anything illegal
+                under Nigerian law.
               </li>
             </ol>
             <p>
               <strong>
-                Violation of any of the above may result in immediate
-                suspension or termination of a Vendor&rsquo;s account, at
-                Trazo&rsquo;s sole discretion, with or without notice.
+                Violation of any of the above may result in immediate suspension
+                or termination of a Vendor&rsquo;s account, at Trazo&rsquo;s
+                sole discretion, with or without notice.
               </strong>
             </p>
           </Section>
@@ -234,22 +229,22 @@ export default function TermsOfServicePage() {
             </p>
             <ul>
               <li>
-                They are transacting{" "}
-                <strong>directly with the Vendor</strong>, not with Trazo.
+                They are transacting <strong>directly with the Vendor</strong>,
+                not with Trazo.
               </li>
               <li>
-                Trazo has not guaranteed the Vendor&rsquo;s legitimacy
-                unless explicitly marked &ldquo;Verified&rdquo; (see Section
-                5), and even then, verification has limits.
+                Trazo has not guaranteed the Vendor&rsquo;s legitimacy unless
+                explicitly marked &ldquo;Verified&rdquo; (see Section 5), and
+                even then, verification has limits.
               </li>
               <li>
                 Any dispute regarding payment, delivery, product quality, or
                 refunds is between the Customer and the Vendor.
               </li>
               <li>
-                Trazo provides a reporting mechanism (Section 6) as a
-                courtesy and safety measure, not as a guarantee of
-                resolution, refund, or compensation.
+                Trazo provides a reporting mechanism (Section 6) as a courtesy
+                and safety measure, not as a guarantee of resolution, refund, or
+                compensation.
               </li>
             </ul>
           </Section>
@@ -265,73 +260,70 @@ export default function TermsOfServicePage() {
             <p>
               <strong>What verification means:</strong> Trazo has taken
               reasonable steps to confirm the Vendor is a real, contactable
-              person or business (for example, phone number confirmation or
-              ID check).
+              person or business (for example, phone number confirmation or ID
+              check).
             </p>
             <p>
-              <strong>What verification does not mean:</strong>{" "}
-              Verification is not a guarantee of honesty, financial
-              trustworthiness, product quality, or delivery. It does not
-              make Trazo a guarantor or insurer of the transaction. Trazo
-              reserves the right to revoke a Vendor&rsquo;s verified status
-              at any time.
+              <strong>What verification does not mean:</strong> Verification is
+              not a guarantee of honesty, financial trustworthiness, product
+              quality, or delivery. It does not make Trazo a guarantor or
+              insurer of the transaction. Trazo reserves the right to revoke a
+              Vendor&rsquo;s verified status at any time.
             </p>
             <p>
-              Unverified storefronts will be labeled as such, and Customers
-              are encouraged to exercise additional caution when
-              transacting with unverified Vendors.
+              Unverified storefronts will be labeled as such, and Customers are
+              encouraged to exercise additional caution when transacting with
+              unverified Vendors.
             </p>
           </Section>
 
           <Section id="reporting" title="6. Reporting Fraud or Non-Delivery">
             <p>
-              If you believe a Vendor has committed fraud, failed to
-              deliver paid-for goods, or misrepresented a product:
+              If you believe a Vendor has committed fraud, failed to deliver
+              paid-for goods, or misrepresented a product:
             </p>
             <ul>
               <li>
-                Use the &ldquo;Report this Vendor&rdquo; option available on
-                the storefront, or contact Trazo at{" "}
-                <a href="mailto:rewardstephen30@gmail.com">support@trazo.app</a>.
+                Use the &ldquo;Report this Vendor&rdquo; option available on the
+                storefront, or contact Trazo at{" "}
+                <a href="mailto:rewardstephen30@gmail.com">support@trazo.app</a>
+                .
               </li>
               <li>
                 Trazo will review reports and may suspend or terminate a
-                Vendor&rsquo;s account where evidence supports the
-                complaint.
+                Vendor&rsquo;s account where evidence supports the complaint.
               </li>
               <li>
-                Trazo does not guarantee refunds, does not process refunds
-                on a Vendor&rsquo;s behalf (unless a specific escrow or
+                Trazo does not guarantee refunds, does not process refunds on a
+                Vendor&rsquo;s behalf (unless a specific escrow or
                 protected-payment feature is explicitly used for that
-                transaction), and does not act as a dispute-resolution
-                court. Trazo&rsquo;s action is limited to platform-level
-                measures (warnings, suspension, termination) against the
-                Vendor.
+                transaction), and does not act as a dispute-resolution court.
+                Trazo&rsquo;s action is limited to platform-level measures
+                (warnings, suspension, termination) against the Vendor.
               </li>
               <li>
                 Customers are encouraged to also pursue direct remedies
                 available to them under Nigerian consumer protection law,
                 including reporting to the Federal Competition and Consumer
-                Protection Commission (FCCPC) or relevant law enforcement
-                where fraud is suspected.
+                Protection Commission (FCCPC) or relevant law enforcement where
+                fraud is suspected.
               </li>
             </ul>
           </Section>
 
           <Section id="payments" title="7. Payments">
             <p>
-              Unless a Trazo-operated escrow or protected-checkout feature
-              is explicitly used and confirmed for a specific transaction:
+              Unless a Trazo-operated escrow or protected-checkout feature is
+              explicitly used and confirmed for a specific transaction:
             </p>
             <ul>
               <li>
-                All payments are arranged and completed directly between
-                Vendor and Customer.
+                All payments are arranged and completed directly between Vendor
+                and Customer.
               </li>
               <li>
-                Trazo does not receive, hold, or have access to these funds
-                and cannot reverse, refund, or intervene in a completed
-                transfer.
+                Trazo does not receive, hold, or have access to these funds and
+                cannot reverse, refund, or intervene in a completed transfer.
               </li>
               <li>
                 Any payment link, account number, or payment instruction
@@ -341,8 +333,8 @@ export default function TermsOfServicePage() {
             </ul>
             <p>
               If and when Trazo introduces a protected payment or escrow
-              feature, separate terms specific to that feature will apply
-              and will be presented to users before use.
+              feature, separate terms specific to that feature will apply and
+              will be presented to users before use.
             </p>
           </Section>
 
@@ -352,30 +344,30 @@ export default function TermsOfServicePage() {
               <li>
                 Trazo, its founders, employees, and affiliates shall not be
                 liable for any loss, damage, fraud, non-delivery,
-                misrepresentation, or dispute arising from a transaction
-                between a Vendor and a Customer.
+                misrepresentation, or dispute arising from a transaction between
+                a Vendor and a Customer.
               </li>
               <li>
-                Trazo&rsquo;s total liability arising out of or relating to
-                the use of the platform shall not exceed the amount, if
-                any, paid by the affected user to Trazo directly in the
-                preceding three (3) months (i.e., subscription fees, not
-                transaction amounts between Vendor and Customer).
+                Trazo&rsquo;s total liability arising out of or relating to the
+                use of the platform shall not exceed the amount, if any, paid by
+                the affected user to Trazo directly in the preceding three (3)
+                months (i.e., subscription fees, not transaction amounts between
+                Vendor and Customer).
               </li>
               <li>
                 Trazo provides the platform &ldquo;as is&rdquo; and &ldquo;as
                 available,&rdquo; without warranties of any kind, express or
-                implied, including but not limited to merchantability,
-                fitness for a particular purpose, or non-infringement.
+                implied, including but not limited to merchantability, fitness
+                for a particular purpose, or non-infringement.
               </li>
             </ul>
           </Section>
 
           <Section id="indemnification" title="9. Indemnification">
             <p>
-              Vendors agree to indemnify and hold harmless Trazo, its
-              founders, employees, and affiliates from any claims, damages,
-              losses, or legal costs arising from:
+              Vendors agree to indemnify and hold harmless Trazo, its founders,
+              employees, and affiliates from any claims, damages, losses, or
+              legal costs arising from:
             </p>
             <ul>
               <li>
@@ -406,27 +398,26 @@ export default function TermsOfServicePage() {
 
           <Section id="changes" title="11. Changes to These Terms">
             <p>
-              Trazo may update these Terms from time to time. Continued use
-              of the platform after changes are posted constitutes
-              acceptance of the revised Terms. Material changes will be
-              communicated to Vendors via email or in-app notice where
-              reasonably possible.
+              Trazo may update these Terms from time to time. Continued use of
+              the platform after changes are posted constitutes acceptance of
+              the revised Terms. Material changes will be communicated to
+              Vendors via email or in-app notice where reasonably possible.
             </p>
           </Section>
 
           <Section id="governing-law" title="12. Governing Law">
             <p>
-              These Terms are governed by the laws of the Federal Republic
-              of Nigeria. Any disputes arising from these Terms or use of
-              the platform shall be subject to the exclusive jurisdiction of
-              the courts of Nigeria.
+              These Terms are governed by the laws of the Federal Republic of
+              Nigeria. Any disputes arising from these Terms or use of the
+              platform shall be subject to the exclusive jurisdiction of the
+              courts of Nigeria.
             </p>
           </Section>
 
           <Section id="contact" title="13. Contact">
             <p>
-              Questions about these Terms, or reports of Vendor misconduct,
-              can be sent to:
+              Questions about these Terms, or reports of Vendor misconduct, can
+              be sent to:
             </p>
             <p>
               <a href="mailto:rewardstephen30@gmail.com">support@trazo.app</a>
@@ -438,11 +429,11 @@ export default function TermsOfServicePage() {
           </Section>
 
           <p className="mt-16 border-t border-white/[0.05] pt-6 text-xs leading-relaxed text-gray-600">
-            This document is a starting template and has not been reviewed
-            by a licensed attorney. Before relying on it for legal
-            protection, it is strongly recommended you have a Nigerian
-            lawyer review and formalize it, particularly the liability,
-            indemnification, and governing law sections.
+            This document is a starting template and has not been reviewed by a
+            licensed attorney. Before relying on it for legal protection, it is
+            strongly recommended you have a Nigerian lawyer review and formalize
+            it, particularly the liability, indemnification, and governing law
+            sections.
           </p>
         </article>
       </div>
