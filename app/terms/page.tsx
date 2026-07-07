@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
+import logo from "../../public/trazo_omega.png"
 
 export const metadata: Metadata = {
   title: "Terms of Service — Trazo",
