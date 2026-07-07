@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import Image from "next/image";
+import logo from "../../public/trazo_omega.png"
 
 export const metadata: Metadata = {
   title: "Terms of Service — Trazo",
@@ -41,14 +44,7 @@ export default function TermsOfServicePage() {
                 className="object-cover"
               />
             </div>
-            <span
-              className={cn(
-                "tracking-tight truncate max-w-[160px] sm:max-w-none",
-                isDark ? "text-white" : "text-gray-900",
-              )}
-            >
-              {isStorefront && shopName ? shopName : "Trazo"}
-            </span>
+         
           </Link>
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-gray-600">
             Trazo · Legal

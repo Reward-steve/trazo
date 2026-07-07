@@ -8,8 +8,9 @@ import Navbar from "./components/layout/Navbar";
 const geist = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Trazo — Your Store, Your Way, We Power it",
+  title: "Trazo",
   description: "Turn your Instagram page into a real storefront in 5 minutes.",
+  icons:{icon:'/icon.png'}
 };
 
 export default function RootLayout({
