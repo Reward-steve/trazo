@@ -33,8 +33,6 @@ export const demoProducts: Product[] = [
   { emoji: "👜", name: "Leather Tote Bag", price: 18000 },
   { emoji: "👡", name: "Adire Velvet Slides", price: 12000 },
   { emoji: "🎗️", name: "Silk Hair Scarf", price: 6500 },
-  { emoji: "👒", name: "Wide Brim Straw Hat", price: 9500 },
-  { emoji: "🕶️", name: "Cat-Eye Sunglasses", price: 8000 },
 ];
 
 export default function DemoSection() {

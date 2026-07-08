@@ -62,32 +62,41 @@ export const painPoints = [
   },
 ];
 
-// ── HOW IT WORKS ─────────────────────────────────────────────────────────────
+export interface SetupStep {
+  number: string;
+  title: string;
+  description: string;
+  iconName: string;
+}
 
-export const steps = [
+export const steps: SetupStep[] = [
   {
     number: "01",
-    title: "Create your store",
+    title: "Connect WhatsApp",
     description:
-      "Pick a name and your store URL is live instantly. No forms, no approval wait.",
+      "Enter your phone number. No complex API approvals, business accounts, or catalog templates required.",
+    iconName: "Smartphone",
   },
   {
     number: "02",
-    title: "Add your products",
+    title: "Add your Products",
     description:
-      "Upload a photo, write a name, enter a price. Done. Add 1 or 100 products.",
+      "Upload product photos, descriptions, and pricing in our incredibly intuitive dashboard in seconds.",
+    iconName: "ShoppingBag",
   },
   {
     number: "03",
-    title: "Share your link",
+    title: "Paste Your Bio Link",
     description:
-      "Drop your store link in your bio, your status, or send it directly in DMs.",
+      "Copy your custom 'trazo.store/brand' link and put it in your Instagram, TikTok, or Twitter bio.",
+    iconName: "Link",
   },
   {
     number: "04",
-    title: "Get orders",
+    title: "Receive Orders Direct",
     description:
-      "Every order pings your WhatsApp instantly — customer name, items, total.",
+      "Customers browse, add to cart, and checkout. Pre-filled invoices land straight in your WhatsApp.",
+    iconName: "MessageCircle",
   },
 ];
 
