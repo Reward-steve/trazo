@@ -13,10 +13,8 @@ import Footer from "./components/landing/Footer";
 import TrustBadges from "./components/landing/TrustBadges";
 import FinalCTA from "./components/landing/Finalcta";
 import FlowIllustration from "./components/landing/FlowIllustration";
- 
 
 export default function HomePage() {
-
   return (
     <div className="flex flex-col bg-[#0a0a0a] text-white overflow-x-hidden">
       {/* ── HERO ── */}
@@ -65,13 +63,22 @@ export default function HomePage() {
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
 
-              <Button
+              {/* <Button
                 href="/store/demo"
                 variant="outline"
                 size="lg"
                 className="w-full sm:w-auto"
               >
                 View demo store
+                <ChevronRight className="h-5 w-5" />
+              </Button> */}
+              <Button
+                href="/interactive-demo"
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto"
+              >
+                Live Store Stimulator
                 <ChevronRight className="h-5 w-5" />
               </Button>
             </div>
@@ -96,7 +103,7 @@ export default function HomePage() {
 
       <SocialProofBar />
       <PainSection />
-      <DemoSec  />
+      <DemoSec />
       <HowItWorks />
       <FeaturesSection />
       <PricingSection />

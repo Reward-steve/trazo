@@ -1,35 +1,33 @@
-import { cn } from "../../lib/utils";
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
-type DarkCardProps = {
-  children: React.ReactNode;
-  className?: string;
-  variant?: "default" | "danger" | "accent";
+import React, { ReactNode } from "react";
+
+interface DarkCardProps {
+  children: ReactNode;
   hover?: boolean;
-};
+  className?: string;
+  key?: string | number;
+}
 
 export default function DarkCard({
   children,
-  className,
-  variant = "default",
   hover = false,
+  className = "",
 }: DarkCardProps) {
-  const variants = {
-    default: "bg-[#111] border-white/[0.07]",
-    danger: "bg-red-500/[0.04] border-red-500/12",
-    accent:
-      "bg-gradient-to-b from-emerald-500/[0.06] to-[#111] border-emerald-500/30",
-  };
+  const baseStyle =
+    "bg-[#111] border border-white/[0.05] rounded-3xl p-6 relative overflow-hidden transition-all duration-500";
+
+  const hoverStyle = hover
+    ? "hover:border-emerald-500/20 hover:bg-[#141414] hover:shadow-2xl hover:shadow-emerald-500/[0.02] hover:-translate-y-1.5 group"
+    : "";
 
   return (
-    <div
-      className={cn(
-        "border rounded-2xl",
-        variants[variant],
-        hover &&
-          "transition-all duration-200 hover:border-emerald-500/30 hover:-translate-y-px",
-        className,
-      )}
-    >
+    <div className={`${baseStyle} ${hoverStyle} ${className}`}>
+      {/* Subtle top highlights to make the card pop */}
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/[0.05] to-transparent pointer-events-none" />
       {children}
     </div>
   );
