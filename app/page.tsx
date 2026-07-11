@@ -73,7 +73,7 @@ export default function HomePage() {
                 <ChevronRight className="h-5 w-5" />
               </Button> */}
               <Button
-                href="/interactive-demo"
+                href="#interactive-demo"
                 variant="outline"
                 size="lg"
                 className="w-full sm:w-auto"
