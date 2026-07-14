@@ -11,7 +11,7 @@ export interface ShopBilling {
 ───────────────────────────── */
 export const PLAN_LIMITS = {
   free: {
-    products: 10,
+    products: 20,
     branding: true,
   },
   growth: {
