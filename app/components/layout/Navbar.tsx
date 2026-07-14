@@ -7,7 +7,7 @@ import { ShoppingBag, Menu, X, LogIn, LayoutDashboard } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
-import logo from "@/public/trazo_omega.png";
+import logo from "../../../public/trazo_omega.png";
 
 interface NavbarProps {
   shopName?: string;
