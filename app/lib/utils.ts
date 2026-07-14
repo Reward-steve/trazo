@@ -15,7 +15,7 @@ export function generateWhatsAppURL(
   customer: { name: string; phone: string; address: string },
   total: number,
 ): string {
-  const receiptUrl = `${process.env.APP_URL}/receipt/${orderId}`;
+  const receiptUrl = `${process.env.NEXT_PUBLIC_APP_URL}/receipt/${orderId}`;
 
   const message = [
     `🛒 *NEW ORDER — ${shopName.toUpperCase()}*`,
@@ -23,7 +23,11 @@ export function generateWhatsAppURL(
     receiptUrl,
     ``,
     `*Total:* ${formatNaira(total)}`,
-    `*Customer:* ${customer.name} — ${customer.phone}`,
+    ``,
+    `*CUSTOMER*`,
+    `*Name:* ${customer.name}`,
+    `*Phone:* ${customer.phone}`,
+    `*Address:* ${customer.address}`,
     ``,
     `_Please confirm this order and send payment details._`,
   ].join("\n");

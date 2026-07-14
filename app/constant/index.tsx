@@ -151,7 +151,7 @@ export const pricingTiers = [
     isPro: false,
     cta: "Get started free",
     features: [
-      "Up to 10 products",
+      "Up to 20 products",
       "WhatsApp order alerts",
       "Shareable store link",
       "Mobile storefront",

@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShoppingBag, Menu, X, LogIn } from "lucide-react";
+import { ShoppingBag, Menu, X, LogIn, LayoutDashboard } from "lucide-react";
 import { cn } from "../../lib/utils";
+import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import logo from "../../../public/trazo_omega.png";
 
@@ -15,6 +16,76 @@ interface NavbarProps {
   onOpenCart?: () => void;
 }
 
+const linkBase =
+  "flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all";
+const ctaBase =
+  "flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold bg-emerald-500 hover:bg-emerald-400 text-black transition-all shadow-sm";
+
+function AuthLinks({
+  userId,
+  onNavigate,
+}: {
+  userId: string | null | undefined;
+  onNavigate?: () => void;
+}) {
+  if (userId) {
+    return (
+      <Link href="/dashboard" onClick={onNavigate} className={ctaBase}>
+        <LayoutDashboard className="h-4 w-4" />
+        Go to dashboard
+      </Link>
+    );
+  }
+
+  return (
+    <>
+      <Link href="/login" onClick={onNavigate} className={linkBase}>
+        <LogIn className="h-4 w-4" />
+        Log In
+      </Link>
+      <Link href="/signup" onClick={onNavigate} className={ctaBase}>
+        Create free shop
+      </Link>
+    </>
+  );
+}
+
+function CartButton({
+  cartCount,
+  onOpenCart,
+  size = "default",
+}: {
+  cartCount: number;
+  onOpenCart: () => void;
+  size?: "default" | "compact";
+}) {
+  const iconSize = size === "compact" ? "h-6 w-6" : "h-6 w-6";
+  const badgeSize =
+    size === "compact"
+      ? "h-4 w-4 text-[9px] border"
+      : "h-5 w-5 text-[10px] border-2";
+
+  return (
+    <button
+      onClick={onOpenCart}
+      aria-label={`Open cart${cartCount > 0 ? ` (${cartCount} items)` : ""}`}
+      className="relative p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition"
+    >
+      <ShoppingBag className={iconSize} />
+      {cartCount > 0 && (
+        <span
+          className={cn(
+            "absolute -top-1 -right-1 bg-emerald-500 text-white font-black rounded-full flex items-center justify-center border-[#0a0a0a] shadow-sm",
+            badgeSize,
+          )}
+        >
+          {cartCount}
+        </span>
+      )}
+    </button>
+  );
+}
+
 export default function Navbar({
   shopName,
   isStorefront = false,
@@ -23,12 +94,12 @@ export default function Navbar({
 }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { userId } = useAuth();
 
   const isLandingPage = pathname === "/";
   const isDark = isLandingPage || isStorefront;
 
-  // FIX: Short-circuit. If it's not the landing page, render absolutely nothing.
-  if (!isLandingPage) return null;
+  if (!isLandingPage && !isStorefront) return null;
 
   return (
     <nav
@@ -49,7 +120,7 @@ export default function Navbar({
             <div className="relative h-9 w-9 rounded-xl overflow-hidden shrink-0 bg-surface-alt">
               <Image
                 src={logo}
-                alt={"trazo_logo"}
+                alt="Trazo logo"
                 fill
                 className="object-cover"
               />
@@ -64,33 +135,17 @@ export default function Navbar({
             </span>
           </Link>
 
-          {/* Desktop right side */}
+          {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-2">
             {isLandingPage && (
               <>
-                <Link
-                  href="/store/demo"
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all"
-                >
+                <Link href="/store/demo" className={linkBase}>
                   Demo Store
                 </Link>
-                <Link
-                  href="/login"
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all"
-                >
-                  <LogIn className="h-4 w-4" />
-                  Log In
-                </Link>
-                <Link
-                  href="/signup"
-                  className="px-4 py-2.5 rounded-xl text-sm font-bold bg-emerald-500 hover:bg-emerald-400 text-black transition-all shadow-sm"
-                >
-                  Create free shop
-                </Link>
+                <AuthLinks userId={userId} />
               </>
             )}
 
-            {/* Storefront */}
             {isStorefront && (
               <div className="flex items-center gap-2">
                 <Link
@@ -100,17 +155,7 @@ export default function Navbar({
                   Powered by Trazo
                 </Link>
                 {onOpenCart && (
-                  <button
-                    onClick={onOpenCart}
-                    className="relative p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition"
-                  >
-                    <ShoppingBag className="h-6 w-6" />
-                    {cartCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-[10px] font-black rounded-full h-5 w-5 flex items-center justify-center border-2 border-[#0a0a0a] shadow-sm">
-                        {cartCount}
-                      </span>
-                    )}
-                  </button>
+                  <CartButton cartCount={cartCount} onOpenCart={onOpenCart} />
                 )}
               </div>
             )}
@@ -119,21 +164,18 @@ export default function Navbar({
           {/* Mobile right side */}
           <div className="flex items-center gap-2 md:hidden">
             {isStorefront && onOpenCart && (
-              <button
-                onClick={onOpenCart}
-                className="relative p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition"
-              >
-                <ShoppingBag className="h-6 w-6" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-[10px] font-black rounded-full h-4 w-4 flex items-center justify-center border border-[#0a0a0a]">
-                    {cartCount}
-                  </span>
-                )}
-              </button>
+              <CartButton
+                cartCount={cartCount}
+                onOpenCart={onOpenCart}
+                size="compact"
+              />
             )}
             {isLandingPage && (
               <button
-                onClick={() => setMenuOpen(!menuOpen)}
+                onClick={() => setMenuOpen((open) => !open)}
+                aria-label={menuOpen ? "Close menu" : "Open menu"}
+                aria-expanded={menuOpen}
+                aria-controls="mobile-menu"
                 className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition"
               >
                 {menuOpen ? (
@@ -148,31 +190,28 @@ export default function Navbar({
       </div>
 
       {/* Mobile menu — landing only */}
-      {menuOpen && isLandingPage && (
-        <div className="md:hidden border-t border-white/5 bg-[#0a0a0a]/95 backdrop-blur-lg">
+      {isLandingPage && (
+        <div
+          id="mobile-menu"
+          className={cn(
+            "md:hidden overflow-hidden border-t border-white/5 bg-[#0a0a0a]/95 backdrop-blur-lg transition-all duration-200",
+            menuOpen ? "max-h-64 opacity-100" : "max-h-0 opacity-0 border-t-0",
+          )}
+        >
           <div className="px-4 py-3 space-y-1">
             <Link
               href="/store/demo"
               onClick={() => setMenuOpen(false)}
-              className="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+              className={linkBase}
             >
               Demo Store
             </Link>
-            <Link
-              href="/login"
-              onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all"
-            >
-              <LogIn className="h-4 w-4" />
-              Log In
-            </Link>
-            <Link
-              href="/signup"
-              onClick={() => setMenuOpen(false)}
-              className="flex items-center justify-center px-3 py-3 rounded-xl text-sm font-bold bg-emerald-500 hover:bg-emerald-400 text-black transition-all mt-2"
-            >
-              Create free shop
-            </Link>
+            <div className="pt-1 space-y-1">
+              <AuthLinks
+                userId={userId}
+                onNavigate={() => setMenuOpen(false)}
+              />
+            </div>
           </div>
         </div>
       )}
