@@ -30,15 +30,33 @@ model Shop {
   whatsappNumber String
   description    String    @default("")
   logoUrl        String    @default("")
-  products       Product[] 
+  products       Product[]
+  orders         Order[]   // ← add this relation
 
   plan             Plan      @default(free)
   planActivatedAt  DateTime?
-  lastPaystackRef  String? 
+  lastPaystackRef  String?
 
   isActive       Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id     String @id @default(cuid())
+  shopId String
+  shop   Shop   @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  // Snapshot of items at order time — not a relation to Product,
+  // since products can change price/name/be deleted after the order is placed.
+  items Json
+
+  customerName    String
+  customerPhone   String
+  customerAddress String
+
+  total     Int
+  createdAt DateTime @default(now())
 }
 
 model Product {
