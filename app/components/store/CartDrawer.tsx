@@ -5,6 +5,7 @@ import Image from "next/image";
 import { X, Plus, Minus, ShoppingBag, Send } from "lucide-react";
 import { CartItem, CustomerDetails, ShopSettings } from "../../types";
 import { formatNaira, generateWhatsAppURL } from "../../lib/utils";
+import { createOrder } from "../../actions/orderActions"; // ← new import
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import { cn } from "../../lib/utils";
@@ -107,34 +108,54 @@ export default function CartDrawer({
     if (step === "checkout") nameInputRef.current?.focus();
   }, [step]);
 
-  const handleOrder = () => {
+  const handleOrder = async () => {
     if (!validate()) return;
 
     setSending(true);
     setOrderError("");
 
-    const url = generateWhatsAppURL(
-      settings.whatsappNumber,
-      settings.shopName,
-      items.map((i) => ({
-        name: i.name,
-        quantity: i.quantity,
-        price: i.price,
-      })),
-      customer,
-      total,
-    );
+    // Open the tab synchronously, before any await, so it's tied to
+    // this click and browsers don't block it as an untrusted popup.
+    const whatsappTab = window.open("", "_blank");
 
-    const opened = window.open(url, "_blank");
-    if (!opened) {
-      setSending(false);
-      setOrderError(
-        "Couldn't open WhatsApp — check your browser's popup blocker and try again.",
+    try {
+      const order = await createOrder({
+        shopId: settings.id,
+        items: items.map((i) => ({
+          name: i.name,
+          quantity: i.quantity,
+          price: i.price,
+        })),
+        customerName: customer.name,
+        customerPhone: customer.phone,
+        customerAddress: customer.address,
+        total,
+      });
+
+      const url = generateWhatsAppURL(
+        settings.whatsappNumber,
+        settings.shopName,
+        order.id,
+        customer,
+        total,
       );
-      return;
-    }
 
-    resetAndClose();
+      if (!whatsappTab) {
+        setSending(false);
+        setOrderError(
+          "Couldn't open WhatsApp — check your browser's popup blocker and try again.",
+        );
+        return;
+      }
+
+      whatsappTab.location.href = url;
+      resetAndClose();
+    } catch (err) {
+      console.error("Order creation failed:", err);
+      whatsappTab?.close();
+      setSending(false);
+      setOrderError("Couldn't place your order. Please try again.");
+    }
   };
 
   if (!isOpen) return null;
