@@ -2,15 +2,10 @@
 import { ImageResponse } from "next/og";
 import { db } from "../../../../lib/db";
 import { formatNaira } from "../../../../lib/utils";
+import { OrderItem } from "../../../../types";
 
 // Must be nodejs — Prisma doesn't work on edge runtime
 export const runtime = "nodejs";
-
-interface OrderItem {
-  name: string;
-  quantity: number;
-  price: number;
-}
 
 export async function GET(
   req: Request,
@@ -77,12 +72,19 @@ export async function GET(
             key={i}
             style={{
               display: "flex",
-              justifyContent: "space-between",
-              fontSize: 18,
+              alignItems: "center",
+              gap: 12,
+              fontSize: 16,
               color: "#e5e5e5",
             }}
           >
-            <div style={{ display: "flex" }}>
+            <img
+              src={item.imageUrl}
+              width={40}
+              height={40}
+              style={{ borderRadius: 10, objectFit: "cover" }}
+            />
+            <div style={{ display: "flex", flex: 1 }}>
               {item.quantity}x {item.name}
             </div>
             <div style={{ display: "flex", fontWeight: 700 }}>

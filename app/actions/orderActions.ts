@@ -5,7 +5,12 @@ import { db } from "../lib/db";
 
 export async function createOrder(data: {
   shopId: string;
-  items: { name: string; quantity: number; price: number }[];
+  items: {
+    name: string;
+    quantity: number;
+    price: number;
+    imageUrl: string;
+  }[];
   customerName: string;
   customerPhone: string;
   customerAddress: string;

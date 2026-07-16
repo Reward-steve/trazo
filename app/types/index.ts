@@ -35,3 +35,10 @@ export interface CustomerDetails {
   phone: string;
   address: string;
 }
+
+export interface OrderItem {
+  name: string;
+  quantity: number;
+  price: number;
+  imageUrl: string;
+}
