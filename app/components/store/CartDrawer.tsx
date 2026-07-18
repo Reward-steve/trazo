@@ -125,6 +125,7 @@ export default function CartDrawer({
           name: i.name,
           quantity: i.quantity,
           price: i.price,
+          imageUrl: i.imageUrl,
         })),
         customerName: customer.name,
         customerPhone: customer.phone,

@@ -1,13 +1,9 @@
 // app/receipt/[orderId]/page.tsx
 import { Metadata } from "next";
+import Image from "next/image";
 import { db } from "../../lib/db";
 import { formatNaira } from "../../lib/utils";
-
-interface OrderItem {
-  name: string;
-  quantity: number;
-  price: number;
-}
+import { OrderItem } from "../../types";
 
 export async function generateMetadata({
   params,
@@ -61,7 +57,6 @@ export default async function ReceiptPage({
   return (
     <div className="min-h-screen bg-[#0a0a0a] px-4 py-10 text-white">
       <div className="mx-auto max-w-md">
-        {/* Header */}
         <div className="mb-6 text-center">
           <p className="text-xs font-bold uppercase tracking-widest text-emerald-400">
             New order
@@ -69,18 +64,38 @@ export default async function ReceiptPage({
           <h1 className="mt-1 text-2xl font-black">{order.shop.shopName}</h1>
         </div>
 
-        {/* Items card */}
+        {/* Items card — now with product photos */}
         <div className="rounded-3xl border border-white/[0.06] bg-[#141414] p-6">
           <p className="mb-4 text-[11px] font-semibold uppercase tracking-widest text-gray-500">
             Items
           </p>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {items.map((item, i) => (
-              <div key={i} className="flex justify-between text-sm">
-                <span className="text-gray-300">
-                  {item.quantity}x {item.name}
-                </span>
-                <span className="font-semibold text-white">
+              <div key={i} className="flex items-center gap-3">
+                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-[#0a0a0a]">
+                  {item.imageUrl ? (
+                    <Image
+                      src={item.imageUrl}
+                      alt={item.name}
+                      fill
+                      className="object-cover"
+                      sizes="56px"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-[10px] text-gray-600">
+                      No image
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <p className="truncate text-sm text-gray-200">{item.name}</p>
+                  <p className="text-xs text-gray-500">
+                    {item.quantity} × {formatNaira(item.price)}
+                  </p>
+                </div>
+
+                <span className="shrink-0 text-sm font-semibold text-white">
                   {formatNaira(item.price * item.quantity)}
                 </span>
               </div>
@@ -95,7 +110,6 @@ export default async function ReceiptPage({
           </div>
         </div>
 
-        {/* Customer card */}
         <div className="mt-4 rounded-3xl border border-white/[0.06] bg-[#141414] p-6">
           <p className="mb-4 text-[11px] font-semibold uppercase tracking-widest text-gray-500">
             Customer
