@@ -133,6 +133,8 @@ export default function CartDrawer({
         total,
       });
 
+      console.log(order);
+
       const url = generateWhatsAppURL(
         settings.whatsappNumber,
         settings.shopName,
