@@ -114,10 +114,6 @@ export default function CartDrawer({
     setSending(true);
     setOrderError("");
 
-    // Open the tab synchronously, before any await, so it's tied to
-    // this click and browsers don't block it as an untrusted popup.
-    const whatsappTab = window.open("", "_blank");
-
     try {
       const order = await createOrder({
         shopId: settings.id,
@@ -133,8 +129,6 @@ export default function CartDrawer({
         total,
       });
 
-      console.log(order);
-
       const url = generateWhatsAppURL(
         settings.whatsappNumber,
         settings.shopName,
@@ -143,19 +137,9 @@ export default function CartDrawer({
         total,
       );
 
-      if (!whatsappTab) {
-        setSending(false);
-        setOrderError(
-          "Couldn't open WhatsApp — check your browser's popup blocker and try again.",
-        );
-        return;
-      }
-
-      whatsappTab.location.href = url;
-      resetAndClose();
+      window.location.assign(url);
     } catch (err) {
       console.error("Order creation failed:", err);
-      whatsappTab?.close();
       setSending(false);
       setOrderError("Couldn't place your order. Please try again.");
     }

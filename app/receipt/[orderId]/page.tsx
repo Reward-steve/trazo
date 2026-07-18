@@ -53,7 +53,7 @@ export default async function ReceiptPage({
   }
 
   const items = order.items as unknown as OrderItem[];
-  console.log(items);
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] px-4 py-10 text-white">
       <div className="mx-auto max-w-md">
@@ -74,13 +74,16 @@ export default async function ReceiptPage({
               <div key={i} className="flex items-center gap-3">
                 <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-[#0a0a0a]">
                   {item.imageUrl ? (
-                    <Image
-                      src={item.imageUrl}
-                      alt={item.name}
-                      fill
-                      className="object-cover"
-                      sizes="56px"
-                    />
+                    (console.log(item.imageUrl),
+                    (
+                      <Image
+                        src={item.imageUrl}
+                        alt={item.name}
+                        fill
+                        className="object-cover"
+                        sizes="56px"
+                      />
+                    ))
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-[10px] text-gray-600">
                       No image
