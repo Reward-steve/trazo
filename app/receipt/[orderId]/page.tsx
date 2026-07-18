@@ -53,7 +53,7 @@ export default async function ReceiptPage({
   }
 
   const items = order.items as unknown as OrderItem[];
-
+  console.log(items);
   return (
     <div className="min-h-screen bg-[#0a0a0a] px-4 py-10 text-white">
       <div className="mx-auto max-w-md">
