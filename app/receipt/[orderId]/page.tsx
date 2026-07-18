@@ -1,6 +1,7 @@
 // app/receipt/[orderId]/page.tsx
 import { Metadata } from "next";
 import Image from "next/image";
+import { ImageOff } from "lucide-react";
 import { db } from "../../lib/db";
 import { formatNaira } from "../../lib/utils";
 import { OrderItem } from "../../types";
@@ -57,6 +58,7 @@ export default async function ReceiptPage({
   return (
     <div className="min-h-screen bg-[#0a0a0a] px-4 py-10 text-white">
       <div className="mx-auto max-w-md">
+        {/* Header */}
         <div className="mb-6 text-center">
           <p className="text-xs font-bold uppercase tracking-widest text-emerald-400">
             New order
@@ -64,7 +66,20 @@ export default async function ReceiptPage({
           <h1 className="mt-1 text-2xl font-black">{order.shop.shopName}</h1>
         </div>
 
-        {/* Items card — now with product photos */}
+        {/* Dev-only: raw imageUrl values, so a bad Cloudinary link is
+            visible on the page instead of hidden in server logs.
+            Remove this block once images are confirmed working. */}
+        {process.env.NODE_ENV !== "production" && (
+          <pre className="mb-4 overflow-x-auto rounded-lg bg-black p-2 text-[9px] text-gray-500">
+            {JSON.stringify(
+              items.map((i) => ({ name: i.name, imageUrl: i.imageUrl })),
+              null,
+              2,
+            )}
+          </pre>
+        )}
+
+        {/* Items card */}
         <div className="rounded-3xl border border-white/[0.06] bg-[#141414] p-6">
           <p className="mb-4 text-[11px] font-semibold uppercase tracking-widest text-gray-500">
             Items
@@ -72,26 +87,23 @@ export default async function ReceiptPage({
           <div className="space-y-4">
             {items.map((item, i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-[#0a0a0a]">
+                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-white/[0.06] bg-[#0a0a0a]">
                   {item.imageUrl ? (
-                    (console.log(item.imageUrl),
-                    (
-                      <Image
-                        src={item.imageUrl}
-                        alt={item.name}
-                        fill
-                        className="object-cover"
-                        sizes="56px"
-                      />
-                    ))
+                    <Image
+                      src={item.imageUrl}
+                      alt={item.name}
+                      fill
+                      className="object-cover"
+                      sizes="56px"
+                    />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-[10px] text-gray-600">
-                      No image
+                    <div className="flex h-full w-full items-center justify-center">
+                      <ImageOff className="h-4 w-4 text-gray-700" />
                     </div>
                   )}
                 </div>
 
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="truncate text-sm text-gray-200">{item.name}</p>
                   <p className="text-xs text-gray-500">
                     {item.quantity} × {formatNaira(item.price)}
@@ -113,6 +125,7 @@ export default async function ReceiptPage({
           </div>
         </div>
 
+        {/* Customer card */}
         <div className="mt-4 rounded-3xl border border-white/[0.06] bg-[#141414] p-6">
           <p className="mb-4 text-[11px] font-semibold uppercase tracking-widest text-gray-500">
             Customer
