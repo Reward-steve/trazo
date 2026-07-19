@@ -5,6 +5,24 @@ import "./globals.css";
 import { ThemeProvider } from "./components/ui/ThemeProvider";
 import Navbar from "./components/layout/Navbar";
 
+// Add at top of layout.tsx
+import Script from "next/script";
+
+// Add inside <body> before {children}
+<Script
+  id="register-sw"
+  strategy="afterInteractive"
+  dangerouslySetInnerHTML={{
+    __html: `
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js');
+        });
+      }
+    `,
+  }}
+/>;
+
 const geist = Geist({ subsets: ["latin"] });
 
 const description =
