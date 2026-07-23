@@ -35,10 +35,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   server_error: "Something went wrong on our end. Please contact support.",
 };
 
-const STATUS_CONFIG: Record
-  PlanKey,
-  { icon: typeof Clock3; tone: string }
-> = {
+const STATUS_CONFIG: Record<PlanKey, { icon: typeof Clock3; tone: string }> = {
   free: {
     icon: Clock3,
     tone: "bg-surface-alt text-text-muted border-border",
@@ -295,7 +292,11 @@ export default async function SubscriptionPage({ searchParams }: Props) {
                 out to keep your store running without interruption.
               </p>
 
-              <PaystackCheckout plan={plan} email={email} shopName={shop.shopName} />
+              <PaystackCheckout
+                plan={plan}
+                email={email}
+                shopName={shop.shopName}
+              />
 
               <p className="text-[11px] text-text-muted text-center">
                 Secured by Paystack · Card, bank transfer & USSD accepted
@@ -400,7 +401,9 @@ function PlanUpgradeCard({
         </div>
       )}
 
-      <div className={`flex items-start justify-between ${badge ? "pt-1" : ""}`}>
+      <div
+        className={`flex items-start justify-between ${badge ? "pt-1" : ""}`}
+      >
         <div>
           <div className="flex items-center gap-2 mb-1">
             {planKey === "growth" ? (
