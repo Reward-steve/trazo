@@ -1,5 +1,4 @@
 import React, { ReactNode } from "react";
-import { twMerge } from "tailwind-merge";
 
 type CardVariant = "default" | "danger" | "accent";
 
@@ -8,7 +7,7 @@ interface DarkCardProps {
   hover?: boolean;
   variant?: CardVariant;
   className?: string;
-  /** Renders as a real clickable element (button/link) instead of a static div. */
+  padding?: string;
   href?: string;
   onClick?: () => void;
   ariaLabel?: string;
@@ -47,14 +46,20 @@ export default function DarkCard({
   hover = false,
   variant = "default",
   className = "",
+  padding = "p-6",
   href,
   onClick,
   ariaLabel,
 }: DarkCardProps) {
   const isInteractive = Boolean(href || onClick);
 
+  // No padding, no color, no border classes live here — every property that
+  // a caller might want to override (padding, background, border) is either
+  // its own prop or lives only in `variants`, so `className` only ever adds
+  // new utilities (positioning, width, transforms) rather than competing
+  // with base classes over the same property.
   const baseStyle =
-    "relative overflow-hidden rounded-3xl border p-6 shadow-lg shadow-black/20 " +
+    "group relative overflow-hidden rounded-3xl border shadow-lg shadow-black/20 " +
     "transition-[transform,box-shadow,border-color,background-color] duration-300 " +
     "motion-reduce:transition-none motion-reduce:hover:translate-y-0";
 
@@ -62,22 +67,25 @@ export default function DarkCard({
   // a container that merely holds a button shouldn't itself feel "pressable".
   const liftStyle =
     hover && isInteractive
-      ? `group cursor-pointer [@media(hover:hover)]:hover:-translate-y-1.5 [@media(hover:hover)]:hover:shadow-2xl ${hoverAccents[variant]} active:scale-[0.98] active:duration-100 ${activeAccents[variant]}`
+      ? `cursor-pointer [@media(hover:hover)]:hover:-translate-y-1.5 [@media(hover:hover)]:hover:shadow-2xl ${hoverAccents[variant]} active:scale-[0.98] active:duration-100 ${activeAccents[variant]}`
       : hover
-        ? `group ${hoverAccents[variant]}` // decorative hover glow only, no lift/press
+        ? hoverAccents[variant] // decorative hover glow only, no lift/press
         : "";
 
   const focusStyle = isInteractive
     ? `outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black ${focusRings[variant]}`
     : "";
 
-  const classes = twMerge(
+  const classes = [
     baseStyle,
+    padding,
     variants[variant],
     liftStyle,
     focusStyle,
     className,
-  );
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   const hairline = (
     <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
@@ -94,7 +102,12 @@ export default function DarkCard({
 
   if (onClick) {
     return (
-      <button type="button" onClick={onClick} className={classes} aria-label={ariaLabel}>
+      <button
+        type="button"
+        onClick={onClick}
+        className={classes}
+        aria-label={ariaLabel}
+      >
         {hairline}
         {children}
       </button>

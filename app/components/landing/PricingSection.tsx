@@ -21,7 +21,8 @@ function PricingCard({ plan }: { plan: PlanDefinition }) {
     <DarkCard
       hover
       variant={isFeatured ? "accent" : "default"}
-      className={`flex w-full flex-col p-8 sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] ${
+      padding="p-8"
+      className={`flex w-full flex-col sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] ${
         isFeatured ? "sm:-translate-y-2" : ""
       }`}
     >

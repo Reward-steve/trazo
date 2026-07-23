@@ -26,12 +26,12 @@ export default function Hero() {
 
       <div className="relative mx-auto flex min-h-[100svh] max-w-7xl flex-col items-center justify-center px-4 py-10 sm:min-h-[92vh] sm:px-6 sm:py-16 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12 lg:px-8 xl:gap-20">
         {/* LEFT — copy */}
-        <div className="z-10 flex w-full max-w-2xl flex-col items-center text-center lg:items-start lg:text-left">
+        <div className="z-10 flex w-full max-w-2xl flex-col items-start text-left">
           <HeroBadge />
 
           <h1
             id="hero-heading"
-            className="mt-5 text-3xl font-black leading-tight tracking-tight sm:mt-6 sm:text-4xl lg:text-5xl 2xl:text-7xl"
+            className="mt-5 text-4xl font-black leading-[1.1] tracking-tight sm:mt-6 sm:text-5xl lg:text-5xl 2xl:text-7xl"
           >
             Your products deserve
             <br />
@@ -45,7 +45,7 @@ export default function Hero() {
             every order arrives directly in your WhatsApp.
           </p>
 
-          <div className="mt-8 flex w-full flex-col items-center gap-3 sm:mt-10 sm:w-auto sm:flex-row sm:gap-4">
+          <div className="mt-8 flex w-full flex-col items-stretch gap-3 sm:mt-10 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
             <Button
               href="/signup"
               variant="primary"

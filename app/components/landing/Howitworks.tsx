@@ -1,13 +1,6 @@
 import React, { ComponentType } from "react";
-import DarkCard from "./DarkCard";
 import { steps } from "../../constant";
-import {
-  Smartphone,
-  ShoppingBag,
-  Link,
-  MessageCircle,
-  ArrowRight,
-} from "lucide-react";
+import { Smartphone, ShoppingBag, Link, MessageCircle } from "lucide-react";
 import SectionHeader from "./SectionHeader";
 
 const iconMap: Record<string, ComponentType<{ className?: string }>> = {
@@ -33,50 +26,75 @@ export default function HowItWorks() {
           subtitle="No developers, complex merchant account setups, or long learning curves required. Follow these four simple steps."
         />
 
-        <div className="relative mt-4">
-          <div className="pointer-events-none absolute left-[12%] right-[12%] top-[90px] z-0 hidden h-px bg-gradient-to-r from-emerald-500/0 via-white/[0.06] to-emerald-500/0 lg:block" />
+        {/* MOBILE / TABLET — vertical timeline. The connecting rail is a real
+            flex column (circle + flex-1 line), so it always matches the
+            height of whatever text sits beside it — no pixel-guessing. */}
+        <ol className="mt-12 lg:hidden">
+          {steps.map(({ number, title, description, iconName }, index) => {
+            const Icon = iconMap[iconName] ?? Smartphone;
+            const isLast = index === steps.length - 1;
 
-          <div className="relative z-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {steps.map(({ number, title, description, iconName }, index) => {
-              const Icon = iconMap[iconName] ?? Smartphone;
-              const isLast = index === steps.length - 1;
+            return (
+              <li key={number} className="group relative flex gap-4">
+                <div className="flex flex-col items-center">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-[#111] font-mono text-xs font-bold text-emerald-400 transition-colors duration-300 group-hover:border-emerald-500/40 group-hover:bg-emerald-500/10">
+                    {number}
+                  </div>
+                  {!isLast && (
+                    <div
+                      aria-hidden="true"
+                      className="my-2 w-px flex-1 bg-gradient-to-b from-white/10 to-white/[0.02]"
+                    />
+                  )}
+                </div>
 
-              return (
-                <DarkCard
-                  key={number}
-                  hover
-                  className="group relative flex h-full flex-col justify-between p-6 sm:p-8"
-                >
-                  <div className="pointer-events-none absolute inset-px rounded-[23px] bg-gradient-to-b from-white/[0.04] to-transparent transition-colors duration-500 group-hover:from-emerald-500/10" />
-
-                  <div>
-                    <div className="mb-6 flex items-center justify-between">
-                      <span className="select-none font-mono text-4xl font-black leading-none tracking-tight text-white/5 transition-colors duration-500 group-hover:text-emerald-500/15">
-                        {number}
-                      </span>
-
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/[0.05] bg-white/[0.02] text-gray-400 shadow-md transition-all duration-500 group-hover:border-emerald-500/20 group-hover:bg-emerald-500/10 group-hover:text-emerald-400">
-                        <Icon className="h-5 w-5 transition-transform duration-500 group-hover:scale-110" />
-                      </div>
-                    </div>
-
-                    <h3 className="mb-3 text-base font-black tracking-tight text-white transition-colors duration-300 group-hover:text-emerald-300 sm:text-lg">
+                <div className={isLast ? "pb-0" : "pb-9"}>
+                  <div className="flex items-center gap-2 pt-1.5">
+                    <Icon className="h-4 w-4 shrink-0 text-emerald-400" />
+                    <h3 className="text-base font-black tracking-tight text-white transition-colors duration-300 group-hover:text-emerald-300">
                       {title}
                     </h3>
-                    <p className="text-xs font-medium leading-relaxed text-gray-400 sm:text-sm">
-                      {description}
-                    </p>
+                  </div>
+                  <p className="mt-1.5 text-sm leading-relaxed text-gray-400">
+                    {description}
+                  </p>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+
+        <div className="relative mt-16 hidden lg:block">
+          <div
+            aria-hidden="true"
+            className="absolute left-[12.5%] right-[12.5%] top-6 h-px bg-gradient-to-r from-white/0 via-white/10 to-white/0"
+          />
+          <ol className="relative grid grid-cols-4 gap-8">
+            {steps.map(({ number, title, description, iconName }) => {
+              const Icon = iconMap[iconName] ?? Smartphone;
+
+              return (
+                <li
+                  key={number}
+                  className="group flex flex-col items-center text-center"
+                >
+                  <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-[#111] font-mono text-sm font-bold text-emerald-400 transition-colors duration-300 group-hover:border-emerald-500/40 group-hover:bg-emerald-500/10">
+                    {number}
                   </div>
 
-                  {!isLast && (
-                    <div className="absolute -bottom-3 right-1/2 z-20 hidden h-6 w-6 translate-x-1/2 items-center justify-center rounded-full border border-white/[0.08] bg-[#111] text-gray-600 sm:flex lg:hidden">
-                      <ArrowRight className="h-3 w-3" />
-                    </div>
-                  )}
-                </DarkCard>
+                  <div className="mt-5 flex items-center gap-2">
+                    <Icon className="h-4 w-4 shrink-0 text-emerald-400" />
+                    <h3 className="text-base font-black tracking-tight text-white transition-colors duration-300 group-hover:text-emerald-300">
+                      {title}
+                    </h3>
+                  </div>
+                  <p className="mt-2 max-w-[220px] text-sm leading-relaxed text-gray-400">
+                    {description}
+                  </p>
+                </li>
               );
             })}
-          </div>
+          </ol>
         </div>
 
         <p className="mt-14 text-center font-mono text-xs text-gray-500">
