@@ -149,36 +149,48 @@ export const pricingTiers = [
     price: "₦0",
     period: "Forever, no card needed",
     isPro: false,
-    cta: "Get started free",
+    cta: "Get Started Free",
     features: [
-      "Up to 20 products",
-      "WhatsApp order alerts",
-      "Shareable store link",
-      "Mobile storefront",
+      "✔ Unlimited products",
+      "✔ Public storefront link",
+      "✔ Mobile-friendly storefront",
+      "✔ Customers can browse your store",
+      "✔ Share your store anywhere",
+      "✔ Customer ordering unavailable",
     ],
   },
   {
     name: "Growth",
     price: "₦1,500",
     period: "per month",
-    features: ["50 products", "Remove Trazo branding", "Basic analytics"],
-    cta: "Upgrade to Growth",
     isPro: true,
+    cta: "Upgrade to Growth",
+    features: [
+      "✔ Everything in Free",
+      "✔ Customers can place orders",
+      "✔ WhatsApp order delivery",
+      "✔ Order history",
+      "✔ Remove Trazo branding",
+      "✔ Basic analytics",
+    ],
   },
   {
     name: "Pro",
     price: "₦3,500",
     period: "per month",
-    features: [
-      "Unlimited products",
-      "Custom domain",
-      "Advanced analytics",
-      "Priority support",
-    ],
-    cta: "Go Pro",
     isPro: true,
+    cta: "Go Pro",
+    features: [
+      "✔ Everything in Growth",
+      "✔ Advanced analytics",
+      "✔ Sales insights",
+      "✔ Best-selling products",
+      "✔ Customer insights",
+      "✔ Priority support",
+    ],
   },
 ];
+ 
 
 // ── DEMO PRODUCTS ─────────────────────────────────────────────────────────────
 
@@ -188,42 +200,7 @@ export const demoProducts = [
   { emoji: "👠", name: "Block Heels", price: 6200 },
 ];
 
-// const pricingTiers = [
-//   {
-//     name: "Free Forever",
-//     price: "₦0",
-//     period: "No expiry",
-//     features: [
-//       "1 storefront",
-//       "10 products max",
-//       "Trazo branding on store",
-//       "Full WhatsApp order system",
-//     ],
-//     cta: "Start selling free",
-//     isPro: false,
-//   },
-//   {
-//     name: "Growth",
-//     price: "₦1,500",
-//     period: "per month",
-//     features: ["50 products", "Remove Trazo branding", "Basic analytics"],
-//     cta: "Upgrade to Growth",
-//     isPro: true,
-//   },
-//   {
-//     name: "Pro",
-//     price: "₦3,500",
-//     period: "per month",
-//     features: [
-//       "Unlimited products",
-//       "Custom domain",
-//       "Advanced analytics",
-//       "Priority support",
-//     ],
-//     cta: "Go Pro",
-//     isPro: true,
-//   },
-// ];
+ 
 
 const COUNTRY_CODES = [
   { code: "+234", flag: "🇳🇬", name: "Nigeria" },

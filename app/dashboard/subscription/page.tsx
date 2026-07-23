@@ -14,53 +14,18 @@ import { redirect } from "next/navigation";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { getShopByUser } from "../../actions/settings";
 import PaystackCheckout from "../../components/dashboard/PaystackCheckout";
+import {
+  PLAN_ORDER,
+  PLANS,
+  getPlanRank,
+  getProductLimit,
+  type PlanKey,
+  type PlanDefinition,
+} from "../../lib/plans";
 
 export const dynamic = "force-dynamic";
 
 const WHATSAPP = "2348098069257";
-
-// Order matters — index = tier rank. Used to derive upgrade/downgrade options.
-const PLAN_ORDER = ["free", "growth", "pro"] as const;
-type PlanKey = (typeof PLAN_ORDER)[number];
-
-const PLANS: Record<
-  PlanKey,
-  { label: string; limit: number; price: number | null; features: string[] }
-> = {
-  free: {
-    label: "Free Plan",
-    limit: 10,
-    price: null,
-    features: [
-      "10 products",
-      "Trazo branding on storefront",
-      "Unlimited WhatsApp orders",
-    ],
-  },
-  growth: {
-    label: "Growth Plan",
-    limit: 50,
-    price: 1500,
-    features: [
-      "50 products",
-      "No Trazo branding — your store looks 100% yours",
-      "Unlimited WhatsApp orders",
-      "Priority support on WhatsApp",
-    ],
-  },
-  pro: {
-    label: "Pro Plan",
-    limit: 999,
-    price: 3500,
-    features: [
-      "Unlimited products",
-      "No Trazo branding",
-      "Unlimited WhatsApp orders",
-      "Priority support on WhatsApp",
-      "Early access to new features",
-    ],
-  },
-};
 
 const ERROR_MESSAGES: Record<string, string> = {
   amount_mismatch: "Payment amount does not match the selected plan.",
@@ -69,6 +34,33 @@ const ERROR_MESSAGES: Record<string, string> = {
   payment_failed: "Payment was not completed successfully.",
   server_error: "Something went wrong on our end. Please contact support.",
 };
+
+const STATUS_CONFIG: Record
+  PlanKey,
+  { icon: typeof Clock3; tone: string }
+> = {
+  free: {
+    icon: Clock3,
+    tone: "bg-surface-alt text-text-muted border-border",
+  },
+  growth: {
+    icon: BadgeCheck,
+    tone: "bg-bubble-out text-primary-dark border-primary/20",
+  },
+  pro: {
+    icon: BadgeCheck,
+    tone: "bg-bubble-out text-primary-dark border-primary/20",
+  },
+};
+
+function formatPrice(price: number | null): string {
+  if (price === null) return "Free";
+  return `₦${price.toLocaleString()}`;
+}
+
+function formatLimit(limit: number | null): string {
+  return limit === null ? "Unlimited" : limit.toLocaleString();
+}
 
 interface Props {
   searchParams: Promise<{ success?: string; error?: string }>;
@@ -92,9 +84,8 @@ export default async function SubscriptionPage({ searchParams }: Props) {
   const plan = shop.plan as PlanKey;
   const isPaid = plan !== "free";
   const currentPlan = PLANS[plan];
-  const currentRank = PLAN_ORDER.indexOf(plan);
+  const currentRank = getPlanRank(plan);
 
-  // Plans ranked above/below the current one — drives which cards render
   const upgradePlans = PLAN_ORDER.filter(
     (p, i) => i > currentRank && p !== "free",
   );
@@ -116,25 +107,7 @@ export default async function SubscriptionPage({ searchParams }: Props) {
     `Hi, I need help with my Trazo subscription for ${shop.shopName}.`,
   );
 
-  const statusConfig = {
-    free: {
-      icon: Clock3,
-      tone: "bg-surface-alt text-text-muted border-border",
-      label: "Free Plan",
-    },
-    growth: {
-      icon: BadgeCheck,
-      tone: "bg-bubble-out text-primary-dark border-primary/20",
-      label: "Growth Plan",
-    },
-    pro: {
-      icon: BadgeCheck,
-      tone: "bg-bubble-out text-primary-dark border-primary/20",
-      label: "Pro Plan",
-    },
-  };
-
-  const StatusIcon = statusConfig[plan].icon;
+  const StatusIcon = STATUS_CONFIG[plan].icon;
 
   return (
     <div className="min-h-screen bg-surface-alt px-4 py-8">
@@ -157,8 +130,8 @@ export default async function SubscriptionPage({ searchParams }: Props) {
             <div>
               <p className="text-sm font-bold text-text">Plan activated 🎉</p>
               <p className="text-xs text-text-muted mt-0.5">
-                You&apos;re now on the {currentPlan.label}. Your store is fully
-                unlocked.
+                You&apos;re now on the {currentPlan.label} Plan. Your store is
+                fully unlocked.
               </p>
             </div>
           </div>
@@ -206,10 +179,10 @@ export default async function SubscriptionPage({ searchParams }: Props) {
         {/* Status badge */}
         <div className="flex justify-center">
           <div
-            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold ${statusConfig[plan].tone}`}
+            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold ${STATUS_CONFIG[plan].tone}`}
           >
             <StatusIcon className="h-3.5 w-3.5" />
-            {statusConfig[plan].label}
+            {currentPlan.label} Plan
           </div>
         </div>
 
@@ -218,7 +191,7 @@ export default async function SubscriptionPage({ searchParams }: Props) {
           <h1 className="text-2xl font-black text-text">Subscription</h1>
           <p className="text-sm text-text-muted mt-2">
             {isPaid
-              ? `Your store is active on the ${currentPlan.label}.`
+              ? `Your store is active on the ${currentPlan.label} Plan.`
               : "You're on the free plan. Upgrade to unlock more products and remove Trazo branding."}
           </p>
         </div>
@@ -229,8 +202,8 @@ export default async function SubscriptionPage({ searchParams }: Props) {
             Current plan
           </p>
           <div className="flex items-end justify-between mb-4">
-            <p className="text-2xl font-black">{currentPlan.label}</p>
-            {isPaid && daysLeft !== null && (
+            <p className="text-2xl font-black">{currentPlan.label} Plan</p>
+            {isPaid && daysLeft !== null ? (
               <div className="text-right">
                 <p
                   className={`text-3xl font-black ${isExpiringSoon ? "text-amber-300" : "text-white"}`}
@@ -238,6 +211,13 @@ export default async function SubscriptionPage({ searchParams }: Props) {
                   {daysLeft}
                 </p>
                 <p className="text-white/60 text-xs">days left</p>
+              </div>
+            ) : (
+              <div className="text-right">
+                <p className="text-lg font-black">
+                  {formatLimit(getProductLimit(plan))}
+                </p>
+                <p className="text-white/60 text-xs">products</p>
               </div>
             )}
           </div>
@@ -275,78 +255,23 @@ export default async function SubscriptionPage({ searchParams }: Props) {
               Upgrade your plan
             </h2>
 
-            {/* Growth card */}
-            <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Zap className="h-4 w-4 text-primary" />
-                    <p className="font-bold text-text">Growth</p>
-                  </div>
-                  <p className="text-xs text-text-muted">What you get</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xl font-black text-text">₦1,500</p>
-                  <p className="text-xs text-text-muted">/month</p>
-                </div>
-              </div>
+            <PlanUpgradeCard
+              planKey="growth"
+              plan={PLANS.growth}
+              email={email}
+              shopName={shop.shopName}
+              badge={null}
+              footnote={null}
+            />
 
-              <ul className="space-y-2 bg-surface-alt rounded-xl p-4">
-                {PLANS.growth.features.map((f) => (
-                  <li
-                    key={f}
-                    className="flex items-start gap-2 text-sm text-text"
-                  >
-                    <Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
-              <PaystackCheckout
-                plan="growth"
-                email={email}
-                shopName={shop.shopName}
-              />
-            </div>
-
-            {/* Pro card */}
-            <div className="bg-surface border-2 border-primary rounded-2xl p-5 space-y-4 relative">
-              <div className="absolute -top-2.5 left-5 bg-primary text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                MOST POPULAR
-              </div>
-              <div className="flex items-start justify-between pt-1">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <BadgeCheck className="h-4 w-4 text-primary" />
-                    <p className="font-bold text-text">Pro</p>
-                  </div>
-                  <p className="text-xs text-text-muted">What you get</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xl font-black text-text">₦3,500</p>
-                  <p className="text-xs text-text-muted">/month</p>
-                </div>
-              </div>
-
-              <ul className="space-y-2 bg-surface-alt rounded-xl p-4">
-                {PLANS.pro.features.map((f) => (
-                  <li
-                    key={f}
-                    className="flex items-start gap-2 text-sm text-text"
-                  >
-                    <Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
-              <PaystackCheckout
-                plan="pro"
-                email={email}
-                shopName={shop.shopName}
-              />
-            </div>
+            <PlanUpgradeCard
+              planKey="pro"
+              plan={PLANS.pro}
+              email={email}
+              shopName={shop.shopName}
+              badge="MOST POPULAR"
+              footnote={null}
+            />
 
             <p className="text-[11px] text-text-muted text-center">
               Secured by Paystack · Card, bank transfer & USSD accepted
@@ -362,7 +287,7 @@ export default async function SubscriptionPage({ searchParams }: Props) {
               <div className="flex items-center gap-2">
                 <CreditCard className="h-4 w-4 text-primary" />
                 <h2 className="font-bold text-text">
-                  Renew {currentPlan.label}
+                  Renew {currentPlan.label} Plan
                 </h2>
               </div>
               <p className="text-xs text-text-muted">
@@ -370,11 +295,7 @@ export default async function SubscriptionPage({ searchParams }: Props) {
                 out to keep your store running without interruption.
               </p>
 
-              <PaystackCheckout
-                plan={plan}
-                email={email}
-                shopName={shop.shopName}
-              />
+              <PaystackCheckout plan={plan} email={email} shopName={shop.shopName} />
 
               <p className="text-[11px] text-text-muted text-center">
                 Secured by Paystack · Card, bank transfer & USSD accepted
@@ -382,60 +303,18 @@ export default async function SubscriptionPage({ searchParams }: Props) {
             </div>
 
             {/* Upgrade options — only shown if a higher tier exists (Growth → Pro) */}
-            {upgradePlans.map((upgradeKey) => {
-              const target = PLANS[upgradeKey];
-              return (
-                <div
-                  key={upgradeKey}
-                  className="bg-surface border-2 border-primary rounded-2xl p-5 space-y-4 relative"
-                >
-                  <div className="absolute -top-2.5 left-5 bg-primary text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                    UPGRADE
-                  </div>
-                  <div className="flex items-start justify-between pt-1">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <BadgeCheck className="h-4 w-4 text-primary" />
-                        <p className="font-bold text-text">
-                          Upgrade to {target.label.replace(" Plan", "")}
-                        </p>
-                      </div>
-                      <p className="text-xs text-text-muted">
-                        Unlock more, right now
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xl font-black text-text">
-                        ₦{target.price?.toLocaleString()}
-                      </p>
-                      <p className="text-xs text-text-muted">/month</p>
-                    </div>
-                  </div>
-
-                  <ul className="space-y-2 bg-surface-alt rounded-xl p-4">
-                    {target.features.map((f) => (
-                      <li
-                        key={f}
-                        className="flex items-start gap-2 text-sm text-text"
-                      >
-                        <Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <PaystackCheckout
-                    plan={upgradeKey}
-                    email={email}
-                    shopName={shop.shopName}
-                  />
-
-                  <p className="text-[11px] text-text-muted text-center">
-                    Starts a fresh 30-day cycle on {target.label} immediately
-                  </p>
-                </div>
-              );
-            })}
+            {upgradePlans.map((upgradeKey) => (
+              <PlanUpgradeCard
+                key={upgradeKey}
+                planKey={upgradeKey}
+                plan={PLANS[upgradeKey]}
+                email={email}
+                shopName={shop.shopName}
+                badge="UPGRADE"
+                footnote={`Starts a fresh 30-day cycle on ${PLANS[upgradeKey].label} immediately`}
+                titlePrefix="Upgrade to "
+              />
+            ))}
 
             {/* Downgrade options — de-emphasized, explicit about tradeoffs */}
             {downgradePlans.map((downgradeKey) => {
@@ -448,14 +327,14 @@ export default async function SubscriptionPage({ searchParams }: Props) {
                   <div className="flex items-center gap-2">
                     <ArrowDownCircle className="h-4 w-4 text-text-muted" />
                     <h3 className="text-sm font-semibold text-text-muted">
-                      Switch to {target.label.replace(" Plan", "")}
+                      Switch to {target.label}
                     </h3>
                   </div>
                   <p className="text-xs text-text-muted leading-relaxed">
-                    This ends your {currentPlan.label} immediately and starts a
-                    new 30-day {target.label} cycle at ₦
-                    {target.price?.toLocaleString()}/month. Any remaining days
-                    on your current plan are not refunded or carried over.
+                    This ends your {currentPlan.label} Plan immediately and
+                    starts a new 30-day {target.label} Plan cycle at{" "}
+                    {formatPrice(target.price)}/month. Any remaining days on
+                    your current plan are not refunded or carried over.
                   </p>
                   <PaystackCheckout
                     plan={downgradeKey}
@@ -481,6 +360,85 @@ export default async function SubscriptionPage({ searchParams }: Props) {
           </a>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ─── Shared plan card ─────────────────────────────────────────────────────
+// Used both for first-time upgraders (free → Growth/Pro) and for paid users
+// upgrading to a higher tier. Pulls all copy from the plans.ts source of
+// truth so pricing, features, and limits can never drift between contexts.
+
+function PlanUpgradeCard({
+  planKey,
+  plan,
+  email,
+  shopName,
+  badge,
+  footnote,
+  titlePrefix = "",
+}: {
+  planKey: PlanKey;
+  plan: PlanDefinition;
+  email: string;
+  shopName: string;
+  badge: "MOST POPULAR" | "UPGRADE" | null;
+  footnote: string | null;
+  titlePrefix?: string;
+}) {
+  const highlighted = badge !== null;
+
+  return (
+    <div
+      className={`relative space-y-4 rounded-2xl p-5 bg-surface ${
+        highlighted ? "border-2 border-primary" : "border border-border"
+      }`}
+    >
+      {badge && (
+        <div className="absolute -top-2.5 left-5 bg-primary text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+          {badge}
+        </div>
+      )}
+
+      <div className={`flex items-start justify-between ${badge ? "pt-1" : ""}`}>
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            {planKey === "growth" ? (
+              <Zap className="h-4 w-4 text-primary" />
+            ) : (
+              <BadgeCheck className="h-4 w-4 text-primary" />
+            )}
+            <p className="font-bold text-text">
+              {titlePrefix}
+              {plan.label}
+            </p>
+          </div>
+          <p className="text-xs text-text-muted">
+            {formatLimit(plan.productLimit)} products · What you get
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-xl font-black text-text">
+            {formatPrice(plan.price)}
+          </p>
+          <p className="text-xs text-text-muted">/month</p>
+        </div>
+      </div>
+
+      <ul className="space-y-2 bg-surface-alt rounded-xl p-4">
+        {plan.features.map((f) => (
+          <li key={f} className="flex items-start gap-2 text-sm text-text">
+            <Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+            {f}
+          </li>
+        ))}
+      </ul>
+
+      <PaystackCheckout plan={planKey} email={email} shopName={shopName} />
+
+      {footnote && (
+        <p className="text-[11px] text-text-muted text-center">{footnote}</p>
+      )}
     </div>
   );
 }

@@ -2,27 +2,30 @@ import { CheckCircle } from "lucide-react";
 import SectionHeader from "./SectionHeader";
 import DarkCard from "./DarkCard";
 import Button from "../landing/Button";
-import { pricingTiers } from "../../constant";
+import { PLAN_ORDER, PLANS, type PlanDefinition } from "../../lib/plans";
 
-interface PricingTier {
-  name: string;
-  price: string;
-  period: string;
-  features: string[];
-  cta: string;
-  isPro?: boolean;
+// Which plan gets the "POPULAR" badge + accent styling.
+// `isPro` in plans.ts means "paid tier" (true for both growth & pro),
+// so it can't be reused here — this is a separate, presentation-only choice.
+const FEATURED_PLAN_KEY = "growth";
+
+function formatPrice(plan: PlanDefinition): string {
+  if (plan.price === null) return "Free";
+  return `₦${plan.price.toLocaleString()}`;
 }
 
-function PricingCard({ tier }: { tier: PricingTier }) {
+function PricingCard({ plan }: { plan: PlanDefinition }) {
+  const isFeatured = plan.key === FEATURED_PLAN_KEY;
+
   return (
     <DarkCard
       hover
-      variant={tier.isPro ? "accent" : "default"}
+      variant={isFeatured ? "accent" : "default"}
       className={`flex w-full flex-col p-8 sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] ${
-        tier.isPro ? "sm:-translate-y-2" : ""
+        isFeatured ? "sm:-translate-y-2" : ""
       }`}
     >
-      {tier.isPro && (
+      {isFeatured && (
         <>
           <span className="absolute right-4 top-4 rounded-full bg-emerald-500 px-3 py-1 text-[10px] font-black tracking-wide text-black">
             POPULAR
@@ -33,26 +36,28 @@ function PricingCard({ tier }: { tier: PricingTier }) {
 
       <p
         className={`mb-2 text-xs font-bold uppercase tracking-widest ${
-          tier.isPro ? "text-emerald-400" : "text-gray-500"
+          isFeatured ? "text-emerald-400" : "text-gray-500"
         }`}
       >
-        {tier.name}
+        {plan.label}
       </p>
 
       <div className="mb-6 flex items-baseline gap-1.5">
-        <span className="text-4xl font-black text-white">{tier.price}</span>
-        <span className="text-sm text-gray-500">{tier.period}</span>
+        <span className="text-4xl font-black text-white">
+          {formatPrice(plan)}
+        </span>
+        <span className="text-sm text-gray-500">{plan.period}</span>
       </div>
 
       <ul className="mb-8 flex-1 space-y-3">
-        {tier.features.map((feature) => (
+        {plan.features.map((feature) => (
           <li
             key={feature}
             className="flex items-start gap-2.5 text-sm text-gray-300"
           >
             <CheckCircle
               className={`mt-0.5 h-4 w-4 shrink-0 ${
-                tier.isPro ? "text-emerald-400" : "text-emerald-600"
+                isFeatured ? "text-emerald-400" : "text-emerald-600"
               }`}
             />
             {feature}
@@ -62,15 +67,15 @@ function PricingCard({ tier }: { tier: PricingTier }) {
 
       <Button
         href="/signup"
-        variant={tier.isPro ? "primary" : "outline"}
+        variant={isFeatured ? "primary" : "outline"}
         size="lg"
         className={`w-full justify-center ${
-          tier.isPro
+          isFeatured
             ? "bg-emerald-500 font-bold text-black shadow-lg shadow-emerald-500/20 hover:bg-emerald-400"
             : "text-gray-300 hover:text-white"
         }`}
       >
-        {tier.cta}
+        {plan.cta}
       </Button>
     </DarkCard>
   );
@@ -83,8 +88,8 @@ export default function PricingSection() {
         <SectionHeader badge="Pricing" title="Simple. No surprises." />
 
         <div className="flex flex-wrap justify-center gap-6">
-          {pricingTiers.map((tier) => (
-            <PricingCard key={tier.name} tier={tier} />
+          {PLAN_ORDER.map((key) => (
+            <PricingCard key={key} plan={PLANS[key]} />
           ))}
         </div>
       </div>

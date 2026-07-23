@@ -1,4 +1,5 @@
 import React, { ReactNode } from "react";
+import { twMerge } from "tailwind-merge";
 
 type CardVariant = "default" | "danger" | "accent";
 
@@ -7,6 +8,10 @@ interface DarkCardProps {
   hover?: boolean;
   variant?: CardVariant;
   className?: string;
+  /** Renders as a real clickable element (button/link) instead of a static div. */
+  href?: string;
+  onClick?: () => void;
+  ariaLabel?: string;
 }
 
 const variants: Record<CardVariant, string> = {
@@ -16,8 +21,6 @@ const variants: Record<CardVariant, string> = {
     "bg-gradient-to-b from-emerald-500/[0.06] to-[#111] border-emerald-500/30",
 };
 
-// Hover/active accents adapt per variant so a danger card presses red,
-// not emerald — the interaction color should match the card's own tone.
 const hoverAccents: Record<CardVariant, string> = {
   default:
     "[@media(hover:hover)]:hover:border-emerald-500/20 [@media(hover:hover)]:hover:bg-[#141414] [@media(hover:hover)]:hover:shadow-emerald-500/[0.02]",
@@ -30,7 +33,13 @@ const hoverAccents: Record<CardVariant, string> = {
 const activeAccents: Record<CardVariant, string> = {
   default: "active:border-emerald-500/25 active:bg-[#141414]",
   danger: "active:border-red-500/30 active:bg-red-500/[0.08]",
-  accent: "active:border-emerald-500/45",
+  accent: "active:border-emerald-500/45 active:bg-[#141414]",
+};
+
+const focusRings: Record<CardVariant, string> = {
+  default: "focus-visible:ring-emerald-500/50",
+  danger: "focus-visible:ring-red-500/50",
+  accent: "focus-visible:ring-emerald-500/60",
 };
 
 export default function DarkCard({
@@ -38,23 +47,63 @@ export default function DarkCard({
   hover = false,
   variant = "default",
   className = "",
+  href,
+  onClick,
+  ariaLabel,
 }: DarkCardProps) {
+  const isInteractive = Boolean(href || onClick);
+
   const baseStyle =
-    "relative overflow-hidden rounded-3xl border p-6 shadow-lg shadow-black/20 transition-all duration-300";
+    "relative overflow-hidden rounded-3xl border p-6 shadow-lg shadow-black/20 " +
+    "transition-[transform,box-shadow,border-color,background-color] duration-300 " +
+    "motion-reduce:transition-none motion-reduce:hover:translate-y-0";
 
-  const hoverStyle = hover
-    ? `group [@media(hover:hover)]:hover:-translate-y-1.5 [@media(hover:hover)]:hover:shadow-2xl ${hoverAccents[variant]}`
+  // Lift/press feedback only applies when the card is a real clickable unit —
+  // a container that merely holds a button shouldn't itself feel "pressable".
+  const liftStyle =
+    hover && isInteractive
+      ? `group cursor-pointer [@media(hover:hover)]:hover:-translate-y-1.5 [@media(hover:hover)]:hover:shadow-2xl ${hoverAccents[variant]} active:scale-[0.98] active:duration-100 ${activeAccents[variant]}`
+      : hover
+        ? `group ${hoverAccents[variant]}` // decorative hover glow only, no lift/press
+        : "";
+
+  const focusStyle = isInteractive
+    ? `outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black ${focusRings[variant]}`
     : "";
 
-  const activeStyle = hover
-    ? `active:scale-[0.98] active:duration-100 ${activeAccents[variant]}`
-    : "";
+  const classes = twMerge(
+    baseStyle,
+    variants[variant],
+    liftStyle,
+    focusStyle,
+    className,
+  );
+
+  const hairline = (
+    <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+  );
+
+  if (href) {
+    return (
+      <a href={href} className={classes} aria-label={ariaLabel}>
+        {hairline}
+        {children}
+      </a>
+    );
+  }
+
+  if (onClick) {
+    return (
+      <button type="button" onClick={onClick} className={classes} aria-label={ariaLabel}>
+        {hairline}
+        {children}
+      </button>
+    );
+  }
 
   return (
-    <div
-      className={`${baseStyle} ${variants[variant]} ${hoverStyle} ${activeStyle} ${className}`}
-    >
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+    <div className={classes}>
+      {hairline}
       {children}
     </div>
   );

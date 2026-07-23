@@ -5,7 +5,7 @@ import SocialProofBar from "./components/landing/SocialProofBar";
 import PainSection from "./components/landing/PainSection";
 import HowItWorks from "./components/landing/Howitworks";
 import FeaturesSection from "./components/landing/FeaturesSection";
-import PricingSection from "./components/landing/PricingSeciton";
+import PricingSection from "./components/landing/PricingSection";
 import FinalCTA from "./components/landing/Finalcta";
 import Footer from "./components/landing/Footer";
 import SignedInOverlay from "./components/landing/SignedInOverlay";

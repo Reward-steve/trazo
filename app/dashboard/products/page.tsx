@@ -5,6 +5,7 @@ import { getShopByUser } from "../../actions/settings";
 import ProductsClient from "../../components/dashboard/ProductsClient";
 import { getProductLimit } from "../../actions/subscriptionGuard";
 import { normalizePlan } from "../../lib/utils";
+import { PLANS } from "../../lib/plans";
 
 export const dynamic = "force-dynamic";
 
@@ -36,13 +37,9 @@ export default async function ProductsPage() {
     createdAt: p.createdAt,
   }));
 
-  const planLimits = {
-    free: 10,
-    growth: 50,
-    pro: Infinity,
-  };
+ 
 
-  const limit = planLimits[shop.plan ?? "free"];
+  const limit = PLANS[shop.plan ?? "free"].productLimit;
   const usage = products.length;
 
   return (
@@ -78,7 +75,7 @@ export default async function ProductsPage() {
             {shop.plan} plan
           </p>
           <p className="text-[11px] text-text-muted">
-            {usage}/{limit === Infinity ? "∞" : limit} products used
+            {usage}/{limit === null ? "∞" : limit} products used
           </p>
         </div>
 
