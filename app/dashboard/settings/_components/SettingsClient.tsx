@@ -19,6 +19,8 @@ import { updateShop, deleteShop } from "../../../actions/settings";
 import { cn } from "../../../lib/utils";
 import Link from "next/link";
 import { ShopPlan } from "../../../types";
+import { updatePaymentDetails } from "../../../actions/paymentActions";
+import { Landmark } from "lucide-react";
 
 interface Shop {
   id: string;
@@ -31,6 +33,10 @@ interface Shop {
   createdAt: Date;
   updatedAt: Date;
   products: { id: string }[]; // only need count, not full Product type
+  bankName: string | null;
+  accountName: string | null;
+  accountNumber: string | null;
+  paymentInstructions: string | null;
 }
 
 const PLAN_LIMITS: Record<ShopPlan, number> = {
@@ -63,6 +69,62 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
   });
 
   const [errors, setErrors] = useState<Partial<typeof form>>({});
+
+  const [paymentForm, setPaymentForm] = useState({
+    bankName: shop.bankName ?? "",
+    accountName: shop.accountName ?? "",
+    accountNumber: shop.accountNumber ?? "",
+    paymentInstructions: shop.paymentInstructions ?? "",
+  });
+  const [paymentErrors, setPaymentErrors] = useState<
+    Partial<typeof paymentForm>
+  >({});
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentSaved, setPaymentSaved] = useState(false);
+  const [paymentError, setPaymentError] = useState("");
+
+  const updatePaymentField = (
+    field: keyof typeof paymentForm,
+    value: string,
+  ) => {
+    setPaymentForm((prev) => ({ ...prev, [field]: value }));
+    setPaymentErrors((prev) => ({ ...prev, [field]: "" }));
+    setPaymentError("");
+  };
+
+  const validatePayment = () => {
+    const e: Partial<typeof paymentForm> = {};
+    if (!paymentForm.bankName.trim()) e.bankName = "Bank name is required";
+    if (!paymentForm.accountName.trim())
+      e.accountName = "Account name is required";
+    if (!/^[0-9]{10}$/.test(paymentForm.accountNumber.trim())) {
+      e.accountNumber = "Enter a valid 10-digit account number";
+    }
+    setPaymentErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const handlePaymentSave = async () => {
+    if (!validatePayment()) return;
+    setPaymentLoading(true);
+    setPaymentError("");
+    try {
+      await updatePaymentDetails(paymentForm);
+      setPaymentSaved(true);
+      setTimeout(() => setPaymentSaved(false), 2500);
+      router.refresh();
+    } catch {
+      setPaymentError("Unable to save payment details. Try again.");
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
+  const hasPaymentChanges =
+    paymentForm.bankName !== (shop.bankName ?? "") ||
+    paymentForm.accountName !== (shop.accountName ?? "") ||
+    paymentForm.accountNumber !== (shop.accountNumber ?? "") ||
+    paymentForm.paymentInstructions !== (shop.paymentInstructions ?? "");
 
   const plan = (shop.plan ?? "free") as ShopPlan;
   const productCount = shop.products?.length ?? 0;
@@ -190,6 +252,99 @@ export default function SettingsClient({ shop }: { shop: Shop }) {
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* ── PAYMENT DETAILS ──────────────────────────────────── */}
+      <div className="bg-surface border border-border rounded-2xl p-4 space-y-4">
+        <div className="flex items-center gap-2">
+          <Landmark className="h-4 w-4 text-primary-dark" />
+          <p className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">
+            Payment details
+          </p>
+        </div>
+
+        <Input
+          label="Bank name"
+          placeholder="e.g. GTBank"
+          value={paymentForm.bankName}
+          onChange={(e) => updatePaymentField("bankName", e.target.value)}
+          error={paymentErrors.bankName}
+        />
+
+        <Input
+          label="Account name"
+          placeholder="Name on the account"
+          value={paymentForm.accountName}
+          onChange={(e) => updatePaymentField("accountName", e.target.value)}
+          error={paymentErrors.accountName}
+        />
+
+        <Input
+          label="Account number"
+          placeholder="0123456789"
+          value={paymentForm.accountNumber}
+          onChange={(e) =>
+            updatePaymentField(
+              "accountNumber",
+              e.target.value.replace(/\D/g, ""),
+            )
+          }
+          error={paymentErrors.accountNumber}
+          inputMode="numeric"
+        />
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-medium text-text">
+            Payment instructions
+            <span className="ml-1.5 text-[10px] text-text-muted font-normal">
+              (optional)
+            </span>
+          </label>
+          <textarea
+            value={paymentForm.paymentInstructions}
+            onChange={(e) =>
+              updatePaymentField(
+                "paymentInstructions",
+                e.target.value.slice(0, 200),
+              )
+            }
+            rows={2}
+            className="w-full px-3 py-2.5 rounded-xl border border-border bg-surface text-text placeholder:text-text-muted text-sm resize-none focus:border-primary focus:outline-none"
+            placeholder="e.g. Please send exact amount, no round-ups"
+          />
+        </div>
+
+        <div className="flex items-start gap-1.5 text-[11px] text-text-muted">
+          <Info className="h-3.5 w-3.5 shrink-0 mt-0.5 text-amber-500" />
+          <p>
+            Shown to customers at checkout. Orders already placed keep the
+            payment details that were active when they were created — changing
+            this won&apos;t affect existing orders.
+          </p>
+        </div>
+
+        {paymentError && (
+          <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-2xl px-4 py-3">
+            <AlertCircle className="h-4 w-4 text-red-500 shrink-0" />
+            <p className="text-xs text-red-500">{paymentError}</p>
+          </div>
+        )}
+
+        <Button
+          onClick={handlePaymentSave}
+          loading={paymentLoading}
+          disabled={!hasPaymentChanges && !paymentLoading}
+          className="w-full"
+        >
+          {paymentSaved ? (
+            <>
+              <CheckCircle className="h-4 w-4" />
+              Saved
+            </>
+          ) : (
+            "Save payment details"
+          )}
+        </Button>
       </div>
 
       {/* ── CONTACT ──────────────────────────────────────────── */}

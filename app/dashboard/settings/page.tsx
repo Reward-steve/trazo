@@ -4,7 +4,7 @@ import { getShopByUser } from "../../actions/settings";
 import SettingsClient from "./_components/SettingsClient";
 import Link from "next/link";
 import { ExternalLink, MessageCircle } from "lucide-react";
-import { ShopPlan } from "../../types";
+import { ShopWithProducts } from "./types";
 
 export default async function SettingsPage() {
   const { userId } = await auth();
@@ -19,20 +19,7 @@ export default async function SettingsPage() {
     redirect("/onboarding");
   }
 
-  // explicit safe DTO (future-proof)
-  const serialized = {
-    id: shop.id,
-    shopName: shop.shopName,
-    slug: shop.slug,
-    whatsappNumber: shop.whatsappNumber,
-    description: shop.description,
-    logoUrl: shop.logoUrl,
-    plan: shop.plan as ShopPlan,
-    isActive: shop.isActive,
-    createdAt: shop.createdAt,
-    updatedAt: shop.updatedAt,
-    products: shop.products,
-  };
+  const shopData: ShopWithProducts = shop;
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
@@ -71,7 +58,7 @@ export default async function SettingsPage() {
         </div>
       </div>
 
-      <SettingsClient shop={serialized} />
+      <SettingsClient shop={shopData} />
     </div>
   );
 }

@@ -87,6 +87,12 @@ export default async function DashboardPage({
       hint: "Shops with more products get more orders",
       href: "/dashboard/products",
     },
+    {
+      done: !!shop.accountNumber,
+      label: "Add your payment details",
+      hint: "Customers can't pay you without this",
+      href: "/dashboard/settings",
+    },
   ];
 
   const setupComplete = setupSteps.every((s) => s.done);
@@ -153,6 +159,30 @@ export default async function DashboardPage({
           <CopyLinkButton url={storefrontUrl} />
         </div>
       </div>
+
+      {!shop.accountNumber && (
+        <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-start gap-3">
+          <div className="h-8 w-8 bg-amber-500/15 rounded-xl flex items-center justify-center shrink-0">
+            <AlertCircle className="h-4 w-4 text-amber-600" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-bold text-text">
+              No payment details yet
+            </p>
+            <p className="text-[11px] text-text-muted mt-0.5 mb-3">
+              Your storefront is live, but customers won&apos;t see how to pay
+              you. Add your bank details to start receiving orders.
+            </p>
+            <Link
+              href="/dashboard/settings"
+              className="inline-flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-4 py-2 rounded-full"
+            >
+              Add payment details
+              <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Plan badge */}
       <div className="bg-surface border border-border rounded-2xl p-3 flex items-center justify-between">

@@ -5,10 +5,11 @@ import Image from "next/image";
 import { X, Plus, Minus, ShoppingBag, Send } from "lucide-react";
 import { CartItem, CustomerDetails, ShopSettings } from "../../types";
 import { formatNaira, generateWhatsAppURL } from "../../lib/utils";
-import { createOrder } from "../../actions/orderActions"; // ← new import
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import { cn } from "../../lib/utils";
+import { createOrder, markOrderAsClaimed } from "../../actions/orderActions";
+import { Landmark, Copy, Check } from "lucide-react";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -29,12 +30,23 @@ export default function CartDrawer({
   onRemove,
   settings,
 }: CartDrawerProps) {
-  const [step, setStep] = useState<"cart" | "checkout">("cart");
+  const [step, setStep] = useState<"cart" | "checkout" | "payment">("cart");
+  const [placedOrder, setPlacedOrder] = useState<{
+    id: string;
+    orderRef: string;
+    paymentBankName: string | null;
+    paymentAccountName: string | null;
+    paymentAccountNumber: string | null;
+    paymentInstructions: string | null;
+  } | null>(null);
+  const [confirming, setConfirming] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [customer, setCustomer] = useState<CustomerDetails>(EMPTY_CUSTOMER);
   const [errors, setErrors] = useState<Partial<CustomerDetails>>({});
   const [orderError, setOrderError] = useState("");
   const [sending, setSending] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
+  const [showFallback, setShowFallback] = useState(false);
 
   const totalQty = items.reduce((sum, i) => sum + i.quantity, 0);
   const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
@@ -72,6 +84,9 @@ export default function CartDrawer({
     setOrderError("");
     setSending(false);
     onClose();
+    setPlacedOrder(null);
+    setConfirming(false);
+    setCopied(false);
   }, [onClose]);
 
   // Guard against losing filled-in checkout details on an accidental
@@ -129,25 +144,55 @@ export default function CartDrawer({
         total,
       });
 
-      const url = generateWhatsAppURL(
-        settings.whatsappNumber,
-        settings.shopName,
-        order.id,
-        items.map((i) => ({
-          name: i.name,
-          quantity: i.quantity,
-          price: i.price,
-        })),
-        customer,
-        total,
-      );
-
-      window.location.assign(url);
+      setPlacedOrder(order);
+      setStep("payment");
     } catch (err) {
       console.error("Order creation failed:", err);
-      setSending(false);
       setOrderError("Couldn't place your order. Please try again.");
+    } finally {
+      setSending(false);
     }
+  };
+
+  const handleConfirmTransfer = async () => {
+    if (!placedOrder) return;
+    setConfirming(true);
+
+    try {
+      await markOrderAsClaimed(placedOrder.id);
+    } catch (err) {
+      console.error("Failed to mark order as claimed:", err);
+    }
+
+    const url = generateWhatsAppURL(
+      settings.whatsappNumber,
+      settings.shopName,
+      placedOrder.id,
+      placedOrder.orderRef,
+      items.map((i) => ({
+        name: i.name,
+        quantity: i.quantity,
+        price: i.price,
+      })),
+      customer,
+      total,
+      true,
+    );
+
+    // If the redirect actually succeeds, the browser navigates away and
+    // this component unmounts before the timeout fires — so the fallback
+    // only ever becomes visible when the customer is still here, which is
+    // exactly the case where something went wrong.
+    setTimeout(() => setShowFallback(true), 2500);
+
+    window.location.assign(url);
+  };
+
+  const copyAccountNumber = () => {
+    if (!placedOrder?.paymentAccountNumber) return;
+    navigator.clipboard.writeText(placedOrder.paymentAccountNumber);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   if (!isOpen) return null;
@@ -174,7 +219,9 @@ export default function CartDrawer({
             <h2 className="text-sm font-bold text-white">
               {step === "cart"
                 ? `Cart${totalQty > 0 ? ` (${totalQty})` : ""}`
-                : "Delivery details"}
+                : step === "checkout"
+                  ? "Delivery details"
+                  : "Payment"}
             </h2>
           </div>
           <button
@@ -437,6 +484,123 @@ export default function CartDrawer({
               >
                 ← Back to cart
               </button>
+            </div>
+          </>
+        )}
+
+        {/* ── PAYMENT STEP ── */}
+        {step === "payment" && placedOrder && (
+          <>
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+              <div className="text-center">
+                <div className="h-12 w-12 bg-bubble-out rounded-2xl flex items-center justify-center mx-auto mb-3">
+                  <Landmark className="h-5 w-5 text-primary-dark" />
+                </div>
+                <p className="text-sm font-bold text-text">Order placed</p>
+                <p className="text-[11px] text-text-muted mt-1">
+                  Complete payment, then let the vendor know
+                </p>
+              </div>
+
+              {placedOrder.paymentAccountNumber ? (
+                <div className="bg-surface-alt border border-border rounded-2xl p-4 space-y-3">
+                  <div className="flex justify-between items-baseline pb-2 border-b border-border">
+                    <span className="text-xs text-text-muted">Total</span>
+                    <span className="text-lg font-black text-text">
+                      {formatNaira(total)}
+                    </span>
+                  </div>
+
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-text-muted">Bank</span>
+                      <span className="font-medium text-text">
+                        {placedOrder.paymentBankName}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-text-muted">Account name</span>
+                      <span className="font-medium text-text">
+                        {placedOrder.paymentAccountName}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-text-muted">Account number</span>
+                      <button
+                        onClick={copyAccountNumber}
+                        className="flex items-center gap-1.5 font-bold text-text"
+                      >
+                        {placedOrder.paymentAccountNumber}
+                        {copied ? (
+                          <Check className="h-3 w-3 text-primary" />
+                        ) : (
+                          <Copy className="h-3 w-3 text-text-muted" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {placedOrder.paymentInstructions && (
+                    <p className="text-[11px] text-text-muted pt-2 border-t border-border">
+                      {placedOrder.paymentInstructions}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4">
+                  <p className="text-xs text-text">
+                    This vendor hasn&apos;t added payment details yet. Continue
+                    to WhatsApp and ask them how to pay.
+                  </p>
+                </div>
+              )}
+
+              <p className="text-[11px] text-text-muted text-center leading-relaxed">
+                Once you&apos;ve sent the transfer, tap below to notify the
+                vendor on WhatsApp. They&apos;ll confirm once they see the funds
+                in their account.
+              </p>
+            </div>
+
+            <div className="px-4 py-4 border-t border-border space-y-2">
+              <Button
+                className="w-full bg-header hover:bg-primary-dark"
+                size="lg"
+                onClick={handleConfirmTransfer}
+                loading={confirming}
+              >
+                <Send className="h-4 w-4" />
+                I&apos;ve made the transfer
+              </Button>
+
+              {showFallback && (
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-3 py-2.5 text-center">
+                  <p className="text-[11px] text-text-muted mb-1.5">
+                    WhatsApp didn&apos;t open? Your order is already saved.
+                  </p>
+                  <a
+                    href={generateWhatsAppURL(
+                      settings.whatsappNumber,
+                      settings.shopName,
+                      placedOrder.id,
+                      placedOrder.orderRef,
+                      items.map((i) => ({
+                        name: i.name,
+                        quantity: i.quantity,
+                        price: i.price,
+                      })),
+                      customer,
+                      total,
+                      true,
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] font-semibold text-primary-dark underline"
+                  >
+                    Open WhatsApp manually
+                  </a>
+                </div>
+              )}
             </div>
           </>
         )}

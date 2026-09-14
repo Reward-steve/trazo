@@ -7,6 +7,7 @@ import { getPlanStatus } from "../../lib/plans";
 import { formatNaira } from "../../lib/utils";
 import EmptyState from "../../components/ui/EmptyState";
 import Link from "next/link";
+import OrderStatusActions from "./_components/OrderStatusActions";
 
 function whatsappLink(phone: string, customerName: string) {
   const digits = phone.replace(/\D/g, "");
@@ -81,6 +82,11 @@ export default async function OrdersPage() {
                   {formatNaira(order.total)}
                 </p>
               </div>
+
+              <OrderStatusActions
+                orderId={order.id}
+                initialStatus={order.status}
+              />
 
               {/* Items — the actual order snapshot */}
               <div className="bg-surface-alt rounded-xl p-3 space-y-1.5">
