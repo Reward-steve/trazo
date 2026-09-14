@@ -24,11 +24,25 @@ export async function getShopByUser() {
 
 /* ─────────────────────────────
    GET SHOP BY SLUG (PUBLIC)
+   Explicit select — this is public-facing. Payment fields are
+   intentionally excluded here; they only ever reach the customer
+   via the order snapshot after checkout, never via the storefront page.
 ───────────────────────────── */
 export async function getShopBySlug(slug: string) {
   const shop = await db.shop.findUnique({
     where: { slug },
-    include: {
+    select: {
+      id: true,
+      shopName: true,
+      slug: true,
+      whatsappNumber: true,
+      description: true,
+      logoUrl: true,
+      plan: true,
+      planActivatedAt: true, // required by syncPlanIfExpired — payment fields still excluded below
+      isActive: true,
+      createdAt: true,
+      updatedAt: true,
       products: { orderBy: { createdAt: "desc" } },
     },
   });
