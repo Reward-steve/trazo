@@ -32,6 +32,7 @@ export default function CartDrawer({
   settings,
 }: CartDrawerProps) {
   const [step, setStep] = useState<"cart" | "checkout" | "payment">("cart");
+  
   const [placedOrder, setPlacedOrder] = useState<{
     id: string;
     orderRef: string;
@@ -193,7 +194,7 @@ export default function CartDrawer({
 
   const hasPaymentDetails = !!placedOrder?.paymentAccountNumber;
 
-const handleContinueToWhatsApp = async () => {
+  const handleContinueToWhatsApp = async () => {
   if (!placedOrder) return;
   setConfirming(true);
 
