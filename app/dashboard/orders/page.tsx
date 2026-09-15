@@ -27,6 +27,8 @@ function formatOrderDate(date: Date) {
   }).format(date);
 }
 
+const FREE_ORDER_LIMIT = 10;
+
 export default async function OrdersPage() {
   const { userId } = await auth();
   if (!userId) redirect("/login");
@@ -36,14 +38,12 @@ export default async function OrdersPage() {
 
   const status = getPlanStatus(shop);
 
-  // Order history is Growth+. The sidebar already hides this link on Free,
-  // but that's navigation, not access control — a bookmarked or shared URL
-  // would otherwise still work after a downgrade. Enforced here for real.
-  if (status.plan === "free") {
-    redirect("/dashboard/subscription?locked=orders");
-  }
-
-  const orders = await getOrders();
+  // No more full lockout — every vendor can see + act on orders and
+  // abandoned checkouts, since every plan can receive orders. Paid
+  // plans just get full history; free gets the most recent N.
+  const allOrders = await getOrders();
+  const orders =
+    status.plan === "free" ? allOrders.slice(0, FREE_ORDER_LIMIT) : allOrders;
 
   const abandonedCheckouts = await getAbandonedCheckouts();
 
@@ -160,6 +160,15 @@ export default async function OrdersPage() {
           ))}
         </div>
       )}
+
+      {status.plan === "free" && allOrders.length > FREE_ORDER_LIMIT && (
+        <Link
+          href="/dashboard/subscription"
+          className="block text-center text-[11px] text-primary-dark bg-primary/10 rounded-xl py-2.5"
+        >
+          Upgrade to see all {allOrders.length} orders
+        </Link>
+      )}
     </div>
   );
-}
+      }
