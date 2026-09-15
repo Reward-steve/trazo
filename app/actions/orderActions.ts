@@ -128,7 +128,6 @@ export async function markOrderAsClaimed(orderId: string) {
   return updated;
 }
 
-// actions/orderActions.ts — add this
 export async function updateOrderStatus(
   orderId: string,
   status: "vendor_confirmed" | "vendor_disputed",
@@ -139,10 +138,6 @@ export async function updateOrderStatus(
   const shop = await db.shop.findUnique({ where: { ownerId: userId } });
   if (!shop) throw new Error("Shop not found");
 
-  // Ownership enforced in the WHERE clause itself, not a separate check —
-  // same pattern as updatePaymentDetails. If the order doesn't belong to
-  // this vendor's shop, updateMany matches zero rows instead of updating
-  // someone else's order.
   const result = await db.order.updateMany({
     where: { id: orderId, shopId: shop.id },
     data: { status },
@@ -151,6 +146,9 @@ export async function updateOrderStatus(
   if (result.count === 0) {
     throw new Error("Order not found or not owned by caller");
   }
+
+  return { success: true };
+}
 
 export async function getOrderPaymentView(orderId: string) {
   const order = await db.order.findUnique({
@@ -168,6 +166,4 @@ export async function getOrderPaymentView(orderId: string) {
     },
   });
   return order;
-}
-  return { success: true };
 }
