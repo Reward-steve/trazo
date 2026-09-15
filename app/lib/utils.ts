@@ -14,26 +14,27 @@ interface OrderItem {
   price: number;
 }
 
-// lib/utils.ts
 export function generateWhatsAppURL(
   phone: string,
   shopName: string,
-  orderId: string,     // cuid — used for the receipt link only
-  orderRef: string,    // short code — used for display only
+  orderId: string,
+  orderRef: string,
   items: OrderItem[],
   customer: { name: string; phone: string; address: string },
   total: number,
-  paymentClaimed: boolean,
+  paymentStatus: "claimed" | "unclaimed" | "no_details",
 ): string {
   const receiptUrl = `${process.env.NEXT_PUBLIC_APP_URL}/receipt/${orderId}`;
-
   const itemLines = items
     .map((item, i) => `${i + 1}. ${item.name} x${item.quantity} — ${formatNaira(item.price * item.quantity)}`)
     .join("\n");
 
-  const statusLine = paymentClaimed
-    ? `💬 Customer says they've made the transfer — please verify before shipping.`
-    : `⏳ Customer has not yet confirmed payment.`;
+  const statusLine =
+    paymentStatus === "no_details"
+      ? `📌 No payment details on file — please reply with how to pay.`
+      : paymentStatus === "claimed"
+      ? `💬 Customer says they've made the transfer — please verify before shipping.`
+      : `⏳ Customer has not yet confirmed payment.`;
 
   const message = [
     `📦 *NEW ORDER — ${shopName.toUpperCase()}* (#${orderRef})`,
@@ -53,6 +54,7 @@ export function generateWhatsAppURL(
 
   return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 }
+
 
 export function cn(...classes: (string | undefined | false | null)[]): string {
   return classes.filter(Boolean).join(" ");
