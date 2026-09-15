@@ -220,15 +220,6 @@ const handleContinueToWhatsApp = async () => {
   window.location.assign(url);
 };
   
-    // If the redirect actually succeeds, the browser navigates away and
-    // this component unmounts before the timeout fires — so the fallback
-    // only ever becomes visible when the customer is still here, which is
-    // exactly the case where something went wrong.
-    setTimeout(() => setShowFallback(true), 2500);
-
-    window.location.assign(url);
-  };
-
   const copyAccountNumber = () => {
     if (!placedOrder?.paymentAccountNumber) return;
     navigator.clipboard.writeText(placedOrder.paymentAccountNumber);
