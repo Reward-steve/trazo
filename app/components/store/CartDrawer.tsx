@@ -8,9 +8,10 @@ import { formatNaira, generateWhatsAppURL } from "../../lib/utils";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import { cn } from "../../lib/utils";
-import { createOrder, markOrderAsClaimed } from "../../actions/orderActions";
+import { createOrder, markOrderAsClaimed, getOrderPaymentView } from "../../actions/orderActions";
 import { Landmark, Copy, Check } from "lucide-react";
 import { captureCheckoutIntent } from "../../actions/checkoutIntentActions";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -116,6 +117,24 @@ export default function CartDrawer({
     });
   }, [customer.name, customer.phone, items, total, settings.id]);
 
+
+const router = useRouter();
+const searchParams = useSearchParams();
+
+// Rehydrate on mount/reload if a placed order is referenced in the URL
+useEffect(() => {
+  const orderId = searchParams.get("order");
+  if (!orderId || placedOrder) return;
+
+  getOrderPaymentView(orderId).then((order) => {
+    if (order) {
+      setPlacedOrder(order);
+      setStep("payment");
+    }
+  });
+}, [searchParams, placedOrder]);
+
+  
   // Debounced trigger: fires 2s after the customer stops typing name/phone
   useEffect(() => {
     if (step !== "checkout") return;
