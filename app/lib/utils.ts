@@ -15,7 +15,6 @@ interface OrderItem {
 }
 
 export function generateWhatsAppURL(
-export function generateWhatsAppURL(
   phone: string,
   shopName: string,
   orderId: string,
