@@ -80,6 +80,23 @@ export default function CartDrawer({
     return Object.keys(e).length === 0;
   };
 
+  const router = useRouter();
+ const searchParams = useSearchParams();
+
+// Rehydrate on mount/reload if a placed order is referenced in the URL
+useEffect(() => {
+  const orderId = searchParams.get("order");
+  if (!orderId || placedOrder) return;
+
+  getOrderPaymentView(orderId).then((order) => {
+    if (order) {
+      setPlacedOrder(order);
+      setStep("payment");
+    }
+  });
+}, [searchParams, placedOrder]);
+  
+
   const resetAndClose = useCallback(() => {
     setStep("cart");
     setCustomer(EMPTY_CUSTOMER);
@@ -90,6 +107,7 @@ export default function CartDrawer({
     setPlacedOrder(null);
     setConfirming(false);
     setCopied(false);
+    router.replace(window.location.pathname, { scroll: false });
   }, [onClose]);
 
   const intentTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -116,23 +134,6 @@ export default function CartDrawer({
       total,
     });
   }, [customer.name, customer.phone, items, total, settings.id]);
-
-
-const router = useRouter();
-const searchParams = useSearchParams();
-
-// Rehydrate on mount/reload if a placed order is referenced in the URL
-useEffect(() => {
-  const orderId = searchParams.get("order");
-  if (!orderId || placedOrder) return;
-
-  getOrderPaymentView(orderId).then((order) => {
-    if (order) {
-      setPlacedOrder(order);
-      setStep("payment");
-    }
-  });
-}, [searchParams, placedOrder]);
 
   
   // Debounced trigger: fires 2s after the customer stops typing name/phone
@@ -203,6 +204,8 @@ useEffect(() => {
 
       setPlacedOrder(order);
       setStep("payment");
+      router.replace(`?order=${order.id}`, { scroll: false });
+      
     } catch (err) {
       console.error("Order creation failed:", err);
       setOrderError("Couldn't place your order. Please try again.");
