@@ -40,16 +40,21 @@ export const SUBSCRIPTION_LINK: NavLink = {
   exact: false,
 };
 
-// Orders and Analytics are both gated to paid plans — presentation only
-// (hides the link so free vendors aren't shown features they can't use),
-// not enforcement. Each page redirects free-plan visitors on its own even
-// if the link is bypassed via a bookmark or direct URL after a downgrade.
+// Orders is now available to every plan — free vendors can receive orders,
+// so they need to see and act on them too (capped to the most recent 10;
+// see FREE_ORDER_LIMIT in the orders page). No redirect gate on that page
+// anymore, so this link is always shown, not plan-conditional.
 export const ORDERS_LINK: NavLink = {
   href: "/dashboard/orders",
   label: "Orders",
   icon: ShoppingBag,
   exact: false,
 };
+
+// Analytics is still Growth+ only — presentation only (hides the link so
+// free vendors aren't shown a feature they can't use), not enforcement.
+// The analytics page redirects free-plan visitors on its own even if the
+// link is bypassed via a bookmark or direct URL after a downgrade.
 export const ANALYTICS_LINK: NavLink = {
   href: "/dashboard/analytics",
   label: "Analytics",
@@ -60,6 +65,7 @@ export const ANALYTICS_LINK: NavLink = {
 const baseNavLinks = [
   OVERVIEW_LINK,
   PRODUCTS_LINK,
+  ORDERS_LINK,
   SETTINGS_LINK,
   SUBSCRIPTION_LINK,
 ];
@@ -77,16 +83,16 @@ export function getNavLinks(plan: ShopPlan): NavLink[] {
   ];
 }
 
-/** Mobile bar: always exactly 3 fixed destinations + More. Orders keeps its
- *  primary slot for paid plans (highest-frequency check); Analytics goes
- *  into More rather than displacing it — a daily "did I get orders" check
- *  outranks a periodic "how's business" check for bottom-bar real estate. */
+/** Mobile bar: always exactly 3 fixed destinations + More. Orders now keeps
+ *  its primary slot on every plan — it's the highest-frequency check
+ *  regardless of plan, now that free vendors can act on orders too.
+ *  Subscription moves into More on free to make room. */
 export function getMobilePrimaryLinks(plan: ShopPlan): NavLink[] {
-  if (plan === "free") return [OVERVIEW_LINK, PRODUCTS_LINK, SUBSCRIPTION_LINK];
+  if (plan === "free") return [OVERVIEW_LINK, PRODUCTS_LINK, ORDERS_LINK];
   return [OVERVIEW_LINK, PRODUCTS_LINK, ORDERS_LINK];
 }
 
 export function getMobileMoreLinks(plan: ShopPlan): NavLink[] {
-  if (plan === "free") return [SETTINGS_LINK];
+  if (plan === "free") return [SETTINGS_LINK, SUBSCRIPTION_LINK];
   return [ANALYTICS_LINK, SETTINGS_LINK, SUBSCRIPTION_LINK];
 }
