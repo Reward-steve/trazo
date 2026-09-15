@@ -610,19 +610,15 @@ const handleContinueToWhatsApp = async () => {
                   </p>
                   <a
                     href={generateWhatsAppURL(
-                      settings.whatsappNumber,
-                      settings.shopName,
-                      placedOrder.id,
-                      placedOrder.orderRef,
-                      items.map((i) => ({
-                        name: i.name,
-                        quantity: i.quantity,
-                        price: i.price,
-                      })),
-                      customer,
-                      total,
-                      true,
-                    )}
+  settings.whatsappNumber,
+  settings.shopName,
+  placedOrder.id,
+  placedOrder.orderRef,
+  items.map((i) => ({ name: i.name, quantity: i.quantity, price: i.price })),
+  customer,
+  total,
+  hasPaymentDetails ? "claimed" : "no_details",
+)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[11px] font-semibold text-primary-dark underline"
