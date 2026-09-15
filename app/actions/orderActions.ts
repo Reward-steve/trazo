@@ -152,5 +152,22 @@ export async function updateOrderStatus(
     throw new Error("Order not found or not owned by caller");
   }
 
+export async function getOrderPaymentView(orderId: string) {
+  const order = await db.order.findUnique({
+    where: { id: orderId },
+    select: {
+      id: true,
+      orderRef: true,
+      total: true,
+      items: true,
+      status: true,
+      paymentBankName: true,
+      paymentAccountName: true,
+      paymentAccountNumber: true,
+      paymentInstructions: true,
+    },
+  });
+  return order;
+}
   return { success: true };
 }
