@@ -191,31 +191,35 @@ export default function CartDrawer({
     }
   };
 
-  const handleConfirmTransfer = async () => {
-    if (!placedOrder) return;
-    setConfirming(true);
+  const hasPaymentDetails = !!placedOrder?.paymentAccountNumber;
 
+const handleContinueToWhatsApp = async () => {
+  if (!placedOrder) return;
+  setConfirming(true);
+
+  if (hasPaymentDetails) {
     try {
       await markOrderAsClaimed(placedOrder.id);
     } catch (err) {
       console.error("Failed to mark order as claimed:", err);
     }
+  }
 
-    const url = generateWhatsAppURL(
-      settings.whatsappNumber,
-      settings.shopName,
-      placedOrder.id,
-      placedOrder.orderRef,
-      items.map((i) => ({
-        name: i.name,
-        quantity: i.quantity,
-        price: i.price,
-      })),
-      customer,
-      total,
-      true,
-    );
+  const url = generateWhatsAppURL(
+    settings.whatsappNumber,
+    settings.shopName,
+    placedOrder.id,
+    placedOrder.orderRef,
+    items.map((i) => ({ name: i.name, quantity: i.quantity, price: i.price })),
+    customer,
+    total,
+    hasPaymentDetails ? "claimed" : "no_details",
+  );
 
+  setTimeout(() => setShowFallback(true), 2500);
+  window.location.assign(url);
+};
+  
     // If the redirect actually succeeds, the browser navigates away and
     // this component unmounts before the timeout fires — so the fallback
     // only ever becomes visible when the customer is still here, which is
@@ -603,15 +607,10 @@ export default function CartDrawer({
             </div>
 
             <div className="px-4 py-4 border-t border-border space-y-2">
-              <Button
-                className="w-full bg-header hover:bg-primary-dark"
-                size="lg"
-                onClick={handleConfirmTransfer}
-                loading={confirming}
-              >
-                <Send className="h-4 w-4" />
-                I&apos;ve made the transfer
-              </Button>
+              <Button onClick={handleContinueToWhatsApp} loading={confirming}>
+  <Send className="h-4 w-4" />
+  {hasPaymentDetails ? "I've made the transfer" : "Send order on WhatsApp"}
+</Button>
 
               {showFallback && (
                 <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-3 py-2.5 text-center">
