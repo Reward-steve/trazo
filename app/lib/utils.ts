@@ -15,6 +15,7 @@ interface OrderItem {
 }
 
 export function generateWhatsAppURL(
+export function generateWhatsAppURL(
   phone: string,
   shopName: string,
   orderId: string,
@@ -22,11 +23,15 @@ export function generateWhatsAppURL(
   items: OrderItem[],
   customer: { name: string; phone: string; address: string },
   total: number,
-  paymentStatus: "claimed" | "unclaimed" | "no_details",
+  paymentStatus: "claimed" | "unclaimed" | "no_details", // was: paymentClaimed: boolean
 ): string {
   const receiptUrl = `${process.env.NEXT_PUBLIC_APP_URL}/receipt/${orderId}`;
+
   const itemLines = items
-    .map((item, i) => `${i + 1}. ${item.name} x${item.quantity} — ${formatNaira(item.price * item.quantity)}`)
+    .map(
+      (item, i) =>
+        `${i + 1}. ${item.name} x${item.quantity} — ${formatNaira(item.price * item.quantity)}`,
+    )
     .join("\n");
 
   const statusLine =
