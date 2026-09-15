@@ -8,6 +8,7 @@ import { formatNaira } from "../../lib/utils";
 import EmptyState from "../../components/ui/EmptyState";
 import Link from "next/link";
 import OrderStatusActions from "./_components/OrderStatusActions";
+import { getAbandonedCheckouts } from "../../actions/checkoutIntentActions";
 
 function whatsappLink(phone: string, customerName: string) {
   const digits = phone.replace(/\D/g, "");
@@ -44,6 +45,8 @@ export default async function OrdersPage() {
 
   const orders = await getOrders();
 
+  const abandonedCheckouts = await getAbandonedCheckouts();
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
       <div>
@@ -54,6 +57,36 @@ export default async function OrdersPage() {
             : `${orders.length} order${orders.length === 1 ? "" : "s"} so far.`}
         </p>
       </div>
+
+      {abandonedCheckouts.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-[11px] font-semibold text-text-muted uppercase tracking-widest">
+            Interested customers who didn&apos;t complete checkout
+          </p>
+          {abandonedCheckouts.map((intent) => (
+            <div
+              key={intent.id}
+              className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-3 flex items-center justify-between gap-3"
+            >
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-text truncate">
+                  {intent.customerName}
+                </p>
+                <p className="text-[11px] text-text-muted">
+                  {formatNaira(intent.total)} in cart
+                </p>
+              </div>
+              <Link
+                href={whatsappLink(intent.customerPhone, intent.customerName)}
+                target="_blank"
+                className="shrink-0 text-[11px] font-semibold text-primary-dark bg-primary/10 rounded-full px-3 py-1.5"
+              >
+                Follow up
+              </Link>
+            </div>
+          ))}
+        </div>
+      )}
 
       {orders.length === 0 ? (
         <EmptyState

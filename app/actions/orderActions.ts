@@ -60,6 +60,18 @@ export async function createOrder(data: {
     }
   }
 
+  try {
+    await db.checkoutIntent.updateMany({
+      where: {
+        shopId: data.shopId,
+        customerPhone: data.customerPhone.replace(/\s/g, ""),
+      },
+      data: { recovered: true },
+    });
+  } catch (err) {
+    console.error("Failed to mark checkout intent recovered:", err);
+  }
+
   return order!;
 }
 
@@ -119,7 +131,7 @@ export async function markOrderAsClaimed(orderId: string) {
 // actions/orderActions.ts — add this
 export async function updateOrderStatus(
   orderId: string,
-  status: "vendor_confirmed" | "vendor_disputed"
+  status: "vendor_confirmed" | "vendor_disputed",
 ) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
