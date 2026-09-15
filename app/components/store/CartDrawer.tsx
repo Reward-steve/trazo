@@ -10,6 +10,7 @@ import Input from "../../components/ui/Input";
 import { cn } from "../../lib/utils";
 import { createOrder, markOrderAsClaimed } from "../../actions/orderActions";
 import { Landmark, Copy, Check } from "lucide-react";
+import { captureCheckoutIntent } from "../../actions/checkoutIntentActions";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -89,17 +90,53 @@ export default function CartDrawer({
     setCopied(false);
   }, [onClose]);
 
-  // Guard against losing filled-in checkout details on an accidental
-  // backdrop click / Escape press
+  const intentTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastCapturedRef = useRef<string>("");
+
+  const maybeCaptureIntent = useCallback(() => {
+    const phone = customer.phone.replace(/\s/g, "");
+    const name = customer.name.trim();
+    if (!name || !/^[0-9]{10,15}$/.test(phone)) return;
+
+    const signature = `${name}|${phone}|${total}`;
+    if (signature === lastCapturedRef.current) return; // nothing changed, skip
+
+    lastCapturedRef.current = signature;
+    captureCheckoutIntent({
+      shopId: settings.id,
+      customerName: name,
+      customerPhone: phone,
+      items: items.map((i) => ({
+        name: i.name,
+        quantity: i.quantity,
+        price: i.price,
+      })),
+      total,
+    });
+  }, [customer.name, customer.phone, items, total, settings.id]);
+
+  // Debounced trigger: fires 2s after the customer stops typing name/phone
+  useEffect(() => {
+    if (step !== "checkout") return;
+    if (intentTimerRef.current) clearTimeout(intentTimerRef.current);
+    intentTimerRef.current = setTimeout(maybeCaptureIntent, 2000);
+    return () => {
+      if (intentTimerRef.current) clearTimeout(intentTimerRef.current);
+    };
+  }, [step, customer.name, customer.phone, maybeCaptureIntent]);
+
+  // Immediate flush on actual abandonment — don't make them wait 2s if
+  // they're closing right now
   const requestClose = useCallback(() => {
     if (hasUnsavedCheckoutInput) {
+      maybeCaptureIntent();
       const confirmed = window.confirm(
         "Discard your delivery details and close the cart?",
       );
       if (!confirmed) return;
     }
     resetAndClose();
-  }, [hasUnsavedCheckoutInput, resetAndClose]);
+  }, [hasUnsavedCheckoutInput, resetAndClose, maybeCaptureIntent]);
 
   // Lock background scroll + Escape-to-close while the drawer is open
   useEffect(() => {
@@ -479,7 +516,10 @@ export default function CartDrawer({
                 Send order on WhatsApp
               </Button>
               <button
-                onClick={() => setStep("cart")}
+                onClick={() => {
+                  maybeCaptureIntent();
+                  setStep("cart");
+                }}
                 className="w-full text-xs text-text-muted hover:text-text py-2 transition-colors"
               >
                 ← Back to cart
