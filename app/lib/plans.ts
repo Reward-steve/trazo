@@ -31,12 +31,13 @@ export const PLANS: Record<PlanKey, PlanDefinition> = {
     period: "Forever, no card needed",
     isPro: false,
     cta: "Get Started Free",
-    productLimit: 5,
+    productLimit: 10,
     features: [
-      "Up to 5 products",
+      "Up to 10 products",
       "Public storefront link",
       "Mobile-friendly storefront",
-      "Customers can browse your store",
+      "Customers can place real orders",
+      "Recent order history (last 10)",
       "Share your store anywhere",
     ],
     capabilities: {
@@ -58,9 +59,7 @@ export const PLANS: Record<PlanKey, PlanDefinition> = {
     features: [
       "Everything in Free",
       "Up to 40 products",
-      "Customers can place orders",
-      "Orders land in your WhatsApp",
-      "Order history dashboard",
+      "Full, unlimited order history",
       "No Trazo branding",
       "Basic analytics",
     ],

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { ShoppingBag, Store, Search, ArrowRight, X } from "lucide-react";
 import { Product, ShopSettings, CartItem } from "../../types";
@@ -19,8 +20,27 @@ export default function StorefrontClient({
   products,
   settings,
 }: StorefrontClientProps) {
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const searchParams = useSearchParams();
+
+  // A reload with ?order=<id> in the URL means a customer was mid-payment
+  // when the tab reloaded (e.g. switching to a banking app on a
+  // lower-memory phone). Without this, CartDrawer's own rehydration logic
+  // never runs, because the drawer is never opened for it to run inside.
+  const [drawerOpen, setDrawerOpen] = useState(
+    () => searchParams.get("order") !== null,
+  );
+
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    if (typeof window === "undefined") return [];
+
+    try {
+      const saved = window.sessionStorage.getItem(`trazo-cart:${settings.id}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      // Corrupt or inaccessible storage — just start with an empty cart
+      return [];
+    }
+  });
   const [search, setSearch] = useState("");
   const [cartBump, setCartBump] = useState(false);
 
@@ -28,10 +48,6 @@ export default function StorefrontClient({
   const cartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
   const cartTotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
-  // Only bump when count increases (item added), not on removal.
-  // The ref must update on every render, not just when it doesn't increase —
-  // otherwise it goes stale after the first add and later removals
-  // incorrectly re-trigger the bump.
   useEffect(() => {
     const increased = cartCount > prevCountRef.current;
     prevCountRef.current = cartCount;
@@ -42,6 +58,19 @@ export default function StorefrontClient({
       return () => clearTimeout(t);
     }
   }, [cartCount]);
+
+  // Persist the cart per shop so an accidental reload — or the OS killing
+  // a background tab on a lower-memory phone, common on the devices most
+  // of these customers are on — doesn't wipe out items they already picked.
+  // sessionStorage, not localStorage: clears naturally when the tab
+  // actually closes, so it doesn't linger as stale data on a shared device.
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(`trazo-cart:${settings.id}`, JSON.stringify(cart));
+    } catch {
+      // Best-effort — never let storage failures break the shopping flow
+    }
+  }, [cart, settings.id]);
 
   const handleAddToCart = useCallback((item: CartItem) => {
     setCart((prev) => {
@@ -81,7 +110,6 @@ export default function StorefrontClient({
       {/* ── NAVBAR ── */}
       <nav className="sticky top-0 z-40 bg-surface border-b border-border">
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
-          {/* Shop identity */}
           <div className="flex items-center gap-2.5 min-w-0">
             {settings.logoUrl ? (
               <div className="relative h-8 w-8 rounded-xl overflow-hidden shrink-0 bg-white/10">
@@ -109,7 +137,6 @@ export default function StorefrontClient({
             </div>
           </div>
 
-          {/* Controls */}
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <button
@@ -143,7 +170,6 @@ export default function StorefrontClient({
           </div>
         </div>
 
-        {/* Search — only shown when there are enough products to warrant it */}
         {products.length > 4 && (
           <div className="px-4 pb-3 max-w-4xl mx-auto">
             <div className="relative max-w-sm">
@@ -251,7 +277,6 @@ export default function StorefrontClient({
         </div>
       )}
 
-      {/* CART DRAWER */}
       <CartDrawer
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}

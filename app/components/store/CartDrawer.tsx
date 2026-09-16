@@ -8,7 +8,11 @@ import { formatNaira, generateWhatsAppURL } from "../../lib/utils";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import { cn } from "../../lib/utils";
-import { createOrder, markOrderAsClaimed, getOrderPaymentView } from "../../actions/orderActions";
+import {
+  createOrder,
+  markOrderAsClaimed,
+  getOrderPaymentView,
+} from "../../actions/orderActions";
 import { Landmark, Copy, Check } from "lucide-react";
 import { captureCheckoutIntent } from "../../actions/checkoutIntentActions";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -22,7 +26,23 @@ interface CartDrawerProps {
   settings: ShopSettings;
 }
 
+type PlacedOrder = {
+  id: string;
+  orderRef: string;
+  total: number;
+  items: { name: string; quantity: number; price: number }[];
+  customerName: string;
+  customerPhone: string;
+  customerAddress: string;
+  paymentBankName: string | null;
+  paymentAccountName: string | null;
+  paymentAccountNumber: string | null;
+  paymentInstructions: string | null;
+};
+
 const EMPTY_CUSTOMER: CustomerDetails = { name: "", phone: "", address: "" };
+
+const STEP_INDEX = { cart: 0, checkout: 1, payment: 2 } as const;
 
 export default function CartDrawer({
   isOpen,
@@ -33,15 +53,7 @@ export default function CartDrawer({
   settings,
 }: CartDrawerProps) {
   const [step, setStep] = useState<"cart" | "checkout" | "payment">("cart");
-  
-  const [placedOrder, setPlacedOrder] = useState<{
-    id: string;
-    orderRef: string;
-    paymentBankName: string | null;
-    paymentAccountName: string | null;
-    paymentAccountNumber: string | null;
-    paymentInstructions: string | null;
-  } | null>(null);
+  const [placedOrder, setPlacedOrder] = useState<PlacedOrder | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [copied, setCopied] = useState(false);
   const [customer, setCustomer] = useState<CustomerDetails>(EMPTY_CUSTOMER);
@@ -81,21 +93,30 @@ export default function CartDrawer({
   };
 
   const router = useRouter();
- const searchParams = useSearchParams();
+  const searchParams = useSearchParams();
 
-// Rehydrate on mount/reload if a placed order is referenced in the URL
-useEffect(() => {
-  const orderId = searchParams.get("order");
-  if (!orderId || placedOrder) return;
+  // Rehydrate on mount/reload if a placed order is referenced in the URL.
+  // Everything here comes from the order's own record — never the live
+  // cart — since the cart may be empty or different by the time someone
+  // returns from their banking app.
+  useEffect(() => {
+    const orderId = searchParams.get("order");
+    if (!orderId || placedOrder) return;
 
-  getOrderPaymentView(orderId).then((order) => {
-    if (order) {
-      setPlacedOrder(order);
-      setStep("payment");
-    }
-  });
-}, [searchParams, placedOrder]);
-  
+    getOrderPaymentView(orderId).then((order) => {
+      if (order) {
+        setPlacedOrder({
+          ...order,
+          items: order.items as unknown as {
+            name: string;
+            quantity: number;
+            price: number;
+          }[],
+        });
+        setStep("payment");
+      }
+    });
+  }, [searchParams, placedOrder]);
 
   const resetAndClose = useCallback(() => {
     setStep("cart");
@@ -119,7 +140,7 @@ useEffect(() => {
     if (!name || !/^[0-9]{10,15}$/.test(phone)) return;
 
     const signature = `${name}|${phone}|${total}`;
-    if (signature === lastCapturedRef.current) return; // nothing changed, skip
+    if (signature === lastCapturedRef.current) return;
 
     lastCapturedRef.current = signature;
     captureCheckoutIntent({
@@ -135,8 +156,6 @@ useEffect(() => {
     });
   }, [customer.name, customer.phone, items, total, settings.id]);
 
-  
-  // Debounced trigger: fires 2s after the customer stops typing name/phone
   useEffect(() => {
     if (step !== "checkout") return;
     if (intentTimerRef.current) clearTimeout(intentTimerRef.current);
@@ -146,8 +165,6 @@ useEffect(() => {
     };
   }, [step, customer.name, customer.phone, maybeCaptureIntent]);
 
-  // Immediate flush on actual abandonment — don't make them wait 2s if
-  // they're closing right now
   const requestClose = useCallback(() => {
     if (hasUnsavedCheckoutInput) {
       maybeCaptureIntent();
@@ -159,7 +176,6 @@ useEffect(() => {
     resetAndClose();
   }, [hasUnsavedCheckoutInput, resetAndClose, maybeCaptureIntent]);
 
-  // Lock background scroll + Escape-to-close while the drawer is open
   useEffect(() => {
     if (!isOpen) return;
     const original = document.body.style.overflow;
@@ -176,7 +192,6 @@ useEffect(() => {
     };
   }, [isOpen, requestClose]);
 
-  // Focus the first field when entering checkout
   useEffect(() => {
     if (step === "checkout") nameInputRef.current?.focus();
   }, [step]);
@@ -202,10 +217,16 @@ useEffect(() => {
         total,
       });
 
-      setPlacedOrder(order);
+      setPlacedOrder({
+        ...order,
+        items: order.items as unknown as {
+          name: string;
+          quantity: number;
+          price: number;
+        }[],
+      });
       setStep("payment");
       router.replace(`?order=${order.id}`, { scroll: false });
-      
     } catch (err) {
       console.error("Order creation failed:", err);
       setOrderError("Couldn't place your order. Please try again.");
@@ -216,33 +237,41 @@ useEffect(() => {
 
   const hasPaymentDetails = !!placedOrder?.paymentAccountNumber;
 
+  const buildWhatsAppUrl = () => {
+    if (!placedOrder) return "";
+    return generateWhatsAppURL(
+      settings.whatsappNumber,
+      settings.shopName,
+      placedOrder.id,
+      placedOrder.orderRef,
+      placedOrder.items,
+      {
+        name: placedOrder.customerName,
+        phone: placedOrder.customerPhone,
+        address: placedOrder.customerAddress,
+      },
+      placedOrder.total,
+      hasPaymentDetails ? "claimed" : "no_details",
+    );
+  };
+
   const handleContinueToWhatsApp = async () => {
-  if (!placedOrder) return;
-  setConfirming(true);
+    if (!placedOrder) return;
+    setConfirming(true);
 
-  if (hasPaymentDetails) {
-    try {
-      await markOrderAsClaimed(placedOrder.id);
-    } catch (err) {
-      console.error("Failed to mark order as claimed:", err);
+    if (hasPaymentDetails) {
+      try {
+        await markOrderAsClaimed(placedOrder.id);
+      } catch (err) {
+        console.error("Failed to mark order as claimed:", err);
+      }
     }
-  }
 
-  const url = generateWhatsAppURL(
-    settings.whatsappNumber,
-    settings.shopName,
-    placedOrder.id,
-    placedOrder.orderRef,
-    items.map((i) => ({ name: i.name, quantity: i.quantity, price: i.price })),
-    customer,
-    total,
-    hasPaymentDetails ? "claimed" : "no_details",
-  );
+    const url = buildWhatsAppUrl();
+    setTimeout(() => setShowFallback(true), 2500);
+    window.location.assign(url);
+  };
 
-  setTimeout(() => setShowFallback(true), 2500);
-  window.location.assign(url);
-};
-  
   const copyAccountNumber = () => {
     if (!placedOrder?.paymentAccountNumber) return;
     navigator.clipboard.writeText(placedOrder.paymentAccountNumber);
@@ -288,16 +317,20 @@ useEffect(() => {
           </button>
         </div>
 
-        {/* Progress indicator */}
+        {/* Progress indicator — 3 segments, reflects payment step too */}
         {items.length > 0 && (
           <div className="flex gap-1 px-4 pt-3">
-            <div className="h-1 flex-1 rounded-full bg-primary" />
-            <div
-              className={cn(
-                "h-1 flex-1 rounded-full transition-colors duration-300",
-                step === "checkout" ? "bg-primary" : "bg-border",
-              )}
-            />
+            {(["cart", "checkout", "payment"] as const).map((s) => (
+              <div
+                key={s}
+                className={cn(
+                  "h-1 flex-1 rounded-full transition-colors duration-300",
+                  STEP_INDEX[step] >= STEP_INDEX[s]
+                    ? "bg-primary"
+                    : "bg-border",
+                )}
+              />
+            ))}
           </div>
         )}
 
@@ -555,9 +588,33 @@ useEffect(() => {
                   <Landmark className="h-5 w-5 text-primary-dark" />
                 </div>
                 <p className="text-sm font-bold text-text">Order placed</p>
+                {/* Order reference — gives the customer a concrete thing to
+                    point to if there's ever a dispute, the same way a real
+                    receipt number would. Matches the #ref shown in the
+                    vendor's WhatsApp message, so both sides can refer to
+                    the same order unambiguously. */}
                 <p className="text-[11px] text-text-muted mt-1">
-                  Complete payment, then let the vendor know
+                  Order #{placedOrder.orderRef}
                 </p>
+              </div>
+
+              {/* What they're actually paying for — pulled from the order
+                  snapshot, not the live cart, so it's correct even after
+                  a reload or a cart change elsewhere. */}
+              <div className="bg-surface-alt border border-border rounded-2xl p-3 space-y-1.5">
+                {placedOrder.items.map((item, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between text-xs text-text"
+                  >
+                    <span className="truncate pr-2">
+                      {item.quantity}× {item.name}
+                    </span>
+                    <span className="shrink-0 text-text-muted">
+                      {formatNaira(item.price * item.quantity)}
+                    </span>
+                  </div>
+                ))}
               </div>
 
               {placedOrder.paymentAccountNumber ? (
@@ -565,7 +622,7 @@ useEffect(() => {
                   <div className="flex justify-between items-baseline pb-2 border-b border-border">
                     <span className="text-xs text-text-muted">Total</span>
                     <span className="text-lg font-black text-text">
-                      {formatNaira(total)}
+                      {formatNaira(placedOrder.total)}
                     </span>
                   </div>
 
@@ -622,26 +679,20 @@ useEffect(() => {
 
             <div className="px-4 py-4 border-t border-border space-y-2">
               <Button onClick={handleContinueToWhatsApp} loading={confirming}>
-  <Send className="h-4 w-4" />
-  {hasPaymentDetails ? "I've made the transfer" : "Send order on WhatsApp"}
-</Button>
+                <Send className="h-4 w-4" />
+                {hasPaymentDetails
+                  ? "I've made the transfer"
+                  : "Send order on WhatsApp"}
+              </Button>
 
               {showFallback && (
                 <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-3 py-2.5 text-center">
                   <p className="text-[11px] text-text-muted mb-1.5">
-                    WhatsApp didn&apos;t open? Your order is already saved.
+                    WhatsApp didn&apos;t open? Your order is already saved —
+                    reference #{placedOrder.orderRef}.
                   </p>
                   <a
-                    href={generateWhatsAppURL(
-  settings.whatsappNumber,
-  settings.shopName,
-  placedOrder.id,
-  placedOrder.orderRef,
-  items.map((i) => ({ name: i.name, quantity: i.quantity, price: i.price })),
-  customer,
-  total,
-  hasPaymentDetails ? "claimed" : "no_details",
-)}
+                    href={buildWhatsAppUrl()}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[11px] font-semibold text-primary-dark underline"

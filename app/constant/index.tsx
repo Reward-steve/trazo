@@ -141,57 +141,6 @@ export const features = [
   },
 ];
 
-// ── PRICING ──────────────────────────────────────────────────────────────────
-
-export const pricingTiers = [
-  {
-    name: "Free",
-    price: "₦0",
-    period: "Forever, no card needed",
-    isPro: false,
-    cta: "Get Started Free",
-    features: [
-      "✔ Unlimited products",
-      "✔ Public storefront link",
-      "✔ Mobile-friendly storefront",
-      "✔ Customers can browse your store",
-      "✔ Share your store anywhere",
-      "✔ Customer ordering unavailable",
-    ],
-  },
-  {
-    name: "Growth",
-    price: "₦1,500",
-    period: "per month",
-    isPro: true,
-    cta: "Upgrade to Growth",
-    features: [
-      "✔ Everything in Free",
-      "✔ Customers can place orders",
-      "✔ WhatsApp order delivery",
-      "✔ Order history",
-      "✔ Remove Trazo branding",
-      "✔ Basic analytics",
-    ],
-  },
-  {
-    name: "Pro",
-    price: "₦3,500",
-    period: "per month",
-    isPro: true,
-    cta: "Go Pro",
-    features: [
-      "✔ Everything in Growth",
-      "✔ Advanced analytics",
-      "✔ Sales insights",
-      "✔ Best-selling products",
-      "✔ Customer insights",
-      "✔ Priority support",
-    ],
-  },
-];
- 
-
 // ── DEMO PRODUCTS ─────────────────────────────────────────────────────────────
 
 export const demoProducts = [
@@ -199,8 +148,6 @@ export const demoProducts = [
   { emoji: "👜", name: "Leather Bag", price: 8000 },
   { emoji: "👠", name: "Block Heels", price: 6200 },
 ];
-
- 
 
 const COUNTRY_CODES = [
   { code: "+234", flag: "🇳🇬", name: "Nigeria" },
