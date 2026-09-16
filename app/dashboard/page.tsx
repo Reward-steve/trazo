@@ -10,9 +10,13 @@ import {
   Lightbulb,
   Settings,
   Clock,
+  ShoppingBag,
+  Bell,
 } from "lucide-react";
 import { getGreeting } from "../lib/utils";
 import { getShopByUser } from "../actions/settings";
+import { getOrders } from "../actions/orderActions";
+import { getAbandonedCheckouts } from "../actions/checkoutIntentActions";
 import CopyLinkButton from "../components/dashboard/CopyLinkButton";
 import { ThemeToggle } from "../components/ui/ThemeProvider";
 import { currentUser } from "@clerk/nextjs/server";
@@ -28,7 +32,7 @@ export default async function DashboardPage({
 
   const shop = await getShopByUser();
   if (!shop) redirect("/onboarding");
-  // ...
+
   const user = await currentUser();
   const firstName = user?.firstName ?? "there";
 
@@ -39,11 +43,21 @@ export default async function DashboardPage({
   const availableProducts = shop.products.filter((p) => p.available).length;
   const outOfStock = totalProducts - availableProducts;
 
+  // Real business pulse — not just catalog state
+  const orders = await getOrders();
+  const abandonedCheckouts = await getAbandonedCheckouts();
+  const pendingConfirmation = orders.filter(
+    (o) => o.status === "customer_claims_paid",
+  ).length;
+  const needsAttentionCount = pendingConfirmation + abandonedCheckouts.length;
+
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+  const ordersThisWeek = orders.filter((o) => o.createdAt >= oneWeekAgo).length;
+
   const appUrl = "https://trazo-omega.vercel.app";
   const storefrontUrl = `${appUrl}/store/${shop.slug}`;
 
-  // Same background across all three — icons carry the differentiation
-  // via distinct colors instead of a "highlight" treatment.
   const stats = [
     {
       label: "Total products",
@@ -100,6 +114,13 @@ export default async function DashboardPage({
 
   const quickActions = [
     {
+      href: "/dashboard/orders",
+      icon: ShoppingBag,
+      title: "View orders",
+      desc: "Confirm payments and follow up leads",
+      external: false,
+    },
+    {
       href: `/store/${shop.slug}`,
       icon: ExternalLink,
       title: "View my storefront",
@@ -150,15 +171,48 @@ export default async function DashboardPage({
         <p className="text-white/80 text-xs mt-1">
           {isNewUser
             ? `${shop.shopName} is live — add a few products and share your link to start getting orders.`
-            : `${shop.shopName} has ${availableProducts} product${
-                availableProducts === 1 ? "" : "s"
-              } live right now.`}
+            : ordersThisWeek > 0
+              ? `${ordersThisWeek} order${ordersThisWeek === 1 ? "" : "s"} this week.`
+              : `${shop.shopName} has ${availableProducts} product${
+                  availableProducts === 1 ? "" : "s"
+                } live right now.`}
         </p>
 
         <div className="flex items-center gap-2 mt-3">
           <CopyLinkButton url={storefrontUrl} />
         </div>
       </div>
+
+      {/* ── NEEDS ATTENTION — money on the table, surfaced first ── */}
+      {needsAttentionCount > 0 && (
+        <Link
+          href="/dashboard/orders"
+          className="block bg-primary/10 border border-primary/30 rounded-2xl p-4"
+        >
+          <div className="flex items-start gap-3">
+            <div className="h-8 w-8 bg-primary/20 rounded-xl flex items-center justify-center shrink-0">
+              <Bell className="h-4 w-4 text-primary-dark" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-text">
+                {needsAttentionCount} thing
+                {needsAttentionCount === 1 ? "" : "s"} need
+                {needsAttentionCount === 1 ? "s" : ""} your attention
+              </p>
+              <p className="text-[11px] text-text-muted mt-0.5">
+                {pendingConfirmation > 0 &&
+                  `${pendingConfirmation} order${pendingConfirmation === 1 ? "" : "s"} awaiting payment confirmation`}
+                {pendingConfirmation > 0 &&
+                  abandonedCheckouts.length > 0 &&
+                  " · "}
+                {abandonedCheckouts.length > 0 &&
+                  `${abandonedCheckouts.length} interested customer${abandonedCheckouts.length === 1 ? "" : "s"} to follow up`}
+              </p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-primary-dark shrink-0 mt-1" />
+          </div>
+        </Link>
+      )}
 
       {!shop.accountNumber && (
         <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-start gap-3">
@@ -200,7 +254,8 @@ export default async function DashboardPage({
         </Link>
       </div>
 
-      {/* Stats — locked 3-col grid, never wraps/stacks on mobile */}
+      {/* Stats, setup checklist, quick actions, empty state — all unchanged below this point */}
+
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {stats.map(({ label, value, icon: Icon, iconColor, iconBg }) => (
           <div

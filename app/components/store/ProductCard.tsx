@@ -35,10 +35,11 @@ export default function ProductCard({
   const isOutOfStock =
     !product.available || (isTracked && (product.stock ?? 0) === 0);
   const isMaxedInCart = isTracked && stockLeft <= 0;
-  const isLowStock =
-    isTracked && (product.stock ?? 0) > 0 && (product.stock ?? 0) <= 5;
+  // Based on what's actually still purchasable, not the raw catalog
+  // number — a customer who already has some in their cart shouldn't
+  // see a stock count that doesn't reflect their own cart.
+  const isLowStock = isTracked && stockLeft > 0 && stockLeft <= 5;
 
-  // Lock background scroll while the modal is open — matters most on mobile
   useEffect(() => {
     if (!isModalOpen) return;
     const original = document.body.style.overflow;
@@ -73,7 +74,6 @@ export default function ProductCard({
   const handleAddFromModal = () => {
     if (isOutOfStock || isMaxedInCart) return;
     handleAdd();
-    // Delay close so "Added ✓" feedback is visible before the modal disappears
     setTimeout(() => setIsModalOpen(false), 800);
   };
 
@@ -99,7 +99,6 @@ export default function ProductCard({
             : "hover:border-primary/30 hover:shadow-lg hover:-translate-y-0.5"
         }`}
       >
-        {/* Image */}
         <div className="relative aspect-square bg-surface-alt overflow-hidden">
           {!imgLoaded && (
             <div className="absolute inset-0 animate-pulse bg-surface-alt" />
@@ -115,7 +114,6 @@ export default function ProductCard({
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
 
-          {/* Quick view hint — shown for in-stock (on hover) and out-of-stock (always, since it's still tappable) */}
           {isOutOfStock ? (
             <div className="absolute bottom-2 left-2 z-10">
               <span className="bg-surface/90 backdrop-blur-md text-text-muted text-[10px] font-medium px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1">
@@ -130,24 +128,21 @@ export default function ProductCard({
             </div>
           )}
 
-          {/* Out of stock overlay */}
           {isOutOfStock && (
             <div className="absolute inset-0 bg-surface/70 flex items-center justify-center z-10">
               <Badge variant="error">Out of Stock</Badge>
             </div>
           )}
 
-          {/* Low stock badge */}
           {!isOutOfStock && isLowStock && (
             <div className="absolute top-2 left-2 z-10">
               <span className="flex items-center gap-1 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
                 <AlertTriangle className="h-2.5 w-2.5" />
-                Only {product.stock} left
+                Only {stockLeft} left
               </span>
             </div>
           )}
 
-          {/* Maxed in cart */}
           {!isOutOfStock && isMaxedInCart && (
             <div className="absolute inset-0 bg-surface/60 backdrop-blur-sm flex items-center justify-center z-10">
               <span className="bg-surface text-text text-xs font-bold px-3 py-1.5 rounded-full border border-border shadow-sm">
@@ -157,7 +152,6 @@ export default function ProductCard({
           )}
         </div>
 
-        {/* Info */}
         <div className="p-3 sm:p-4 flex flex-col flex-1 gap-2.5">
           <h3
             className={`text-sm font-semibold line-clamp-2 leading-snug flex-1 transition-colors ${
@@ -188,7 +182,7 @@ export default function ProductCard({
           <div className="flex items-center justify-between gap-2">
             {isTracked && !isOutOfStock && !isLowStock ? (
               <p className="text-[10px] text-text-muted">
-                {product.stock} in stock
+                {stockLeft} in stock
               </p>
             ) : (
               <span />
@@ -238,7 +232,6 @@ export default function ProductCard({
             className="bg-surface rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-border flex flex-col md:flex-row relative max-h-[90vh] animate-scale-up"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close */}
             <button
               onClick={() => setIsModalOpen(false)}
               aria-label="Close"
@@ -247,7 +240,6 @@ export default function ProductCard({
               <X className="h-4 w-4" />
             </button>
 
-            {/* Image */}
             <div className="relative w-full md:w-1/2 aspect-square bg-surface-alt shrink-0">
               <Image
                 src={product.imageUrl}
@@ -265,13 +257,12 @@ export default function ProductCard({
                 <div className="absolute top-3 left-3">
                   <span className="flex items-center gap-1 bg-amber-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
                     <AlertTriangle className="h-3 w-3" />
-                    Only {product.stock} left
+                    Only {stockLeft} left
                   </span>
                 </div>
               )}
             </div>
 
-            {/* Body */}
             <div className="p-6 flex flex-col justify-between flex-1 gap-5 overflow-y-auto">
               <div className="space-y-3">
                 <h2
@@ -297,15 +288,15 @@ export default function ProductCard({
                   <div className="flex items-start gap-2 bg-primary/5 border border-primary/15 rounded-xl px-3 py-2.5">
                     <Handshake className="h-4 w-4 text-primary-dark shrink-0 mt-0.5" />
                     <p className="text-xs text-text-muted leading-relaxed">
-                      This price is open to discussion. Message the seller after
-                      ordering to talk price.
+                      Price is flexible. Adding to cart doesn&apos;t lock this
+                      price in — message the vendor on WhatsApp to talk numbers
+                      before you pay anything.
                     </p>
                   </div>
                 )}
 
                 <hr className="border-border" />
 
-                {/* Stock status */}
                 <div className="flex flex-wrap gap-2 items-center text-xs">
                   {isOutOfStock ? (
                     <span className="bg-red-500/10 text-red-600 border border-red-500/20 px-2.5 py-1 rounded-lg font-semibold">
@@ -318,11 +309,11 @@ export default function ProductCard({
                   ) : isLowStock ? (
                     <span className="flex items-center gap-1 bg-amber-500/10 text-amber-600 border border-amber-500/20 px-2.5 py-1 rounded-lg font-semibold">
                       <AlertTriangle className="h-3.5 w-3.5" />
-                      Only {product.stock} left
+                      Only {stockLeft} left
                     </span>
                   ) : isTracked ? (
                     <span className="text-text-muted bg-surface-alt border border-border px-2.5 py-1 rounded-lg">
-                      {product.stock} available
+                      {stockLeft} available
                     </span>
                   ) : (
                     <span className="text-primary bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-lg font-semibold">
@@ -332,7 +323,6 @@ export default function ProductCard({
                 </div>
               </div>
 
-              {/* CTA */}
               {isOutOfStock ? (
                 <Button
                   disabled
