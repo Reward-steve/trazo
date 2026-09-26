@@ -25,7 +25,7 @@ export default function CopyLinkButton({ url }: { url: string }) {
       ) : (
         <>
           <Copy className="h-3.5 w-3.5" />
-          Copy Store Link
+          Copy & Store Link
         </>
       )}
     </button>
