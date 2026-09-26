@@ -180,9 +180,6 @@ export default async function DashboardPage({
 
         <div className="flex items-center gap-2 mt-3">
           <CopyLinkButton url={storefrontUrl} />
-          <p className="text-xs text-muted-foreground">
-  Share this link with your customers on WhatsApp
-</p>
         </div>
       </div>
 
