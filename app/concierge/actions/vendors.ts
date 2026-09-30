@@ -1,8 +1,9 @@
 "use server";
 
 import { randomUUID } from "crypto";
-import { requireConcierge } from "../../lib/concierge";
+import { revalidatePath } from "next/cache";
 import { db } from "../../lib/db";
+import { requireConcierge } from "../../lib/concierge";
 
 export type ConciergeProductInput = {
   name: string;
@@ -17,6 +18,7 @@ export type CreateVendorInput = {
   shopName: string;
   slug: string;
   whatsappNumber: string;
+  vendorEmail?: string;
   description: string;
   logoUrl: string;
   products: ConciergeProductInput[];
@@ -30,6 +32,9 @@ export type CreateVendorResult = {
 };
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const fail = (error: string): CreateVendorResult => ({ ok: false, error });
 
 function normalizeWhatsapp(raw: string): string {
   const digits = raw.replace(/\D/g, "");
@@ -46,15 +51,16 @@ export async function createVendorShop(
   const shopName = input.shopName.trim();
   const slug = input.slug.trim().toLowerCase();
   const whatsappNumber = normalizeWhatsapp(input.whatsappNumber);
+  const vendorEmail = (input.vendorEmail ?? "").trim().toLowerCase();
 
-  if (!shopName) return { ok: false, error: "Shop name is required." };
+  if (!shopName) return fail("Shop name is required.");
   if (!SLUG_RE.test(slug))
-    return {
-      ok: false,
-      error: "Slug can only use lowercase letters, numbers and single hyphens.",
-    };
-  if (whatsappNumber.length < 10)
-    return { ok: false, error: "Enter a valid WhatsApp number." };
+    return fail(
+      "Slug can only use lowercase letters, numbers and single hyphens.",
+    );
+  if (whatsappNumber.length < 10) return fail("Enter a valid WhatsApp number.");
+  if (vendorEmail && !EMAIL_RE.test(vendorEmail))
+    return fail("Enter a valid vendor email.");
 
   const products = input.products
     .filter((p) => p.name.trim())
@@ -64,26 +70,30 @@ export async function createVendorShop(
       imageUrl: p.imageUrl || "",
       available: p.available,
       stock:
-        p.stock === null || Number.isNaN(p.stock)
+        p.stock == null || !Number.isFinite(p.stock)
           ? null
           : Math.max(0, Math.round(p.stock)),
       negotiable: p.negotiable,
     }));
 
+  if (products.length === 0) return fail("Add at least one product.");
   if (products.some((p) => !Number.isFinite(p.price) || p.price < 0)) {
-    return { ok: false, error: "Every product needs a valid price." };
+    return fail("Every product needs a valid price.");
   }
 
-  // Temporary owner: a placeholder User the vendor can claim later.
-  // No Clerk account, no password, no real email.
+  // Placeholder owner. The vendor's email (if given) is embedded so the shop
+  // can be auto-claimed when they sign up. No password, no Clerk account.
   const ownerId = `concierge_${randomUUID()}`;
+  const placeholderEmail = vendorEmail
+    ? `${ownerId}__${vendorEmail}`
+    : `${ownerId}@concierge.trazo.invalid`;
 
   try {
-    // One nested create = one atomic write: User + Shop + Products, or nothing.
+    // Single nested create: User + Shop + Products are saved together or not at all.
     await db.user.create({
       data: {
         id: ownerId,
-        email: `${ownerId}@concierge.trazo.invalid`,
+        email: placeholderEmail,
         shop: {
           create: {
             shopName,
@@ -103,14 +113,13 @@ export async function createVendorShop(
       "code" in e &&
       (e as { code: string }).code === "P2002"
     ) {
-      return { ok: false, error: "That slug is already taken. Try another." };
+      return fail("That slug is already taken. Try another.");
     }
     console.error("createVendorShop failed", e);
-    return {
-      ok: false,
-      error: "Could not create the shop. Nothing was saved.",
-    };
+    return fail("Could not create the shop. Nothing was saved.");
   }
+
+  revalidatePath("/concierge");
 
   const base =
     process.env.NEXT_PUBLIC_APP_URL || "https://trazo-omega.vercel.app";
