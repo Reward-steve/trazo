@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { isConcierge } from "../../../lib/concierge";
-import VendorForm from "./vendor-form";
+import VendorForm from "../../components/vendor-form";
 
 export default async function NewVendorPage() {
   if (!(await isConcierge())) notFound();

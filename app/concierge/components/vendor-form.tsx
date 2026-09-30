@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import {
   createVendorShop,
   type ConciergeProductInput,
-} from "../../_actions/vendors";
+} from "../actions/vendors";
 
 type DraftProduct = {
   name: string;

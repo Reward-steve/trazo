@@ -22,9 +22,12 @@ export type CreateVendorInput = {
   products: ConciergeProductInput[];
 };
 
-export type CreateVendorResult =
-  | { ok: true; slug: string; url: string }
-  | { ok: false; error: string };
+export type CreateVendorResult = {
+  ok: boolean;
+  slug?: string;
+  url?: string;
+  error?: string;
+};
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
