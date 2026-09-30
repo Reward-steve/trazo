@@ -21,6 +21,7 @@ import CopyLinkButton from "../components/dashboard/CopyLinkButton";
 import { ThemeToggle } from "../components/ui/ThemeProvider";
 import { currentUser } from "@clerk/nextjs/server";
 import SprayEffect from "../components/ui/SprayEffect";
+import ConciergeLink from "../concierge/components/ConciergeLink";
 
 export default async function DashboardPage({
   searchParams,
@@ -154,7 +155,10 @@ export default async function DashboardPage({
           </h1>
           <p className="text-text-muted text-xs mt-0.5">Dashboard</p>
         </div>
-        <ThemeToggle />
+        <div className="flex items-center gap-3">
+          <ConciergeLink />
+          <ThemeToggle />
+        </div>
       </div>
 
       <div
