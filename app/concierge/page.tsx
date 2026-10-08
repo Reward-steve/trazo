@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 import { ExternalLink, Plus } from "lucide-react";
 import { db } from "../lib/db";
 import { isConcierge } from "../lib/concierge";
+import DeleteButton from "./components/DeleteButton";
 import ClaimForm from "./components/ClaimForm";
+
 
 export default async function ConciergePage() {
   if (!(await isConcierge())) notFound();
@@ -52,16 +54,21 @@ export default async function ConciergePage() {
               key={s.id}
               className="rounded-2xl border border-border bg-surface p-4"
             >
-              <p className="text-sm font-bold text-text">{s.shopName}</p>
-              <a
-                href={`/store/${s.slug}`}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-text-muted hover:text-text"
-              >
-                /store/{s.slug}
-                <ExternalLink className="h-3 w-3" />
-              </a>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-text">{s.shopName}</p>
+                  <a
+                    href={`/store/${s.slug}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-text-muted hover:text-text"
+                  >
+                    /store/{s.slug}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+                <DeleteButton slug={s.slug} />
+              </div>
               <ClaimForm slug={s.slug} />
             </div>
           ))
